@@ -1,0 +1,19 @@
+{
+  "short_name": "2good2breal",
+  "name": "2good2breal - Dating Profile Verification",
+  "description": "Service professionnel de vérification de profils de rencontre. Protégez-vous des arnaques sentimentales.",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#a553be",
+  "background_color": "#18181b",
+  "lang": "fr",
+  "categories": ["security", "lifestyle", "social"]
+}
