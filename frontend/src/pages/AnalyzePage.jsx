@@ -363,12 +363,60 @@ export const AnalyzePage = () => {
                     <span className="text-zinc-400">{isFr ? 'Plateforme' : 'Platform'}:</span>
                     <span className="text-white">{submissionData.formData.dating_platform || '-'}</span>
                   </div>
+                  {submissionData.formData.profile_age && (
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">{isFr ? 'Âge du profil' : 'Profile Age'}:</span>
+                      <span className="text-white">{submissionData.formData.profile_age}</span>
+                    </div>
+                  )}
+                  {submissionData.formData.profile_location && (
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">{isFr ? 'Localisation' : 'Location'}:</span>
+                      <span className="text-white">{submissionData.formData.profile_location}</span>
+                    </div>
+                  )}
+                  {submissionData.formData.profile_occupation && (
+                    <div className="flex justify-between">
+                      <span className="text-zinc-400">{isFr ? 'Profession' : 'Occupation'}:</span>
+                      <span className="text-white">{submissionData.formData.profile_occupation}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-zinc-400">{isFr ? 'Photos jointes' : 'Attached Photos'}:</span>
                     <span className="text-white">{submissionData.photosCount}</span>
                   </div>
                 </div>
               </div>
+
+              {/* Profile Bio */}
+              {submissionData.formData.profile_bio && (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-purple-400" />
+                    {isFr ? 'Bio du Profil' : 'Profile Bio'}
+                  </h3>
+                  <div className="bg-zinc-800/50 rounded-lg p-4">
+                    <p className="text-zinc-300 whitespace-pre-wrap break-words">
+                      {submissionData.formData.profile_bio}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Message Substance */}
+              {submissionData.formData.message_substance && (
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-blue-400" />
+                    {isFr ? 'Substance des Messages' : 'Message Substance'}
+                  </h3>
+                  <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                    <p className="text-zinc-300 whitespace-pre-wrap break-words">
+                      {submissionData.formData.message_substance}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Additional Details */}
               {submissionData.formData.observations_concerns && (
