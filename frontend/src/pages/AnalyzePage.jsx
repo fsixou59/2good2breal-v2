@@ -261,29 +261,45 @@ export const AnalyzePage = () => {
           {/* Print Styles */}
           <style>{`
             @media print {
-              body { background: white !important; }
+              * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+              body { background: white !important; margin: 0; padding: 20px; }
               .no-print { display: none !important; }
+              nav, header, footer { display: none !important; }
               .print-section { 
                 background: white !important; 
                 color: black !important;
-                border: none !important;
+                border: 1px solid #ccc !important;
                 box-shadow: none !important;
+                margin: 0 !important;
+                padding: 20px !important;
               }
               .print-section * { color: black !important; }
-              .print-header { border-bottom: 2px solid #a553be !important; }
+              .print-section h1, .print-section h2, .print-section h3 { color: #a553be !important; }
+              .print-header { 
+                border-bottom: 2px solid #a553be !important; 
+                background: #f3e8ff !important;
+              }
+              .bg-zinc-800\\/50, .bg-zinc-800\\/30, .bg-zinc-900\\/50 {
+                background: #f5f5f5 !important;
+              }
+              .text-purple-400 { color: #a553be !important; }
+              .text-zinc-400, .text-zinc-500 { color: #666 !important; }
+              .text-white, .text-zinc-300 { color: black !important; }
             }
           `}</style>
 
           {/* Action Buttons - No Print */}
           <div className="no-print mb-6 flex justify-center gap-4">
             <Button 
-              onClick={handlePrint}
-              className="bg-purple-600 hover:bg-purple-500"
+              type="button"
+              onClick={() => { window.print(); }}
+              className="bg-purple-600 hover:bg-purple-500 text-white"
             >
               <Printer className="w-4 h-4 mr-2" />
               {isFr ? 'Imprimer / Sauvegarder PDF' : 'Print / Save as PDF'}
             </Button>
             <Button 
+              type="button"
               onClick={() => navigate('/')}
               variant="outline"
               className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
