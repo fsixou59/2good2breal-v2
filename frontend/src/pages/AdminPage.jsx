@@ -34,16 +34,32 @@ function FormDataDisplay(props) {
   
   const entries = Object.entries(formData).filter(function(entry) { return entry[1]; });
   
+  // Fields that need larger display
+  const largeFields = ['observations_concerns', 'message_substance', 'profile_bio', 'additional_notes'];
+  
   return (
-    <div className="bg-zinc-800/30 rounded-lg p-4 space-y-2">
+    <div className="bg-zinc-800/30 rounded-lg p-4 space-y-3">
       {entries.map(function(entry) {
         const key = entry[0];
         const value = entry[1];
         const displayValue = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value);
+        const isLargeField = largeFields.includes(key);
+        
+        if (isLargeField && displayValue.length > 50) {
+          return (
+            <div key={key} className="border-b border-zinc-700 pb-3">
+              <span className="text-zinc-400 capitalize text-sm font-medium block mb-2">{key.replace(/_/g, ' ')}:</span>
+              <div className="text-white text-sm bg-zinc-900/50 rounded-lg p-3 whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
+                {displayValue}
+              </div>
+            </div>
+          );
+        }
+        
         return (
-          <div key={key} className="flex justify-between text-sm">
+          <div key={key} className="flex flex-col sm:flex-row sm:justify-between text-sm gap-1">
             <span className="text-zinc-400 capitalize">{key.replace(/_/g, ' ')}:</span>
-            <span className="text-white text-right max-w-xs truncate">{displayValue}</span>
+            <span className="text-white sm:text-right break-words sm:max-w-md">{displayValue}</span>
           </div>
         );
       })}

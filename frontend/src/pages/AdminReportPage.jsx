@@ -181,7 +181,13 @@ export function AdminReportPage() {
             {formData.observations_concerns ? (
               <div style={{marginTop: '20px', paddingTop: '15px', borderTop: '1px solid #eee'}}>
                 <p style={{fontWeight: 'bold', color: '#d97706', marginBottom: '8px'}}>Client Observations and Concerns:</p>
-                <div className="pr-box" style={{background: '#fffbeb', border: '1px solid #fcd34d'}}>{formData.observations_concerns}</div>
+                <div className="pr-box" style={{background: '#fffbeb', border: '1px solid #fcd34d', minHeight: '80px', maxHeight: '300px', overflowY: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word'}}>{formData.observations_concerns}</div>
+              </div>
+            ) : null}
+            {formData.message_substance ? (
+              <div style={{marginTop: '15px'}}>
+                <p style={{fontWeight: 'bold', color: '#6366f1', marginBottom: '8px'}}>Message Substance:</p>
+                <div className="pr-box" style={{background: '#eef2ff', border: '1px solid #a5b4fc', minHeight: '80px', maxHeight: '300px', overflowY: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word'}}>{formData.message_substance}</div>
               </div>
             ) : null}
           </div>
