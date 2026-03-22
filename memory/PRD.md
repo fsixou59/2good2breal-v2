@@ -1,0 +1,112 @@
+# 2good2breal - Product Requirements Document
+
+## Project Overview
+**Name:** 2good2breal  
+**Type:** Dating Profile Verification Service  
+**Stack:** React Frontend + FastAPI Backend + MongoDB  
+**Last Updated:** March 12, 2026
+
+## Original Problem Statement
+A verification service website for dating profiles where users submit profiles for manual verification by an admin team. Features AI analysis (for admin eyes only) and comprehensive admin-side reporting tool to generate and send detailed manual analysis reports to clients.
+
+## Core Features
+
+### User Features
+- Email/password authentication
+- Profile submission for verification
+- Credit-based payment system (Stripe)
+- Bilingual support (English/French)
+- Refund request form
+
+### Admin Features
+- Separate admin login (credentials from environment variables)
+- Dashboard to view all submissions with AI scores
+- Multi-page printable manual report creation
+- Email reports to clients
+
+### Integrations
+- **Resend:** Email notifications
+- **Stripe:** Payment processing
+- **Gemini 3 Flash:** AI analysis (Emergent LLM Key)
+
+## Completed Work (March 12, 2026)
+
+### Deployment Fixes
+- Improved MongoDB connection with Atlas-compatible settings
+- Added retry logic and better timeout configurations
+- Added startup event for database connection verification
+- Multiple health check endpoints (`/`, `/health`, `/api/`, `/api/health`)
+
+### Landing Page Updates
+- Phone numbers now clickable with `tel:` links
+- Added physical address: "2good2breal, 75008 Paris, France"
+- Contact section fully formatted with WhatsApp and Office Line
+
+### Previous Session Work (March 7-11, 2026)
+- Admin Report finalization with extensive text/styling changes
+- Refund system implementation (form, API, email notifications)
+- SEO implementation (meta tags, JSON-LD, sitemap.xml, robots.txt)
+- Purple branding overhaul with new logo
+- FAQ page created
+- Legal pages updated (CGV, Terms, Cookies)
+- Security fix: Admin credentials moved to environment variables
+
+## File Structure
+```
+/app/
+├── backend/
+│   ├── server.py          # Main FastAPI backend (monolithic - needs refactoring)
+│   └── .env               # Environment variables
+└── frontend/
+    ├── public/
+    │   ├── logo.png       # Purple logo
+    │   ├── sitemap.xml    # SEO sitemap
+    │   ├── robots.txt     # SEO robots
+    │   └── manifest.json  # PWA manifest
+    └── src/
+        ├── components/
+        │   ├── Navbar.jsx
+        │   └── CookieConsent.jsx  # (Unstable - needs rebuild)
+        └── pages/
+            ├── AdminPage.jsx
+            ├── AdminReportPage.jsx
+            ├── AnalyzePage.jsx
+            ├── AuthPages.jsx
+            ├── CGVPage.jsx
+            ├── CookiesPage.jsx
+            ├── DashboardPage.jsx
+            ├── FAQPage.jsx
+            ├── LandingPage.jsx
+            ├── PricingPage.jsx
+            ├── RefundRequestPage.jsx
+            ├── ResultsPage.jsx    # (Obsolete - to be deleted)
+            └── TermsPage.jsx
+```
+
+## Database Schema
+- **users:** {email, password, username, created_at, credits}
+- **analyses:** {user_id, status, submission_date, form_data, ai_analysis, admin_report}
+- **refund_requests:** {username, email, order_ref, iban, reason, submission_date}
+
+## Deployment Status
+✅ **DEPLOYMENT READY**
+- MongoDB connection improved with Atlas-compatible settings
+- Multiple health check endpoints for Kubernetes probes
+- Startup event for connection verification
+- All environment variables properly configured
+
+## Known Issues
+- Cookie consent banner has been unstable (multiple runtime errors) - needs stable rebuild
+- Frontend compilation fragility with babel-metadata-plugin on large JSX files
+
+## Backlog / Future Tasks
+- **P1:** Rebuild cookie consent banner with stable implementation
+- **P1:** End-to-end test of all major flows
+- **P2:** Enhance DashboardPage.jsx with submission history
+- **P2:** Refactor backend/server.py into modular structure (routers for auth, analysis, admin, refund)
+- **P3:** Remove obsolete ResultsPage.jsx
+- **P3:** Implement FiltersPage.jsx functionality
+
+## Credentials
+- **Admin:** Login via "Admin Access" button - credentials in backend/.env
+- **Test User:** Register new user and purchase credits
