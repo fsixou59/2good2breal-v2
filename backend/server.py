@@ -2090,40 +2090,50 @@ async def create_checkout(
     success_url = f"{checkout_data.origin_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{checkout_data.origin_url}/payment/cancel"
     
-    # Set Stripe API key
-    stripe.api_key = STRIPE_API_KEY
-    
-    # Create checkout session directly with Stripe to set locale to English
-    session = stripe.checkout.Session.create(
-        payment_method_types=["card"],
-        line_items=[{
-            "price_data": {
-                "currency": package["currency"],
-                "product_data": {
-                    "name": package["name"],
-                    "description": package["description"]
+    try:
+        # Use native Stripe API to support locale parameter
+        stripe.api_key = STRIPE_API_KEY
+        
+        session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[{
+                "price_data": {
+                    "currency": package["currency"],
+                    "product_data": {
+                        "name": package["name"],
+                        "description": package["description"]
+                    },
+                    "unit_amount": int(package["amount"] * 100)  # Stripe uses cents
                 },
-                "unit_amount": int(package["amount"] * 100)  # Stripe uses cents
-            },
-            "quantity": 1
-        }],
-        mode="payment",
-        success_url=success_url,
-        cancel_url=cancel_url,
-        locale="en",  # Force English language
-        metadata={
-            "user_id": current_user["id"],
-            "user_email": current_user["email"],
-            "package_id": checkout_data.package_id,
-            "package_name": package["name"],
-            "profiles_included": str(package["profiles_included"])
-        }
-    )
+                "quantity": 1
+            }],
+            mode="payment",
+            success_url=success_url,
+            cancel_url=cancel_url,
+            locale="en",  # Force English language
+            metadata={
+                "user_id": current_user["id"],
+                "user_email": current_user["email"],
+                "package_id": checkout_data.package_id,
+                "package_name": package["name"],
+                "profiles_included": str(package["profiles_included"])
+            }
+        )
+        
+        session_id = session.id
+        checkout_url = session.url
+        
+    except stripe.error.AuthenticationError as e:
+        logging.error(f"Stripe authentication error: {e}")
+        raise HTTPException(status_code=500, detail="Payment service configuration error. Please contact support.")
+    except stripe.error.StripeError as e:
+        logging.error(f"Stripe error: {e}")
+        raise HTTPException(status_code=500, detail="Payment service error. Please try again later.")
     
     # Create payment transaction record in database
     transaction = {
         "id": str(uuid.uuid4()),
-        "session_id": session.id,  # Native Stripe uses .id not .session_id
+        "session_id": session_id,
         "user_id": current_user["id"],
         "user_email": current_user["email"],
         "package_id": checkout_data.package_id,
@@ -2139,11 +2149,11 @@ async def create_checkout(
     
     await db.payment_transactions.insert_one(transaction)
     
-    logging.info(f"Checkout session created: {session.id} for user {current_user['email']}")
+    logging.info(f"Checkout session created: {session_id} for user {current_user['email']}")
     
     return CheckoutResponse(
-        checkout_url=session.url,
-        session_id=session.id  # Native Stripe uses .id not .session_id
+        checkout_url=checkout_url,
+        session_id=session_id
     )
 
 @api_router.get("/checkout/status/{session_id}", response_model=PaymentStatusResponse)
