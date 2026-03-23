@@ -2078,6 +2078,7 @@ async def create_checkout(
     current_user: dict = Depends(get_current_user)
 ):
     """Create a Stripe checkout session for a package."""
+    import stripe
     
     # Validate package exists
     if checkout_data.package_id not in PRICING_PACKAGES:
@@ -2089,17 +2090,27 @@ async def create_checkout(
     success_url = f"{checkout_data.origin_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{checkout_data.origin_url}/payment/cancel"
     
-    # Initialize Stripe checkout
-    host_url = str(request.base_url).rstrip('/')
-    webhook_url = f"{host_url}/api/webhook/stripe"
-    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    # Set Stripe API key
+    stripe.api_key = STRIPE_API_KEY
     
-    # Create checkout session
-    checkout_request = CheckoutSessionRequest(
-        amount=package["amount"],
-        currency=package["currency"],
+    # Create checkout session directly with Stripe to set locale to English
+    session = stripe.checkout.Session.create(
+        payment_method_types=["card"],
+        line_items=[{
+            "price_data": {
+                "currency": package["currency"],
+                "product_data": {
+                    "name": package["name"],
+                    "description": package["description"]
+                },
+                "unit_amount": int(package["amount"] * 100)  # Stripe uses cents
+            },
+            "quantity": 1
+        }],
+        mode="payment",
         success_url=success_url,
         cancel_url=cancel_url,
+        locale="en",  # Force English language
         metadata={
             "user_id": current_user["id"],
             "user_email": current_user["email"],
@@ -2109,12 +2120,10 @@ async def create_checkout(
         }
     )
     
-    session: CheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_request)
-    
     # Create payment transaction record in database
     transaction = {
         "id": str(uuid.uuid4()),
-        "session_id": session.session_id,
+        "session_id": session.id,  # Native Stripe uses .id not .session_id
         "user_id": current_user["id"],
         "user_email": current_user["email"],
         "package_id": checkout_data.package_id,
@@ -2130,11 +2139,11 @@ async def create_checkout(
     
     await db.payment_transactions.insert_one(transaction)
     
-    logging.info(f"Checkout session created: {session.session_id} for user {current_user['email']}")
+    logging.info(f"Checkout session created: {session.id} for user {current_user['email']}")
     
     return CheckoutResponse(
         checkout_url=session.url,
-        session_id=session.session_id
+        session_id=session.id  # Native Stripe uses .id not .session_id
     )
 
 @api_router.get("/checkout/status/{session_id}", response_model=PaymentStatusResponse)
