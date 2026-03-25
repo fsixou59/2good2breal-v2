@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Shield, FileText, Clock, CheckCircle, Eye, LogOut, ChevronDown, ChevronUp, AlertTriangle, RefreshCw, User, Send } from 'lucide-react';
+import { Shield, FileText, Clock, CheckCircle, Eye, LogOut, ChevronDown, ChevronUp, AlertTriangle, RefreshCw, User, Send, Printer } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 
@@ -208,6 +208,98 @@ function AnalysisRow(props) {
     navigate('/admin/report/' + analysis.id);
   }
   
+  function handlePrint(e) {
+    e.stopPropagation();
+    const formData = analysis.form_data || {};
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Profile Submission - ${analysis.profile_name}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: Arial, sans-serif; padding: 40px; background: white; color: #333; }
+          .header { text-align: center; border-bottom: 3px solid #a855f7; padding-bottom: 20px; margin-bottom: 30px; }
+          .logo { font-size: 28px; font-weight: bold; color: #a855f7; }
+          .title { font-size: 22px; margin-top: 10px; color: #333; }
+          .ref { font-size: 14px; color: #666; margin-top: 5px; }
+          .section { margin-bottom: 25px; }
+          .section-title { font-size: 16px; font-weight: bold; color: #a855f7; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 15px; }
+          .row { display: flex; padding: 8px 0; border-bottom: 1px solid #eee; }
+          .label { width: 200px; font-weight: 600; color: #555; }
+          .value { flex: 1; color: #333; }
+          .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #a855f7; text-align: center; font-size: 12px; color: #666; }
+          @media print { body { padding: 20px; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="logo">2Good2bReal</div>
+          <div class="title">Profile Submission</div>
+          <div class="ref">Reference: ${analysis.id?.substring(0, 8).toUpperCase() || 'N/A'}</div>
+          <div class="ref">Date: ${dateStr}</div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Client Information</div>
+          <div class="row"><span class="label">Client Name:</span><span class="value">${analysis.user_name || 'N/A'}</span></div>
+          <div class="row"><span class="label">Client Email:</span><span class="value">${analysis.user_email || 'N/A'}</span></div>
+          <div class="row"><span class="label">Client Email (for report):</span><span class="value">${formData.client_email || 'N/A'}</span></div>
+          <div class="row"><span class="label">Client Age:</span><span class="value">${formData.client_age || 'N/A'}</span></div>
+          <div class="row"><span class="label">Client Location:</span><span class="value">${formData.client_location || 'N/A'}</span></div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Profile Information</div>
+          <div class="row"><span class="label">Profile Name:</span><span class="value">${formData.profile_name || analysis.profile_name || 'N/A'}</span></div>
+          <div class="row"><span class="label">Full Real Name:</span><span class="value">${formData.full_real_name || 'N/A'}</span></div>
+          <div class="row"><span class="label">Gender:</span><span class="value">${formData.gender || 'N/A'}</span></div>
+          <div class="row"><span class="label">Height:</span><span class="value">${formData.height || 'N/A'}</span></div>
+          <div class="row"><span class="label">Date of Birth:</span><span class="value">${formData.date_of_birth || 'N/A'}</span></div>
+          <div class="row"><span class="label">Assumed Age:</span><span class="value">${formData.assumed_age || 'N/A'}</span></div>
+          <div class="row"><span class="label">Nationality:</span><span class="value">${formData.nationality || 'N/A'}</span></div>
+          <div class="row"><span class="label">Profile Location:</span><span class="value">${formData.profile_location || 'N/A'}</span></div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Professional Information</div>
+          <div class="row"><span class="label">Occupation:</span><span class="value">${formData.occupation || 'N/A'}</span></div>
+          <div class="row"><span class="label">Company Name:</span><span class="value">${formData.company_name || 'N/A'}</span></div>
+          <div class="row"><span class="label">Company Website:</span><span class="value">${formData.company_website || 'N/A'}</span></div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Dating Platform Details</div>
+          <div class="row"><span class="label">Dating Platform:</span><span class="value">${formData.dating_platform || 'N/A'}</span></div>
+          <div class="row"><span class="label">Profile Bio:</span><span class="value">${formData.profile_bio || 'N/A'}</span></div>
+          <div class="row"><span class="label">Photos Count:</span><span class="value">${formData.profile_photos_count || 'N/A'}</span></div>
+          <div class="row"><span class="label">Verified Photos:</span><span class="value">${formData.has_verified_photos ? 'Yes' : 'No'}</span></div>
+          <div class="row"><span class="label">Profile Creation Date:</span><span class="value">${formData.profile_creation_date || 'N/A'}</span></div>
+          <div class="row"><span class="label">Last Active:</span><span class="value">${formData.last_active || 'N/A'}</span></div>
+          <div class="row"><span class="label">Social Media Links:</span><span class="value">${formData.social_media_links || 'N/A'}</span></div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">Communication & Observations</div>
+          <div class="row"><span class="label">Language:</span><span class="value">${formData.language_of_communication || 'N/A'}</span></div>
+          <div class="row"><span class="label">Communication Frequency:</span><span class="value">${formData.communication_frequency || 'N/A'}</span></div>
+          <div class="row"><span class="label">Message Substance:</span><span class="value">${formData.message_substance || 'N/A'}</span></div>
+          <div class="row"><span class="label">Observations/Concerns:</span><span class="value">${formData.observations_concerns || 'N/A'}</span></div>
+        </div>
+        
+        <div class="footer">
+          <p>2Good2bReal - Professional Profile Verification Service</p>
+          <p>www.2good2breal.com | contact@2good2breal.com</p>
+        </div>
+        
+        <script>window.onload = function() { window.print(); }</script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  }
+  
   return (
     <div className="border border-zinc-800 rounded-xl overflow-hidden">
       <div className="p-4 bg-zinc-800/30 cursor-pointer hover:bg-zinc-800/50" onClick={onToggle}>
@@ -232,8 +324,11 @@ function AnalysisRow(props) {
       
       {expanded ? (
         <div className="p-6 border-t border-zinc-800">
-          {/* Create Report Button */}
-          <div className="mb-4 flex justify-end">
+          {/* Action Buttons */}
+          <div className="mb-4 flex justify-end gap-3">
+            <Button onClick={handlePrint} variant="outline" className="border-zinc-600 hover:bg-zinc-800">
+              <Printer className="w-4 h-4 mr-2" /> Print Submission
+            </Button>
             <Button onClick={handleCreateReport} className="bg-purple-600 hover:bg-purple-500">
               <Send className="w-4 h-4 mr-2" /> Create Report for Client
             </Button>
@@ -400,7 +495,7 @@ export function AdminPage() {
         <Card className="bg-zinc-900/50 border-zinc-800">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
-              <FileText className="w-5 h-5 text-purple-400" /> Verification Requests
+              <FileText className="w-5 h-5 text-purple-400" /> Profile Submissions
             </CardTitle>
           </CardHeader>
           <CardContent>

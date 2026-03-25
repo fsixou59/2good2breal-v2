@@ -318,7 +318,7 @@ export const AnalyzePage = () => {
                 </svg>
               </div>
               <h1 className="text-2xl font-bold text-white mb-2">
-                {isFr ? 'Demande de Vérification Reçue' : 'Verification Request Received'}
+                {isFr ? 'Demande Reçue' : 'Profile Submission Received'}
               </h1>
               <p className="text-purple-300">
                 {isFr ? 'Votre demande a été enregistrée avec succès' : 'Your request has been successfully submitted'}

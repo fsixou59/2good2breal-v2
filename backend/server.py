@@ -1161,6 +1161,168 @@ async def send_report_to_client(analysis_id: str, data: SendReportData, admin: d
 
 # ============== PROFILE ANALYSIS ROUTES ==============
 
+def generate_admin_submission_pdf(user_email: str, user_name: str, profile: ProfileAnalysisRequest, photos_count: int, submission_date: str) -> bytes:
+    """Generate a PDF of the profile submission for admin."""
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=1.5*cm, bottomMargin=1.5*cm, leftMargin=2*cm, rightMargin=2*cm)
+    
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle(
+        'Title',
+        parent=styles['Heading1'],
+        fontSize=18,
+        textColor=colors.HexColor('#a553be'),
+        alignment=TA_CENTER,
+        spaceAfter=20
+    )
+    
+    section_style = ParagraphStyle(
+        'Section',
+        parent=styles['Heading2'],
+        fontSize=12,
+        textColor=colors.HexColor('#a553be'),
+        spaceBefore=15,
+        spaceAfter=10
+    )
+    
+    label_style = ParagraphStyle(
+        'Label',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.HexColor('#666666'),
+        fontName='Helvetica-Bold'
+    )
+    
+    value_style = ParagraphStyle(
+        'Value',
+        parent=styles['Normal'],
+        fontSize=10,
+        leading=14
+    )
+    
+    footer_style = ParagraphStyle(
+        'Footer',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=colors.HexColor('#999999'),
+        alignment=TA_CENTER
+    )
+    
+    elements = []
+    
+    # Header
+    elements.append(Paragraph("2Good2bReal", title_style))
+    elements.append(Paragraph("Profile Submission", ParagraphStyle('Subtitle', parent=styles['Normal'], fontSize=14, alignment=TA_CENTER, spaceAfter=5)))
+    elements.append(Paragraph(f"Date: {submission_date}", ParagraphStyle('Date', parent=styles['Normal'], fontSize=10, alignment=TA_CENTER, textColor=colors.HexColor('#666666'), spaceAfter=20)))
+    elements.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor('#a553be'), spaceAfter=20))
+    
+    # Client Information
+    elements.append(Paragraph("Client Information", section_style))
+    client_data = [
+        ["Client Name:", user_name or "N/A"],
+        ["Client Email:", user_email or "N/A"],
+        ["Report Email:", profile.client_email or "N/A"],
+        ["Client Age:", profile.client_age or "N/A"],
+        ["Client Location:", profile.client_location or "N/A"],
+    ]
+    client_table = Table(client_data, colWidths=[4*cm, 12*cm])
+    client_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#666666')),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+    elements.append(client_table)
+    
+    # Profile Information
+    elements.append(Paragraph("Profile Information", section_style))
+    profile_data = [
+        ["Profile Name:", profile.profile_name or "N/A"],
+        ["Full Real Name:", profile.full_real_name or "N/A"],
+        ["Gender:", profile.gender or "N/A"],
+        ["Height:", profile.height or "N/A"],
+        ["Date of Birth:", profile.date_of_birth or "N/A"],
+        ["Assumed Age:", profile.assumed_age or "N/A"],
+        ["Nationality:", profile.nationality or "N/A"],
+        ["Profile Location:", profile.profile_location or "N/A"],
+    ]
+    profile_table = Table(profile_data, colWidths=[4*cm, 12*cm])
+    profile_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#666666')),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+    elements.append(profile_table)
+    
+    # Professional Information
+    elements.append(Paragraph("Professional Information", section_style))
+    prof_data = [
+        ["Occupation:", profile.occupation or "N/A"],
+        ["Company Name:", profile.company_name or "N/A"],
+        ["Company Website:", profile.company_website or "N/A"],
+    ]
+    prof_table = Table(prof_data, colWidths=[4*cm, 12*cm])
+    prof_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#666666')),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+    elements.append(prof_table)
+    
+    # Dating Platform Details
+    elements.append(Paragraph("Dating Platform Details", section_style))
+    dating_data = [
+        ["Dating Platform:", profile.dating_platform or "N/A"],
+        ["Photos Count:", str(profile.profile_photos_count) if profile.profile_photos_count else "N/A"],
+        ["Verified Photos:", "Yes" if profile.has_verified_photos else "No"],
+        ["Profile Created:", profile.profile_creation_date or "N/A"],
+        ["Last Active:", profile.last_active or "N/A"],
+        ["Social Media:", profile.social_media_links or "N/A"],
+    ]
+    dating_table = Table(dating_data, colWidths=[4*cm, 12*cm])
+    dating_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#666666')),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+    elements.append(dating_table)
+    
+    # Bio and Communications
+    elements.append(Paragraph("Bio & Communications", section_style))
+    elements.append(Paragraph(f"<b>Profile Bio:</b>", label_style))
+    elements.append(Paragraph(profile.profile_bio or "N/A", value_style))
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph(f"<b>Language:</b> {profile.language_of_communication or 'N/A'}", value_style))
+    elements.append(Paragraph(f"<b>Communication Frequency:</b> {profile.communication_frequency or 'N/A'}", value_style))
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph(f"<b>Message Substance:</b>", label_style))
+    elements.append(Paragraph(profile.message_substance or "N/A", value_style))
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph(f"<b>Observations/Concerns:</b>", label_style))
+    elements.append(Paragraph(profile.observations_concerns or "N/A", value_style))
+    
+    # Photos info
+    elements.append(Spacer(1, 15))
+    elements.append(Paragraph(f"<b>Photos Uploaded:</b> {photos_count}", value_style))
+    
+    # Footer
+    elements.append(Spacer(1, 30))
+    elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#cccccc'), spaceAfter=10))
+    elements.append(Paragraph("2Good2bReal - Professional Profile Verification Service", footer_style))
+    elements.append(Paragraph("www.2good2breal.com", footer_style))
+    
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer.getvalue()
+
 async def send_analysis_form_notification(user_email: str, user_name: str, profile: ProfileAnalysisRequest, photos_count: int):
     """Send email notification with the analysis form data to admin."""
     try:
@@ -1310,7 +1472,7 @@ async def send_analysis_form_notification(user_email: str, user_name: str, profi
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>📋 Profile Verification Request</h1>
+                    <h1>📋 Profile Submission</h1>
                     <h2>2good2breal</h2>
                 </div>
 
@@ -1449,19 +1611,30 @@ async def send_analysis_form_notification(user_email: str, user_name: str, profi
                 </div>
 
                 <div class="footer">
-                    <p>This verification request was submitted through the 2good2breal platform.</p>
-                    <p class="no-print">To print this document, open this email in a browser and press Ctrl+P (or Cmd+P on Mac)</p>
+                    <p>This profile submission was submitted through the 2good2breal platform.</p>
+                    <p class="no-print">A PDF version is attached to this email for printing.</p>
                 </div>
             </div>
         </body>
         </html>
         """
         
+        # Generate PDF attachment
+        submission_date = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+        pdf_content = generate_admin_submission_pdf(user_email, user_name, profile, photos_count, submission_date)
+        pdf_base64 = base64.b64encode(pdf_content).decode('utf-8')
+        
         params = {
             "from": "2good2breal <onboarding@resend.dev>",
             "to": [ADMIN_EMAIL],
-            "subject": f"📋 New Analysis Request: {profile.profile_name} - from {user_name}",
-            "html": html_content
+            "subject": f"📋 New Profile Submission: {profile.profile_name} - from {user_name}",
+            "html": html_content,
+            "attachments": [
+                {
+                    "filename": f"profile_submission_{profile.profile_name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.pdf",
+                    "content": pdf_base64
+                }
+            ]
         }
         
         await asyncio.to_thread(resend.Emails.send, params)
@@ -1848,7 +2021,7 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
         overall_score=0,
         trust_level="pending",
         red_flags=[],
-        analysis_summary="Your profile verification request has been submitted successfully. Our team will analyze the profile and contact you within 48 hours with the results.",
+        analysis_summary="Your profile submission has been received successfully. Our team will analyze the profile and contact you within 48 hours with the results.",
         detailed_analysis={},
         image_analysis={},
         recommendations=["Your request is being processed by our expert team.", "You will receive the detailed verification report via email.", "For urgent inquiries, please contact us via WhatsApp or phone."],
