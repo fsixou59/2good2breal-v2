@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { Button } from '../components/ui/button';
-import { Shield, ArrowLeft } from 'lucide-react';
+import { Shield, ArrowLeft, FileText } from 'lucide-react';
 
 const TermsSection = ({ title, content }) => (
   <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 sm:p-8">
