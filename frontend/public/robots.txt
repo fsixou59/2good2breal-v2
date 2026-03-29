@@ -1,35 +1,41 @@
 # robots.txt for 2good2breal.com
+# Last updated: 2026-03-29
 
 User-agent: *
 Allow: /
 
+# Public pages to index
+Allow: /$
+Allow: /pricing$
+Allow: /login$
+Allow: /register$
+Allow: /faq$
+Allow: /terms$
+Allow: /cgv$
+Allow: /cookies$
+Allow: /refund-request$
+
 # Disallow admin and private pages
 Disallow: /admin
-Disallow: /admin/*
+Disallow: /admin/
 Disallow: /dashboard
+Disallow: /dashboard/
 Disallow: /analyze
+Disallow: /analyze/
 Disallow: /results
-Disallow: /results/*
-Disallow: /payment/*
+Disallow: /results/
+Disallow: /payment
+Disallow: /payment/
 Disallow: /history
+Disallow: /history/
 Disallow: /filters
+Disallow: /filters/
 
 # Disallow query parameters to avoid duplicate content
-Disallow: /*?*
-
-# Allow specific public pages
-Allow: /
-Allow: /pricing
-Allow: /login
-Allow: /register
-Allow: /faq
-Allow: /terms
-Allow: /cgv
-Allow: /cookies
-Allow: /refund-request
+Disallow: /*?
 
 # Sitemap location
 Sitemap: https://2good2breal.com/sitemap.xml
 
-# Crawl delay
+# Crawl delay (be gentle)
 Crawl-delay: 1

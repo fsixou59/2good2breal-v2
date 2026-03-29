@@ -1,0 +1,5 @@
+# Redirect www to non-www (canonical domain)
+https://www.2good2breal.com/* https://2good2breal.com/:splat 301!
+
+# Remove trailing slashes
+/*/ /:splat 301
