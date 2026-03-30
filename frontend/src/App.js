@@ -22,6 +22,7 @@ import { AdminPage } from "./pages/AdminPage";
 import { AdminReportPage } from "./pages/AdminReportPage";
 import FAQPage from "./pages/FAQPage";
 import RefundRequestPage from "./pages/RefundRequestPage";
+import { PromotionPage } from "./pages/PromotionPage";
 import CookieConsent from "./components/CookieConsent";
 
 // Protected Route Component
@@ -110,6 +111,7 @@ function AppRoutes() {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/refund-request" element={<RefundRequestPage />} />
         <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/promotion" element={<PromotionPage />} />
         <Route path="/payment/success" element={
           <ProtectedRoute>
             <PaymentSuccessPage />
