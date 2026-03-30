@@ -553,28 +553,6 @@ export const LandingPage = () => {
               </div>
             </div>
 
-            {/* Testimonial 7 - Featured/Full Width */}
-            <div className="md:col-span-2 lg:col-span-3 bg-gradient-to-br from-purple-950/30 to-zinc-900/50 border border-purple-800/30 rounded-2xl p-6 hover:border-purple-700/50 transition-colors">
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
-                ))}
-                <Badge className="ml-2 bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
-                  {isFr ? "Témoignage Expert" : "Expert Testimony"}
-                </Badge>
-              </div>
-              <p className="text-zinc-300 mb-6 italic leading-relaxed">"{t('landing.testimonials.review7')}"</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-semibold">
-                  J
-                </div>
-                <div>
-                  <p className="text-white font-medium">Julie</p>
-                  <p className="text-zinc-500 text-sm">Sydney, Australia</p>
-                </div>
-              </div>
-            </div>
-
             {/* Testimonial 8 - Natalia Full Width */}
             <div className="md:col-span-2 lg:col-span-3 bg-gradient-to-br from-purple-950/30 to-zinc-900/50 border border-purple-800/30 rounded-2xl p-6 hover:border-purple-700/50 transition-colors">
               <div className="flex items-center gap-1 mb-4">
