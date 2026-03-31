@@ -68,6 +68,7 @@ Les arnaques sentimentales font des milliers de victimes chaque année. Photos v
 Ne laissez pas un escroc jouer avec vos sentiments.
 
 🔗 Découvrez notre service : www.2good2breal.com
+Nous avons débuté notre activité en 2023 et compte tenu du succès rencontré nous venons de finaliser notre nouveau site internet.
 
 📞 +33 7 67 92 55 45
 📧 contact@2good2breal.com
