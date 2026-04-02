@@ -160,9 +160,9 @@ const FAQPage = () => {
           </div>
           <div className="text-zinc-400 text-sm space-y-1">
             <p>
-              {isFr ? "Téléphone Bureau" : "Office Line"}: <a href="tel:+33767925545" className="text-purple-400 hover:text-purple-300 underline">+33 (0) 7 67 92 55 45</a>
+              WhatsApp 1 : <a href="tel:+33743660555" className="text-purple-400 hover:text-purple-300 underline">+33 (0) 7 43 66 05 55</a>
               {" | "}
-              WhatsApp: <a href="tel:+33743660555" className="text-purple-400 hover:text-purple-300 underline">+33 (0) 7 43 66 05 55</a>
+              WhatsApp 2 : <a href="tel:+33767925545" className="text-purple-400 hover:text-purple-300 underline">+33 (0) 7 67 92 55 45</a>
             </p>
             <p>{isFr ? "Adresse" : "Address"}: 42, Avenue Montaigne, 75008 Paris, France</p>
           </div>
