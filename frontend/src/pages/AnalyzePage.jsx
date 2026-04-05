@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Checkbox } from '../components/ui/checkbox';
 import { toast } from 'sonner';
 import axios from 'axios';
+import heic2any from 'heic2any';
 import { 
   Search, 
   User, 
@@ -90,8 +91,35 @@ export const AnalyzePage = () => {
       return;
     }
 
+    // Helper function to check if file is HEIC
+    const isHeicFile = (file) => {
+      const fileName = file.name.toLowerCase();
+      return fileName.endsWith('.heic') || fileName.endsWith('.heif') || 
+             file.type === 'image/heic' || file.type === 'image/heif';
+    };
+
+    // Helper function to convert HEIC to JPEG
+    const convertHeicToJpeg = async (file) => {
+      try {
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.9
+        });
+        // heic2any may return an array of blobs or a single blob
+        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+        const newFileName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
+        return new File([blob], newFileName, { type: 'image/jpeg' });
+      } catch (error) {
+        console.error('HEIC conversion error:', error);
+        throw new Error(`Failed to convert ${file.name}`);
+      }
+    };
+
     const validFiles = files.filter(file => {
-      if (!file.type.startsWith('image/')) {
+      // Check if it's a valid image type or HEIC
+      const isValidImage = file.type.startsWith('image/') || isHeicFile(file);
+      if (!isValidImage) {
         toast.error(`${file.name} is not an image`);
         return false;
       }
@@ -109,13 +137,20 @@ export const AnalyzePage = () => {
     try {
       const newPhotos = await Promise.all(
         validFiles.map(async (file) => {
-          const base64 = await convertToBase64(file);
+          // Convert HEIC files to JPEG
+          let processedFile = file;
+          if (isHeicFile(file)) {
+            toast.info(`Converting ${file.name} from HEIC format...`);
+            processedFile = await convertHeicToJpeg(file);
+          }
+          
+          const base64 = await convertToBase64(processedFile);
           return {
             id: Date.now() + Math.random(),
-            name: file.name,
-            preview: URL.createObjectURL(file),
+            name: processedFile.name,
+            preview: URL.createObjectURL(processedFile),
             base64: base64,
-            size: file.size
+            size: processedFile.size
           };
         })
       );
@@ -893,7 +928,7 @@ export const AnalyzePage = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,.heic,.heif"
                   multiple
                   onChange={handlePhotoUpload}
                   className="hidden"
