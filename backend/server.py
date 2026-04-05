@@ -2363,6 +2363,7 @@ async def create_checkout(
         success_url=success_url,
         cancel_url=cancel_url,
         locale="en",  # Force English language
+        customer_email=current_user["email"],  # Pre-fill client's email on Stripe page
         metadata={
             "user_id": current_user["id"],
             "user_email": current_user["email"],
