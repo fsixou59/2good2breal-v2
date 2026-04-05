@@ -309,6 +309,86 @@ async def send_registration_notification(user_name: str, user_email: str, user_p
         logging.error(f"Failed to send registration notification: {str(e)}")
         # Don't raise exception - registration should still succeed even if email fails
 
+async def send_payment_confirmation_to_client(user_email: str, user_name: str, package_name: str, amount: float, currency: str, credits_added: int):
+    """Send payment confirmation email to the client after successful payment."""
+    try:
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; background-color: #09090b; color: #fafafa; padding: 20px;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: #18181b; border-radius: 12px; padding: 30px; border: 1px solid #27272a;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #a553be; margin: 0;">2good2breal</h1>
+                    <p style="color: #a1a1aa; margin: 5px 0;">Profile Verification Service</p>
+                </div>
+                
+                <div style="background-color: #22c55e20; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
+                    <h2 style="color: #22c55e; margin: 0 0 10px 0;">✅ Payment Confirmed</h2>
+                    <p style="color: #fafafa; margin: 0;">Thank you for your purchase!</p>
+                </div>
+                
+                <div style="background-color: #27272a; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+                    <h3 style="color: #a553be; margin: 0 0 15px 0;">Order Details</h3>
+                    <table style="width: 100%; color: #fafafa;">
+                        <tr>
+                            <td style="padding: 8px 0; color: #a1a1aa;">Customer:</td>
+                            <td style="padding: 8px 0; text-align: right;">{user_name}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #a1a1aa;">Package:</td>
+                            <td style="padding: 8px 0; text-align: right;">{package_name}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #a1a1aa;">Amount Paid:</td>
+                            <td style="padding: 8px 0; text-align: right; font-weight: bold;">{amount:.2f} {currency.upper()}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #a1a1aa;">Credits Added:</td>
+                            <td style="padding: 8px 0; text-align: right; color: #22c55e; font-weight: bold;">{credits_added} verification(s)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #a1a1aa;">Date:</td>
+                            <td style="padding: 8px 0; text-align: right;">{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="background-color: #a553be20; border: 1px solid #a553be50; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+                    <h3 style="color: #a553be; margin: 0 0 10px 0;">What's Next?</h3>
+                    <p style="color: #fafafa; margin: 0; line-height: 1.6;">
+                        Your credits are now available in your account. You can start submitting profiles for verification by logging in to your dashboard.
+                    </p>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <a href="https://2good2breal.com/analyze" style="display: inline-block; background-color: #a553be; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold;">Start Verification</a>
+                </div>
+                
+                <hr style="border: none; border-top: 1px solid #27272a; margin: 25px 0;">
+                
+                <div style="text-align: center; color: #a1a1aa; font-size: 12px;">
+                    <p style="margin: 5px 0;">Need help? Contact us:</p>
+                    <p style="margin: 5px 0;">WhatsApp 1: +33 7 43 66 05 55 | WhatsApp 2: +33 7 67 92 55 45</p>
+                    <p style="margin: 5px 0;">Email: contact@2good2breal.com</p>
+                    <p style="margin: 15px 0 0 0;">© 2024 2good2breal - All rights reserved</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        params = {
+            "from": "2good2breal <onboarding@resend.dev>",
+            "to": [user_email],
+            "subject": f"✅ Payment Confirmed - {package_name} | 2good2breal",
+            "html": html_content
+        }
+        
+        await asyncio.to_thread(resend.Emails.send, params)
+        logging.info(f"Payment confirmation email sent to client: {user_email}")
+    except Exception as e:
+        logging.error(f"Failed to send payment confirmation to {user_email}: {str(e)}")
+        # Don't raise - payment was successful, just email failed
+
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
@@ -2454,6 +2534,18 @@ async def stripe_webhook(request: Request):
                 )
                 
                 logging.info(f"Webhook: Added {profiles_to_add} credits to user {user_id}")
+                
+                # Send payment confirmation email to the CLIENT
+                user = await db.users.find_one({"id": user_id}, {"_id": 0})
+                if user:
+                    await send_payment_confirmation_to_client(
+                        user_email=transaction["user_email"],
+                        user_name=user.get("name", "Customer"),
+                        package_name=transaction["package_name"],
+                        amount=transaction["amount"],
+                        currency=transaction["currency"],
+                        credits_added=profiles_to_add
+                    )
         
         return {"status": "received"}
     except Exception as e:
