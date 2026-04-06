@@ -164,7 +164,7 @@ export function PricingPage() {
                   {totalCredits > 0 && (
                     <Link to="/analyze">
                       <Button className="bg-purple-600 hover:bg-purple-500 text-white" data-testid="go-analyze-btn">
-                        Analyze Profile
+                        Profile Submission
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </Link>
@@ -312,7 +312,7 @@ export function PricingPage() {
               <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
                 <span className="text-amber-400 font-bold text-xl">3</span>
               </div>
-              <h3 className="text-white font-semibold mb-2">Analyze Profiles</h3>
+              <h3 className="text-white font-semibold mb-2">Submit Profiles</h3>
               <p className="text-zinc-400 text-sm">Submit profiles for AI-powered verification and get detailed reports</p>
             </div>
           </div>

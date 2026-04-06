@@ -5,7 +5,7 @@ export const translations = {
     nav: {
       home: "Home",
       dashboard: "Dashboard",
-      analyze: "Analyze Profile",
+      analyze: "Profile Submission",
       filters: "My Filters",
       login: "Login",
       register: "Sign Up",
@@ -289,7 +289,7 @@ export const translations = {
     nav: {
       home: "Accueil",
       dashboard: "Tableau de Bord",
-      analyze: "Analyser un Profil",
+      analyze: "Soumettre un Profil",
       filters: "Mes Filtres",
       login: "Connexion",
       register: "S'inscrire",
