@@ -2140,7 +2140,8 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
         "communication_frequency": profile.communication_frequency,
         "message_substance": profile.message_substance,
         "observations_concerns": profile.observations_concerns,
-        "photos_uploaded": photos_count
+        "photos_uploaded": photos_count,
+        "photos": [{"name": p.name, "base64": p.base64} for p in profile.photos] if profile.photos else []
     }
     await db.verification_results.insert_one(result_dict)
     

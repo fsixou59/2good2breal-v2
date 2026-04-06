@@ -30,9 +30,13 @@ function TrustBadge(props) {
 
 function FormDataDisplay(props) {
   const formData = props.formData;
+  const photos = props.photos;
   if (!formData) return null;
   
-  const entries = Object.entries(formData).filter(function(entry) { return entry[1]; });
+  const entries = Object.entries(formData).filter(function(entry) { 
+    // Filter out photos array from form data display
+    return entry[1] && entry[0] !== 'photos'; 
+  });
   
   // Fields that need larger display
   const largeFields = ['observations_concerns', 'message_substance', 'profile_bio', 'additional_notes'];
@@ -63,6 +67,31 @@ function FormDataDisplay(props) {
           </div>
         );
       })}
+      
+      {/* Display uploaded photos */}
+      {photos && photos.length > 0 && (
+        <div className="border-t border-zinc-700 pt-4 mt-4">
+          <h4 className="text-purple-400 font-semibold mb-3 flex items-center gap-2">
+            📷 Uploaded Photos ({photos.length})
+          </h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {photos.map((photo, index) => (
+              <div key={index} className="relative group">
+                <img 
+                  src={photo.base64} 
+                  alt={photo.name || `Photo ${index + 1}`}
+                  className="w-full h-32 object-cover rounded-lg border border-zinc-700 cursor-pointer hover:border-purple-500 transition-colors"
+                  onClick={() => window.open(photo.base64, '_blank')}
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 rounded-b-lg truncate">
+                  {photo.name || `Photo ${index + 1}`}
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-zinc-500 text-xs mt-2">Click on a photo to view full size</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -339,7 +368,7 @@ function AnalysisRow(props) {
               <h4 className="text-purple-400 font-semibold flex items-center gap-2 mb-3">
                 <FileText className="w-4 h-4" /> Form Data
               </h4>
-              <FormDataDisplay formData={analysis.form_data} />
+              <FormDataDisplay formData={analysis.form_data} photos={analysis.photos} />
             </div>
             <div>
               <h4 className="text-teal-400 font-semibold flex items-center gap-2 mb-3">
