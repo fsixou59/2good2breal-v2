@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
-import { ArrowLeft, Printer, Send, Save, AlertTriangle, CheckCircle, Clock, AlertCircle, Eye } from 'lucide-react';
+import { ArrowLeft, Printer, Send, Save, AlertTriangle, CheckCircle, Clock, AlertCircle, Eye, FileText, Download } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 
@@ -106,6 +106,38 @@ export function AdminReportPage() {
     axios.post(API + '/admin/analyses/' + analysisId + '/send-report', { admin_report: adminReport, client_email: analysis.user_email }, { headers: { Authorization: 'Bearer ' + token } })
       .then(function() { toast.success('Report sent'); setSaving(false); })
       .catch(function() { toast.error('Failed to send'); setSaving(false); });
+  }
+
+  function handleDownloadDocx() {
+    var token = localStorage.getItem('admin_token');
+    if (!token) return;
+    
+    // Create download link
+    var downloadUrl = API + '/admin/analyses/' + analysisId + '/download-docx';
+    
+    fetch(downloadUrl, {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(function(response) {
+      if (!response.ok) throw new Error('Download failed');
+      return response.blob();
+    })
+    .then(function(blob) {
+      var url = window.URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'Report_' + (formData.profile_name || 'profile') + '_' + new Date().toISOString().split('T')[0] + '.docx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('DOCX downloaded');
+    })
+    .catch(function(err) {
+      console.error(err);
+      toast.error('Failed to download DOCX');
+    });
   }
 
   if (loading) return React.createElement('div', {className: 'min-h-screen bg-zinc-950 flex items-center justify-center'}, React.createElement('div', {className: 'text-purple-400'}, 'Loading...'));
@@ -381,9 +413,14 @@ export function AdminReportPage() {
             </Button>
             <h1 className="text-xl font-bold text-white">Profile Verification Report</h1>
           </div>
-          <Button variant="outline" size="sm" onClick={function() { setShowPreview(true); }} className="border-purple-700 text-purple-400">
-            <Eye className="w-4 h-4 mr-2" /> Preview & Print
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleDownloadDocx} className="border-blue-700 text-blue-400 hover:bg-blue-900/30">
+              <Download className="w-4 h-4 mr-2" /> DOCX
+            </Button>
+            <Button variant="outline" size="sm" onClick={function() { setShowPreview(true); }} className="border-purple-700 text-purple-400 hover:bg-purple-900/30">
+              <Eye className="w-4 h-4 mr-2" /> Preview & Print PDF
+            </Button>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

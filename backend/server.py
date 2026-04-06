@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -24,6 +25,10 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import cm, mm
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from docx import Document
+from docx.shared import Inches, Pt, Cm, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_TABLE_ALIGNMENT
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -1229,6 +1234,262 @@ async def send_report_to_client(analysis_id: str, data: SendReportData, admin: d
     except Exception as e:
         logging.error(f"Failed to send report: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+
+def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
+    """Generate a DOCX report for the admin to customize."""
+    doc = Document()
+    
+    form_data = analysis.get("form_data", {})
+    ai = analysis.get("ai_analysis", {})
+    
+    # Get verdict info
+    verdict_texts = {
+        "safe": "SAFE - Profile appears authentic",
+        "suspicious": "SUSPICIOUS - Exercise caution",
+        "dangerous": "DANGEROUS - High risk of scam",
+        "inconclusive": "INCONCLUSIVE - More information needed"
+    }
+    verdict = admin_report.get("verdict", "inconclusive")
+    verdict_text = verdict_texts.get(verdict, "INCONCLUSIVE")
+    
+    # Document styling
+    style = doc.styles['Normal']
+    style.font.name = 'Calibri'
+    style.font.size = Pt(11)
+    
+    # ====== HEADER ======
+    header = doc.add_heading('2good2breal', 0)
+    header.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    for run in header.runs:
+        run.font.color.rgb = RGBColor(165, 83, 190)  # Purple
+    
+    subtitle = doc.add_paragraph('PREMIUM VERIFICATION REPORT')
+    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    subtitle.runs[0].font.bold = True
+    subtitle.runs[0].font.color.rgb = RGBColor(165, 83, 190)
+    
+    # Date and Reference
+    info_para = doc.add_paragraph()
+    info_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    info_para.add_run(f"Date: {datetime.now().strftime('%d/%m/%Y')}\n")
+    info_para.add_run(f"Reference: #{(analysis.get('id', ''))[:8].upper()}")
+    
+    doc.add_paragraph()  # Spacer
+    
+    # ====== SECTION A: CLIENT INFORMATION ======
+    doc.add_heading('A. Client Information', level=1)
+    
+    client_table = doc.add_table(rows=2, cols=4)
+    client_table.style = 'Table Grid'
+    
+    cells = client_table.rows[0].cells
+    cells[0].text = "Name"
+    cells[1].text = analysis.get("user_name", "N/A")
+    cells[2].text = "Email"
+    cells[3].text = analysis.get("user_email", "N/A")
+    
+    cells = client_table.rows[1].cells
+    cells[0].text = "Age"
+    cells[1].text = form_data.get("client_age", "N/A")
+    cells[2].text = "Location"
+    cells[3].text = form_data.get("client_location", "N/A")
+    
+    doc.add_paragraph()  # Spacer
+    
+    # ====== SECTION B: PROFILE VERIFIED ======
+    doc.add_heading('B. Profile Verified', level=1)
+    
+    profile_table = doc.add_table(rows=5, cols=4)
+    profile_table.style = 'Table Grid'
+    
+    profile_fields = [
+        ("Profile Name", form_data.get("profile_name", "N/A"), "Full Name", form_data.get("full_real_name", "N/A")),
+        ("Gender", (form_data.get("gender", "N/A") or "N/A").capitalize(), "Age", form_data.get("assumed_age", "N/A")),
+        ("Nationality", form_data.get("nationality", "N/A"), "Location", form_data.get("profile_location", "N/A")),
+        ("Occupation", form_data.get("occupation", "N/A"), "Company", form_data.get("company_name", "N/A")),
+        ("Platform", form_data.get("dating_platform", "N/A"), "Photos", str(form_data.get("profile_photos_count", "N/A"))),
+    ]
+    
+    for i, row_data in enumerate(profile_fields):
+        cells = profile_table.rows[i].cells
+        cells[0].text = row_data[0]
+        cells[0].paragraphs[0].runs[0].font.bold = True
+        cells[1].text = str(row_data[1])
+        cells[2].text = row_data[2]
+        cells[2].paragraphs[0].runs[0].font.bold = True
+        cells[3].text = str(row_data[3])
+    
+    doc.add_paragraph()
+    
+    # Client Observations
+    if form_data.get("observations_concerns"):
+        doc.add_heading('Client Observations and Concerns', level=2)
+        obs_para = doc.add_paragraph(form_data.get("observations_concerns", ""))
+        obs_para.paragraph_format.left_indent = Cm(0.5)
+    
+    # Message Substance
+    if form_data.get("message_substance"):
+        doc.add_heading('Message Substance', level=2)
+        msg_para = doc.add_paragraph(form_data.get("message_substance", ""))
+        msg_para.paragraph_format.left_indent = Cm(0.5)
+    
+    # Page break
+    doc.add_page_break()
+    
+    # ====== SECTION C: TRUST SCORE ======
+    doc.add_heading('C. Trust Score', level=1)
+    
+    score = ai.get("overall_score", 0) if ai else 0
+    score_para = doc.add_paragraph()
+    score_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    score_run = score_para.add_run(f"{score}/100")
+    score_run.font.size = Pt(36)
+    score_run.font.bold = True
+    
+    # Score interpretation
+    if score <= 25:
+        score_text = "Extreme High Risk"
+    elif score <= 51:
+        score_text = "Medium to High Risk"
+    elif score <= 70:
+        score_text = "Average to Low Risk"
+    elif score <= 85:
+        score_text = "Reliable, Satisfactory Profile"
+    else:
+        score_text = "Approved, Certified Profile"
+    
+    interp_para = doc.add_paragraph(score_text)
+    interp_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    interp_para.runs[0].font.bold = True
+    
+    doc.add_paragraph()
+    
+    # AI Summary
+    if ai and ai.get("summary"):
+        doc.add_heading('AI Analysis Summary', level=2)
+        doc.add_paragraph(ai.get("summary", ""))
+    
+    # Red Flags
+    if ai and ai.get("red_flags"):
+        doc.add_heading('Red Flags Detected', level=2)
+        for flag in ai.get("red_flags", []):
+            if isinstance(flag, dict):
+                flag_para = doc.add_paragraph(style='List Bullet')
+                flag_para.add_run(f"{flag.get('type', 'Unknown')}: ").bold = True
+                flag_para.add_run(flag.get("description", ""))
+            else:
+                doc.add_paragraph(str(flag), style='List Bullet')
+    
+    # Page break
+    doc.add_page_break()
+    
+    # ====== SECTION D: EXPERT ANALYSIS (Editable) ======
+    doc.add_heading('D. Expert Analysis', level=1)
+    
+    # Final Verdict
+    verdict_heading = doc.add_heading('Final Verdict', level=2)
+    verdict_para = doc.add_paragraph()
+    verdict_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    verdict_run = verdict_para.add_run(verdict_text)
+    verdict_run.font.size = Pt(16)
+    verdict_run.font.bold = True
+    if verdict == "safe":
+        verdict_run.font.color.rgb = RGBColor(16, 185, 129)
+    elif verdict == "suspicious":
+        verdict_run.font.color.rgb = RGBColor(245, 158, 11)
+    elif verdict == "dangerous":
+        verdict_run.font.color.rgb = RGBColor(239, 68, 68)
+    else:
+        verdict_run.font.color.rgb = RGBColor(107, 114, 128)
+    
+    doc.add_paragraph()
+    
+    # Detailed Analysis
+    doc.add_heading('Detailed Analysis', level=2)
+    analysis_text = admin_report.get("detailedAnalysis", "[Enter your detailed analysis here...]")
+    doc.add_paragraph(analysis_text)
+    
+    doc.add_paragraph()
+    
+    # Recommendations
+    doc.add_heading('Recommendations', level=2)
+    recommendations_text = admin_report.get("recommendations", "[Enter your recommendations here...]")
+    doc.add_paragraph(recommendations_text)
+    
+    doc.add_paragraph()
+    
+    # Additional Notes
+    doc.add_heading('Additional Notes', level=2)
+    notes_text = admin_report.get("additionalNotes", "[Enter any additional notes here...]")
+    doc.add_paragraph(notes_text)
+    
+    # Page break
+    doc.add_page_break()
+    
+    # ====== SECTION E: RECOMMENDATIONS ======
+    doc.add_heading('E. Safety Recommendations', level=1)
+    
+    safety_tips = [
+        "Never send money or share financial information with someone you haven't met in person.",
+        "Verify the person's identity through video calls before meeting.",
+        "Meet in public places for initial dates and inform someone about your plans.",
+        "Trust your instincts - if something feels wrong, it probably is.",
+        "Report suspicious profiles to the dating platform."
+    ]
+    
+    for tip in safety_tips:
+        doc.add_paragraph(tip, style='List Bullet')
+    
+    doc.add_paragraph()
+    
+    # ====== FOOTER ======
+    footer_para = doc.add_paragraph()
+    footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    footer_para.add_run("─" * 50)
+    
+    contact = doc.add_paragraph()
+    contact.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    contact.add_run("2good2breal - Profile Verification Service\n").bold = True
+    contact.add_run("42, Avenue Montaigne, 75008 Paris, France\n")
+    contact.add_run("contact@2good2breal.com | +33 (0) 7 67 92 55 45\n")
+    contact.add_run("www.2good2breal.com")
+    
+    disclaimer = doc.add_paragraph()
+    disclaimer.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    disclaimer_run = disclaimer.add_run("\nThis analysis is based on information provided and should not be considered as legal advice.")
+    disclaimer_run.font.size = Pt(9)
+    disclaimer_run.font.italic = True
+    
+    # Save to bytes
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    return buffer.getvalue()
+
+@api_router.get("/admin/analyses/{analysis_id}/download-docx")
+async def download_report_docx(analysis_id: str, admin: dict = Depends(get_admin_user)):
+    """Download the verification report as DOCX file."""
+    # Get analysis details
+    analysis = await db.verification_results.find_one({"id": analysis_id}, {"_id": 0})
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    
+    # Get admin report or use defaults
+    admin_report = analysis.get("admin_report", {})
+    
+    # Generate DOCX
+    docx_bytes = generate_report_docx(analysis, admin_report)
+    
+    # Create filename
+    profile_name = analysis.get("form_data", {}).get("profile_name", "report")
+    safe_name = "".join(c if c.isalnum() or c in "._- " else "_" for c in profile_name)
+    filename = f"Report_{safe_name}_{datetime.now().strftime('%Y%m%d')}.docx"
+    
+    return StreamingResponse(
+        BytesIO(docx_bytes),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 # ============== PROFILE ANALYSIS ROUTES ==============
 

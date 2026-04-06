@@ -31,6 +31,23 @@ A verification service website for dating profiles where users submit profiles f
 
 ## Completed Work (April 6, 2026)
 
+### UI/UX Changes
+- **Renamed "Analyze Profile" to "Profile Submission"** across all pages and translations
+- **Reorganized submission form into 4 pages:**
+  - Page 1: Client Info + Basic Info (ends with Nationality/Language)
+  - Page 2: Profile Details + Photos (photo box reduced 50%)
+  - Page 3: Activity Information (photos info, social media, activity)
+  - Page 4: Communication + Observations + Terms
+- **Updated acceptance letter** to show only client's first name after "Dear"
+- **Added progress indicator** with clickable steps
+
+### Admin Report Enhancements
+- **Added DOCX format download** for admin reports (python-docx integration)
+- Admin can now choose between:
+  - **DOCX** - Editable Word document for manual customization
+  - **PDF** - Preview & Print for archival
+- DOCX includes all sections: Client Info, Profile Verified, Trust Score, Expert Analysis (editable), Recommendations
+
 ### Bug Fixes
 - **Fixed AI Image Analysis** - Corrected `ImageContent` and `UserMessage` parameters for emergentintegrations library
   - Changed `base64_data` to `image_base64` parameter
