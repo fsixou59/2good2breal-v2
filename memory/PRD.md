@@ -4,7 +4,7 @@
 **Name:** 2good2breal  
 **Type:** Dating Profile Verification Service  
 **Stack:** React Frontend + FastAPI Backend + MongoDB  
-**Last Updated:** March 12, 2026
+**Last Updated:** April 6, 2026
 
 ## Original Problem Statement
 A verification service website for dating profiles where users submit profiles for manual verification by an admin team. Features AI analysis (for admin eyes only) and comprehensive admin-side reporting tool to generate and send detailed manual analysis reports to clients.
@@ -29,7 +29,16 @@ A verification service website for dating profiles where users submit profiles f
 - **Stripe:** Payment processing
 - **Gemini 3 Flash:** AI analysis (Emergent LLM Key)
 
-## Completed Work (March 12, 2026)
+## Completed Work (April 6, 2026)
+
+### Bug Fixes
+- **Fixed AI Image Analysis** - Corrected `ImageContent` and `UserMessage` parameters for emergentintegrations library
+  - Changed `base64_data` to `image_base64` parameter
+  - Changed `content=[]` to `text=..., file_contents=[...]` for proper message format
+- **Fixed Admin Dashboard Photos Display** - Photos now correctly displayed from `form_data.photos`
+  - Backend `/admin/analyses` endpoint now properly retrieves photos from form_data
+
+### Previous Session Work (March-April 2026)
 
 ### Deployment Fixes
 - Improved MongoDB connection with Atlas-compatible settings
@@ -98,10 +107,13 @@ A verification service website for dating profiles where users submit profiles f
 ## Known Issues
 - Cookie consent banner has been unstable (multiple runtime errors) - needs stable rebuild
 - Frontend compilation fragility with babel-metadata-plugin on large JSX files
+- **Resend DNS Verification Pending** - SPF/DKIM records for `send.2good2breal.com` awaiting OVH DNS propagation
 
 ## Backlog / Future Tasks
+- **P0:** Verify Resend domain DNS propagation and complete verification
+- **P1:** Re-link custom domain `2good2breal.com` to Vercel
 - **P1:** Rebuild cookie consent banner with stable implementation
-- **P1:** End-to-end test of all major flows
+- **P1:** End-to-end test of all major flows on production
 - **P2:** Enhance DashboardPage.jsx with submission history
 - **P2:** Refactor backend/server.py into modular structure (routers for auth, analysis, admin, refund)
 - **P3:** Remove obsolete ResultsPage.jsx

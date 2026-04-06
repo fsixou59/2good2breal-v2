@@ -496,21 +496,16 @@ Consider common scam patterns: too-good-to-be-true profiles, military/engineer/d
         if has_photos:
             from emergentintegrations.llm.chat import ImageContent
             
-            contents = [prompt]
+            image_contents = []
             for i, photo in enumerate(profile_data.photos):
                 base64_data = photo.base64
                 if ',' in base64_data:
                     base64_data = base64_data.split(',')[1]
                 
-                mime_type = "image/jpeg"
-                if photo.base64.startswith("data:image/png"):
-                    mime_type = "image/png"
-                elif photo.base64.startswith("data:image/webp"):
-                    mime_type = "image/webp"
-                
-                contents.append(ImageContent(base64_data=base64_data, mime_type=mime_type))
+                image_contents.append(ImageContent(image_base64=base64_data))
             
-            user_message = UserMessage(content=contents)
+            # Use text for prompt and file_contents for images
+            user_message = UserMessage(text=prompt, file_contents=image_contents)
         else:
             user_message = UserMessage(text=prompt)
         
@@ -670,26 +665,18 @@ Be thorough and consider common scam patterns: too-good-to-be-true profiles, inc
         if has_photos:
             from emergentintegrations.llm.chat import ImageContent
             
-            # Create message with text and images
-            contents = [prompt]
+            # Create list of image contents
+            image_contents = []
             for i, photo in enumerate(profile_data.uploaded_photos):
                 # Extract base64 data (remove data:image/xxx;base64, prefix if present)
                 base64_data = photo.base64
                 if ',' in base64_data:
                     base64_data = base64_data.split(',')[1]
                 
-                # Determine mime type from the data URL prefix
-                mime_type = "image/jpeg"
-                if photo.base64.startswith("data:image/png"):
-                    mime_type = "image/png"
-                elif photo.base64.startswith("data:image/webp"):
-                    mime_type = "image/webp"
-                elif photo.base64.startswith("data:image/gif"):
-                    mime_type = "image/gif"
-                
-                contents.append(ImageContent(base64_data=base64_data, mime_type=mime_type))
+                image_contents.append(ImageContent(image_base64=base64_data))
             
-            user_message = UserMessage(content=contents)
+            # Use text for prompt and file_contents for images
+            user_message = UserMessage(text=prompt, file_contents=image_contents)
         else:
             user_message = UserMessage(text=prompt)
         
@@ -908,6 +895,9 @@ async def get_all_analyses(admin: dict = Depends(get_admin_user)):
     result = []
     for analysis in analyses:
         user = users_map.get(analysis.get("user_id"), {})
+        form_data = analysis.get("form_data", {})
+        # Get photos from form_data.photos or root level photos
+        photos = analysis.get("photos", []) or form_data.get("photos", [])
         result.append({
             "id": analysis.get("id"),
             "user_id": analysis.get("user_id"),
@@ -916,10 +906,10 @@ async def get_all_analyses(admin: dict = Depends(get_admin_user)):
             "profile_name": analysis.get("profile_name"),
             "status": analysis.get("status", "pending"),
             "created_at": analysis.get("created_at"),
-            "form_data": analysis.get("form_data", {}),
+            "form_data": form_data,
             "ai_analysis": analysis.get("ai_analysis"),
             "admin_report": analysis.get("admin_report"),
-            "photos": analysis.get("photos", [])
+            "photos": photos
         })
     
     return result
