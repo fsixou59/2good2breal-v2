@@ -485,7 +485,7 @@ export function AdminReportPage() {
               
               <div>
                 <Label className="text-zinc-300 mb-2 block">Expert Analysis</Label>
-                <Textarea value={adminReport.detailedAnalysis} onChange={function(e) { updateReport('detailedAnalysis', e.target.value); }} className="bg-zinc-800/50 border-zinc-700 text-white min-h-[150px]" placeholder="The Profile exhibits 100% of the textbook indicators for a 'Military Romance Scam,' including a mismatch between claimed identity and location, and an immediate request for funds. There is no evidence of authenticity, and the behavioral patterns are predatory and script-based. Our comprehensive analysis, extensive research and verifications conclude that, as an 'extremely high risk profile', absolute caution and alertness is strongly encouraged. It would be wise to avoid further communication and contact with this profile. As a warning, do not provide any personal information such as: your address, financial status or banking account details." />
+                <Textarea value={adminReport.detailedAnalysis || (ai && ai.analysis_summary ? ai.analysis_summary : '')} onChange={function(e) { updateReport('detailedAnalysis', e.target.value); }} className="bg-zinc-800/50 border-zinc-700 text-white min-h-[150px]" placeholder="Enter your expert analysis here based on the AI findings and your professional assessment..." />
               </div>
               
               <div>
