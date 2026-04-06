@@ -611,7 +611,7 @@ export const LandingPage = () => {
                 alt="2good2breal Logo" 
                 className="h-[103px] w-auto"
               />
-              <span className="text-2xl font-bold text-white">2Good2breal</span>
+              <span className="text-2xl font-bold text-white">2good2breal</span>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
               <Link to="/terms" className="text-zinc-400 hover:text-white text-sm transition-colors">

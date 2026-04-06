@@ -249,7 +249,7 @@ After payment, you will receive a confirmation email containing:
 
 Un remboursement peut exceptionnellement être accordé en cas de :
     • Double facturation avérée (erreur technique)
-    • Si 2Good2breal n'a pas reçu suffisamment de données de 'Profil' de la part du client pour fournir un rapport adéquat et complet.
+    • Si 2good2breal n'a pas reçu suffisamment de données de 'Profil' de la part du client pour fournir un rapport adéquat et complet.
     • Fermeture définitive du service par 2good2breal
 
 Toute demande doit être soumise via le formulaire de contact avec pièces justificatives.`
@@ -262,7 +262,7 @@ Toute demande doit être soumise via le formulaire de contact avec pièces justi
 
 A refund may exceptionally be granted in case of:
     • Proven double billing (technical error)
-    • If 2Good2breal has not been provided with sufficient 'Profile' data by the client in order to provide an adequate, complete report.
+    • If 2good2breal has not been provided with sufficient 'Profile' data by the client in order to provide an adequate, complete report.
     • Permanent closure of the service by 2good2breal
 
 Any request must be submitted via the contact form with supporting documents.`}

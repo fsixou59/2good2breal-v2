@@ -33,7 +33,7 @@ export const Navbar = () => {
               alt="2good2breal Logo" 
               className="h-[103px] w-auto group-hover:scale-105 transition-transform"
             />
-            <span className="text-2xl font-bold text-white">2Good2breal</span>
+            <span className="text-2xl font-bold text-white">2good2breal</span>
           </Link>
 
           {/* Desktop Navigation */}
