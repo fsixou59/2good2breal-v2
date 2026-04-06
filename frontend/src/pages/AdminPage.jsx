@@ -75,19 +75,47 @@ function FormDataDisplay(props) {
             📷 Uploaded Photos ({photos.length})
           </h4>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {photos.map((photo, index) => (
-              <div key={index} className="relative group">
-                <img 
-                  src={photo.base64} 
-                  alt={photo.name || `Photo ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg border border-zinc-700 cursor-pointer hover:border-purple-500 transition-colors"
-                  onClick={() => window.open(photo.base64, '_blank')}
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 rounded-b-lg truncate">
-                  {photo.name || `Photo ${index + 1}`}
+            {photos.map((photo, index) => {
+              // Handle different photo data formats
+              const photoSrc = photo.base64 || photo.data || photo.url || photo;
+              const photoName = photo.name || photo.filename || `Photo ${index + 1}`;
+              
+              // Check if it's a valid image source
+              const isValidSrc = typeof photoSrc === 'string' && (
+                photoSrc.startsWith('data:image') || 
+                photoSrc.startsWith('http') ||
+                photoSrc.startsWith('/')
+              );
+              
+              if (!isValidSrc) {
+                return (
+                  <div key={index} className="w-full h-32 bg-zinc-800 rounded-lg border border-zinc-700 flex items-center justify-center">
+                    <span className="text-zinc-500 text-xs text-center p-2">Photo {index + 1}<br/>(format non supporté)</span>
+                  </div>
+                );
+              }
+              
+              return (
+                <div key={index} className="relative group">
+                  <img 
+                    src={photoSrc} 
+                    alt={photoName}
+                    className="w-full h-32 object-cover rounded-lg border border-zinc-700 cursor-pointer hover:border-purple-500 transition-colors"
+                    onClick={() => window.open(photoSrc, '_blank')}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="hidden w-full h-32 bg-zinc-800 rounded-lg border border-zinc-700 items-center justify-center">
+                    <span className="text-zinc-500 text-xs">Image error</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 rounded-b-lg truncate">
+                    {photoName}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <p className="text-zinc-500 text-xs mt-2">Click on a photo to view full size</p>
         </div>
@@ -368,7 +396,7 @@ function AnalysisRow(props) {
               <h4 className="text-purple-400 font-semibold flex items-center gap-2 mb-3">
                 <FileText className="w-4 h-4" /> Form Data
               </h4>
-              <FormDataDisplay formData={analysis.form_data} photos={analysis.photos} />
+              <FormDataDisplay formData={analysis.form_data} photos={analysis.photos || analysis.form_data?.photos} />
             </div>
             <div>
               <h4 className="text-teal-400 font-semibold flex items-center gap-2 mb-3">

@@ -891,7 +891,7 @@ async def get_all_analyses(admin: dict = Depends(get_admin_user)):
     # Get all analyses with optimized projection
     analyses = await db.verification_results.find(
         {},
-        {"_id": 0, "id": 1, "user_id": 1, "profile_name": 1, "status": 1, "created_at": 1, "form_data": 1, "ai_analysis": 1, "admin_report": 1}
+        {"_id": 0, "id": 1, "user_id": 1, "profile_name": 1, "status": 1, "created_at": 1, "form_data": 1, "ai_analysis": 1, "admin_report": 1, "photos": 1}
     ).sort("created_at", -1).to_list(100)
     
     # Batch fetch all users in one query to avoid N+1 problem
@@ -918,7 +918,8 @@ async def get_all_analyses(admin: dict = Depends(get_admin_user)):
             "created_at": analysis.get("created_at"),
             "form_data": analysis.get("form_data", {}),
             "ai_analysis": analysis.get("ai_analysis"),
-            "admin_report": analysis.get("admin_report")
+            "admin_report": analysis.get("admin_report"),
+            "photos": analysis.get("photos", [])
         })
     
     return result
