@@ -599,6 +599,30 @@ function AnalysisRow(props) {
         </div>
         ` : ''}
         
+        <!-- RESEARCH AND VERIFICATIONS PERFORMED -->
+        <div class="section" style="margin-top: 30px; page-break-inside: avoid;">
+          <div class="section-title">RESEARCH AND VERIFICATIONS PERFORMED</div>
+          <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Research and verifications performed include some of the following:</p>
+          <ul style="margin-left: 20px; font-size: 12px; color: #333; line-height: 1.8;">
+            <li>Reverse image search across multiple platforms (Google, TinEye, Yandex)</li>
+            <li>Social media profile verification and cross-referencing</li>
+            <li>Identity document analysis (when provided)</li>
+            <li>Professional background verification</li>
+            <li>Company and business registration checks</li>
+            <li>Dating platform profile authenticity analysis</li>
+            <li>Communication pattern and behavioral analysis</li>
+            <li>AI-powered facial recognition and photo manipulation detection</li>
+            <li>Public records and online presence research</li>
+          </ul>
+        </div>
+        
+        <!-- THANK YOU MESSAGE -->
+        <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 8px; text-align: center; page-break-inside: avoid;">
+          <p style="font-size: 14px; color: #7c3aed; font-weight: bold; margin-bottom: 10px;">Thank you for choosing 2good2breal</p>
+          <p style="font-size: 12px; color: #555; line-height: 1.6;">Your safety and peace of mind are our top priorities. We are committed to providing thorough and professional verification services to help you make informed decisions in your online relationships.</p>
+          <p style="font-size: 11px; color: #888; margin-top: 10px; font-style: italic;">If you have any questions about this report, please don't hesitate to contact us.</p>
+        </div>
+        
         <div class="footer">
           <p><strong>2good2breal</strong> - Profile Verification Service</p>
           <p>42, Avenue Montaigne, 75008 Paris, France</p>
