@@ -319,6 +319,223 @@ export const AnalyzePage = () => {
     window.scrollTo(0, 0);
   };
 
+  // Print all form data in a new window
+  const handlePrintForm = () => {
+    const printWindow = window.open('', '_blank');
+    const currentDate = new Date().toLocaleDateString(isFr ? 'fr-FR' : 'en-US', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Profile Submission - 2good2breal</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; line-height: 1.6; }
+          .header { text-align: center; border-bottom: 3px solid #7c3aed; padding-bottom: 20px; margin-bottom: 30px; }
+          .header h1 { color: #7c3aed; font-size: 28px; margin-bottom: 5px; }
+          .header p { color: #666; }
+          .date { text-align: right; color: #666; margin-bottom: 20px; }
+          .section { margin-bottom: 25px; page-break-inside: avoid; }
+          .section-title { background: #7c3aed; color: white; padding: 8px 15px; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
+          .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; }
+          .field { margin-bottom: 10px; }
+          .field-label { font-weight: bold; color: #555; font-size: 12px; text-transform: uppercase; }
+          .field-value { color: #333; padding: 5px 0; border-bottom: 1px dotted #ddd; min-height: 25px; }
+          .field-full { grid-column: span 2; }
+          .textarea-value { white-space: pre-wrap; background: #f9f9f9; padding: 10px; border-radius: 4px; min-height: 60px; }
+          .photos-section { margin-top: 10px; }
+          .photos-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+          .photo-item { width: 100px; height: 100px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; }
+          .photo-name { font-size: 10px; text-align: center; color: #666; margin-top: 3px; }
+          .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #7c3aed; text-align: center; color: #666; font-size: 12px; }
+          @media print {
+            body { padding: 20px; }
+            .section { page-break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>2good2breal</h1>
+          <p>Profile Verification Service - Submission Form</p>
+        </div>
+        
+        <div class="date">${currentDate}</div>
+        
+        <div class="section">
+          <div class="section-title">${isFr ? 'INFORMATIONS CLIENT' : 'CLIENT INFORMATION'}</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">Email</div>
+              <div class="field-value">${formData.client_email || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Âge' : 'Age'}</div>
+              <div class="field-value">${formData.client_age || '-'}</div>
+            </div>
+            <div class="field field-full">
+              <div class="field-label">${isFr ? 'Localisation' : 'Location'}</div>
+              <div class="field-value">${formData.client_location || '-'}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">${isFr ? 'INFORMATIONS DE BASE DU PROFIL' : 'BASIC PROFILE INFORMATION'}</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">${isFr ? 'Nom du profil' : 'Profile Name'}</div>
+              <div class="field-value">${formData.profile_name || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Nom réel complet' : 'Full Real Name'}</div>
+              <div class="field-value">${formData.full_real_name || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Genre' : 'Gender'}</div>
+              <div class="field-value">${formData.gender ? (formData.gender === 'male' ? (isFr ? 'Homme' : 'Male') : (isFr ? 'Femme' : 'Female')) : '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Taille' : 'Height'}</div>
+              <div class="field-value">${formData.height || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Nationalité' : 'Nationality'}</div>
+              <div class="field-value">${formData.nationality || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Langue de communication' : 'Language'}</div>
+              <div class="field-value">${formData.language_of_communication || '-'}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">${isFr ? 'DÉTAILS DU PROFIL' : 'PROFILE DETAILS'}</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">${isFr ? 'Date de naissance' : 'Date of Birth'}</div>
+              <div class="field-value">${formData.date_of_birth || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Âge supposé' : 'Assumed Age'}</div>
+              <div class="field-value">${formData.assumed_age || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Localisation du profil' : 'Profile Location'}</div>
+              <div class="field-value">${formData.profile_location || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Plateforme' : 'Platform'}</div>
+              <div class="field-value">${formData.dating_platform || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Profession' : 'Occupation'}</div>
+              <div class="field-value">${formData.occupation || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Entreprise' : 'Company'}</div>
+              <div class="field-value">${formData.company_name || '-'}</div>
+            </div>
+            <div class="field field-full">
+              <div class="field-label">${isFr ? 'Site web entreprise' : 'Company Website'}</div>
+              <div class="field-value">${formData.company_website || '-'}</div>
+            </div>
+            <div class="field field-full">
+              <div class="field-label">${isFr ? 'Bio du profil' : 'Profile Bio'}</div>
+              <div class="field-value textarea-value">${formData.profile_bio || '-'}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">${isFr ? 'PHOTOS ET RÉSEAUX SOCIAUX' : 'PHOTOS & SOCIAL MEDIA'}</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">${isFr ? 'Nombre de photos' : 'Photo Count'}</div>
+              <div class="field-value">${formData.profile_photos_count || photos.length || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Photos vérifiées' : 'Verified Photos'}</div>
+              <div class="field-value">${formData.has_verified_photos ? (isFr ? 'Oui' : 'Yes') : (isFr ? 'Non' : 'No')}</div>
+            </div>
+            <div class="field field-full">
+              <div class="field-label">${isFr ? 'Réseaux sociaux' : 'Social Media Links'}</div>
+              <div class="field-value textarea-value">${formData.social_media_links || '-'}</div>
+            </div>
+          </div>
+          ${photos.length > 0 ? `
+          <div class="photos-section">
+            <div class="field-label" style="margin-bottom: 10px;">${isFr ? 'Photos téléchargées' : 'Uploaded Photos'} (${photos.length})</div>
+            <div class="photos-grid">
+              ${photos.map(p => `
+                <div>
+                  <img src="${p.preview}" class="photo-item" alt="${p.name}" />
+                  <div class="photo-name">${p.name}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          ` : ''}
+        </div>
+        
+        <div class="section">
+          <div class="section-title">${isFr ? 'INFORMATIONS D\'ACTIVITÉ' : 'ACTIVITY INFORMATION'}</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">${isFr ? 'Date création profil' : 'Profile Creation Date'}</div>
+              <div class="field-value">${formData.profile_creation_date || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Dernière activité' : 'Last Active'}</div>
+              <div class="field-value">${formData.last_active || '-'}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">${isFr ? 'ANALYSE DE COMMUNICATION' : 'COMMUNICATION ANALYSIS'}</div>
+          <div class="field-grid">
+            <div class="field field-full">
+              <div class="field-label">${isFr ? 'Fréquence de communication' : 'Communication Frequency'}</div>
+              <div class="field-value textarea-value">${formData.communication_frequency || '-'}</div>
+            </div>
+            <div class="field field-full">
+              <div class="field-label">${isFr ? 'Substance des messages' : 'Message Substance'}</div>
+              <div class="field-value textarea-value">${formData.message_substance || '-'}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title">${isFr ? 'OBSERVATIONS ET PRÉOCCUPATIONS' : 'OBSERVATIONS & CONCERNS'}</div>
+          <div class="field-grid">
+            <div class="field field-full">
+              <div class="field-value textarea-value">${formData.observations_concerns || '-'}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="footer">
+          <p><strong>2good2breal</strong> - Profile Verification Service</p>
+          <p>42, Avenue Montaigne, 75008 Paris, France</p>
+          <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45</p>
+        </div>
+        
+        <script>
+          window.onload = function() { window.print(); }
+        </script>
+      </body>
+      </html>
+    `;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
   // Step labels for progress indicator
   const stepLabels = isFr 
     ? ['Informations', 'Photos', 'Activité', 'Observations']
@@ -1273,7 +1490,7 @@ export const AnalyzePage = () => {
                 <Button 
                   type="button"
                   variant="outline"
-                  onClick={() => window.print()}
+                  onClick={handlePrintForm}
                   className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
                   data-testid="print-form-btn"
                 >
