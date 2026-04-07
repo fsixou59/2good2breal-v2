@@ -51,6 +51,13 @@ A verification service website for dating profiles where users submit profiles f
   - Individual recommendations per red flag
   - AI Recommendations list
 
+### Photos in Print ✅
+- **Uploaded Photos** now included in Admin "Print Submission" output:
+  - Photos displayed in 2-column grid layout
+  - Photo names shown below each image
+  - Max height 250px per photo for proper page fitting
+  - Page break prevention for photos section
+
 ### Previous Work (April 6, 2026)
 
 ### UI/UX Changes

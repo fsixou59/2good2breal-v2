@@ -482,6 +482,22 @@ function AnalysisRow(props) {
               <div class="field-value textarea-value">${formData.social_media_links || '-'}</div>
             </div>
           </div>
+          
+          <!-- UPLOADED PHOTOS -->
+          ${(formData.photos && formData.photos.length > 0) || (analysis.photos && analysis.photos.length > 0) ? `
+          <div style="margin-top: 20px;">
+            <div class="subsection-title">UPLOADED PHOTOS (${(formData.photos || analysis.photos || []).length})</div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+              ${(formData.photos || analysis.photos || []).map(function(photo, idx) {
+                const photoSrc = photo.base64 || photo.data || photo.url || photo;
+                const photoName = photo.name || photo.filename || 'Photo ' + (idx + 1);
+                const isValidSrc = typeof photoSrc === 'string' && (photoSrc.startsWith('data:image') || photoSrc.startsWith('http'));
+                if (!isValidSrc) return '';
+                return '<div style="text-align: center; page-break-inside: avoid;"><img src="' + photoSrc + '" alt="' + photoName + '" style="max-width: 100%; max-height: 250px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px;" /><p style="font-size: 10px; color: #666; margin-top: 5px;">' + photoName + '</p></div>';
+              }).join('')}
+            </div>
+          </div>
+          ` : ''}
         </div>
         
         <!-- ACTIVITY INFORMATION - Underlined -->
