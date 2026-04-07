@@ -70,6 +70,10 @@ export const AnalyzePage = () => {
     height: '',
     nationality: '',
     language_of_communication: '',
+    assumed_marital_status: '',
+    hobbies_interests: '',
+    university_college: '',
+    years_attendance: '',
     profile_bio: '',
     date_of_birth: '',
     assumed_age: '',
@@ -333,24 +337,44 @@ export const AnalyzePage = () => {
         <title>Profile Submission - 2good2breal</title>
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; line-height: 1.6; }
+          body { font-family: 'Georgia', 'Times New Roman', serif; padding: 40px; color: #333; line-height: 1.6; max-width: 800px; margin: 0 auto; }
           .header { text-align: center; border-bottom: 3px solid #7c3aed; padding-bottom: 20px; margin-bottom: 30px; }
           .header h1 { color: #7c3aed; font-size: 28px; margin-bottom: 5px; }
-          .header p { color: #666; }
-          .date { text-align: right; color: #666; margin-bottom: 20px; }
+          .header p { color: #666; font-size: 14px; }
+          .date { text-align: right; color: #666; margin-bottom: 20px; font-size: 12px; }
           .section { margin-bottom: 25px; page-break-inside: avoid; }
-          .section-title { background: #7c3aed; color: white; padding: 8px 15px; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
-          .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; }
-          .field { margin-bottom: 10px; }
-          .field-label { font-weight: bold; color: #555; font-size: 12px; text-transform: uppercase; }
-          .field-value { color: #333; padding: 5px 0; border-bottom: 1px dotted #ddd; min-height: 25px; }
+          .section-title { 
+            color: #333; 
+            padding: 8px 0; 
+            font-size: 14px; 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            border-bottom: 2px solid #7c3aed; 
+            text-decoration: underline; 
+            text-underline-offset: 5px; 
+          }
+          .subsection-title { 
+            font-weight: bold; 
+            color: #333; 
+            font-size: 12px; 
+            text-transform: uppercase; 
+            text-decoration: underline; 
+            margin: 15px 0 10px 0; 
+            letter-spacing: 0.5px; 
+          }
+          .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 30px; }
+          .field { margin-bottom: 8px; }
+          .field-label { font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+          .field-value { color: #333; padding: 4px 0; border-bottom: 1px dotted #ccc; min-height: 22px; font-size: 13px; }
           .field-full { grid-column: span 2; }
-          .textarea-value { white-space: pre-wrap; background: #f9f9f9; padding: 10px; border-radius: 4px; min-height: 60px; }
+          .textarea-value { white-space: pre-wrap; background: #f8f8f8; padding: 12px; border-radius: 4px; min-height: 60px; border-left: 3px solid #7c3aed; font-size: 13px; }
           .photos-section { margin-top: 10px; }
           .photos-grid { display: flex; flex-wrap: wrap; gap: 10px; }
           .photo-item { width: 100px; height: 100px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; }
           .photo-name { font-size: 10px; text-align: center; color: #666; margin-top: 3px; }
-          .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #7c3aed; text-align: center; color: #666; font-size: 12px; }
+          .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #7c3aed; text-align: center; color: #666; font-size: 11px; }
           @media print {
             body { padding: 20px; }
             .section { page-break-inside: avoid; }
@@ -365,9 +389,14 @@ export const AnalyzePage = () => {
         
         <div class="date">${currentDate}</div>
         
+        <!-- CLIENT INFORMATION - Underlined -->
         <div class="section">
           <div class="section-title">${isFr ? 'INFORMATIONS CLIENT' : 'CLIENT INFORMATION'}</div>
           <div class="field-grid">
+            <div class="field">
+              <div class="field-label">${isFr ? 'Nom' : 'Name'}</div>
+              <div class="field-value">${user?.name || formData.client_email?.split('@')[0] || '-'}</div>
+            </div>
             <div class="field">
               <div class="field-label">Email</div>
               <div class="field-value">${formData.client_email || '-'}</div>
@@ -376,15 +405,16 @@ export const AnalyzePage = () => {
               <div class="field-label">${isFr ? 'Âge' : 'Age'}</div>
               <div class="field-value">${formData.client_age || '-'}</div>
             </div>
-            <div class="field field-full">
+            <div class="field">
               <div class="field-label">${isFr ? 'Localisation' : 'Location'}</div>
               <div class="field-value">${formData.client_location || '-'}</div>
             </div>
           </div>
         </div>
         
+        <!-- PROFILE INFORMATION - Underlined (no "Basic") -->
         <div class="section">
-          <div class="section-title">${isFr ? 'INFORMATIONS DE BASE DU PROFIL' : 'BASIC PROFILE INFORMATION'}</div>
+          <div class="section-title">${isFr ? 'INFORMATIONS DU PROFIL' : 'PROFILE INFORMATION'}</div>
           <div class="field-grid">
             <div class="field">
               <div class="field-label">${isFr ? 'Nom du profil' : 'Profile Name'}</div>
@@ -407,12 +437,29 @@ export const AnalyzePage = () => {
               <div class="field-value">${formData.nationality || '-'}</div>
             </div>
             <div class="field">
-              <div class="field-label">${isFr ? 'Langue de communication' : 'Language'}</div>
+              <div class="field-label">${isFr ? 'Langue' : 'Language'}</div>
               <div class="field-value">${formData.language_of_communication || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Statut marital supposé' : 'Assumed Marital Status'}</div>
+              <div class="field-value">${formData.assumed_marital_status || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Hobbies / Intérêts' : 'Hobbies / Interests'}</div>
+              <div class="field-value">${formData.hobbies_interests || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Université / École' : 'University / College'}</div>
+              <div class="field-value">${formData.university_college || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Années de fréquentation' : "Year/s of Attendance"}</div>
+              <div class="field-value">${formData.years_attendance || '-'}</div>
             </div>
           </div>
         </div>
         
+        <!-- PROFILE DETAILS - Underlined -->
         <div class="section">
           <div class="section-title">${isFr ? 'DÉTAILS DU PROFIL' : 'PROFILE DETAILS'}</div>
           <div class="field-grid">
@@ -425,7 +472,7 @@ export const AnalyzePage = () => {
               <div class="field-value">${formData.assumed_age || '-'}</div>
             </div>
             <div class="field">
-              <div class="field-label">${isFr ? 'Localisation du profil' : 'Profile Location'}</div>
+              <div class="field-label">${isFr ? 'Localisation' : 'Location'}</div>
               <div class="field-value">${formData.profile_location || '-'}</div>
             </div>
             <div class="field">
@@ -437,25 +484,26 @@ export const AnalyzePage = () => {
               <div class="field-value">${formData.occupation || '-'}</div>
             </div>
             <div class="field">
-              <div class="field-label">${isFr ? 'Entreprise' : 'Company'}</div>
+              <div class="field-label">${isFr ? 'Nom de l\'entreprise' : 'Company Name'}</div>
               <div class="field-value">${formData.company_name || '-'}</div>
             </div>
             <div class="field field-full">
               <div class="field-label">${isFr ? 'Site web entreprise' : 'Company Website'}</div>
               <div class="field-value">${formData.company_website || '-'}</div>
             </div>
-            <div class="field field-full">
-              <div class="field-label">${isFr ? 'Bio du profil' : 'Profile Bio'}</div>
-              <div class="field-value textarea-value">${formData.profile_bio || '-'}</div>
-            </div>
           </div>
+          
+          <!-- PROFILE BIO - Underlined -->
+          <div class="subsection-title">${isFr ? 'BIO DU PROFIL' : 'PROFILE BIO'}</div>
+          <div class="field-value textarea-value">${formData.profile_bio || '-'}</div>
         </div>
         
+        <!-- PHOTOS AND SOCIAL MEDIA - Underlined -->
         <div class="section">
-          <div class="section-title">${isFr ? 'PHOTOS ET RÉSEAUX SOCIAUX' : 'PHOTOS & SOCIAL MEDIA'}</div>
+          <div class="section-title">${isFr ? 'PHOTOS ET RÉSEAUX SOCIAUX' : 'PHOTOS AND SOCIAL MEDIA'}</div>
           <div class="field-grid">
             <div class="field">
-              <div class="field-label">${isFr ? 'Nombre de photos' : 'Photo Count'}</div>
+              <div class="field-label">${isFr ? 'Nombre de photos' : 'Number of Photos'}</div>
               <div class="field-value">${formData.profile_photos_count || photos.length || '-'}</div>
             </div>
             <div class="field">
@@ -463,7 +511,7 @@ export const AnalyzePage = () => {
               <div class="field-value">${formData.has_verified_photos ? (isFr ? 'Oui' : 'Yes') : (isFr ? 'Non' : 'No')}</div>
             </div>
             <div class="field field-full">
-              <div class="field-label">${isFr ? 'Réseaux sociaux' : 'Social Media Links'}</div>
+              <div class="field-label">${isFr ? 'Liens réseaux sociaux' : 'Social Media Links'}</div>
               <div class="field-value textarea-value">${formData.social_media_links || '-'}</div>
             </div>
           </div>
@@ -482,6 +530,7 @@ export const AnalyzePage = () => {
           ` : ''}
         </div>
         
+        <!-- ACTIVITY INFORMATION - Underlined -->
         <div class="section">
           <div class="section-title">${isFr ? 'INFORMATIONS D\'ACTIVITÉ' : 'ACTIVITY INFORMATION'}</div>
           <div class="field-grid">
@@ -496,6 +545,7 @@ export const AnalyzePage = () => {
           </div>
         </div>
         
+        <!-- COMMUNICATION ANALYSIS - Underlined -->
         <div class="section">
           <div class="section-title">${isFr ? 'ANALYSE DE COMMUNICATION' : 'COMMUNICATION ANALYSIS'}</div>
           <div class="field-grid">
@@ -510,19 +560,17 @@ export const AnalyzePage = () => {
           </div>
         </div>
         
+        <!-- OBSERVATIONS & CONCERNS - Underlined -->
         <div class="section">
           <div class="section-title">${isFr ? 'OBSERVATIONS ET PRÉOCCUPATIONS' : 'OBSERVATIONS & CONCERNS'}</div>
-          <div class="field-grid">
-            <div class="field field-full">
-              <div class="field-value textarea-value">${formData.observations_concerns || '-'}</div>
-            </div>
-          </div>
+          <div class="field-value textarea-value">${formData.observations_concerns || '-'}</div>
         </div>
         
         <div class="footer">
           <p><strong>2good2breal</strong> - Profile Verification Service</p>
           <p>42, Avenue Montaigne, 75008 Paris, France</p>
-          <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45</p>
+          <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com</p>
+          <p style="margin-top: 10px; font-style: italic;">This document is confidential and intended for the client only.</p>
         </div>
         
         <script>
@@ -1013,6 +1061,65 @@ export const AnalyzePage = () => {
                         className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
                         placeholder={isFr ? "ex: Anglais, Français..." : "e.g., English, French..."}
                         data-testid="input-language"
+                      />
+                    </div>
+                  </div>
+
+                  {/* New fields: Marital Status, Hobbies, University */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="assumed_marital_status" className="text-zinc-300">
+                        {isFr ? "Statut marital supposé" : "Assumed Marital Status"}
+                      </Label>
+                      <Input
+                        id="assumed_marital_status"
+                        value={formData.assumed_marital_status}
+                        onChange={(e) => handleChange('assumed_marital_status', e.target.value)}
+                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                        placeholder={isFr ? "ex: Célibataire, Divorcé..." : "e.g., Single, Divorced..."}
+                        data-testid="input-marital-status"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="hobbies_interests" className="text-zinc-300">
+                        {isFr ? "Hobbies / Intérêts" : "Hobbies / Interests"}
+                      </Label>
+                      <Input
+                        id="hobbies_interests"
+                        value={formData.hobbies_interests}
+                        onChange={(e) => handleChange('hobbies_interests', e.target.value)}
+                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                        placeholder={isFr ? "ex: Voyages, Sport, Cuisine..." : "e.g., Travel, Sports, Cooking..."}
+                        data-testid="input-hobbies"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="university_college" className="text-zinc-300">
+                        {isFr ? "Université / École" : "University / College"}
+                      </Label>
+                      <Input
+                        id="university_college"
+                        value={formData.university_college}
+                        onChange={(e) => handleChange('university_college', e.target.value)}
+                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                        placeholder={isFr ? "ex: Université de Paris..." : "e.g., University of Paris..."}
+                        data-testid="input-university"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="years_attendance" className="text-zinc-300">
+                        {isFr ? "Années de fréquentation" : "Year/s of Attendance"}
+                      </Label>
+                      <Input
+                        id="years_attendance"
+                        value={formData.years_attendance}
+                        onChange={(e) => handleChange('years_attendance', e.target.value)}
+                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                        placeholder={isFr ? "ex: 2010-2014" : "e.g., 2010-2014"}
+                        data-testid="input-years-attendance"
                       />
                     </div>
                   </div>
