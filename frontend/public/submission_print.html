@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Profile Submission - Ron 68</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Georgia', 'Times New Roman', serif; 
+            padding: 40px; 
+            color: #333; 
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header { 
+            text-align: center; 
+            border-bottom: 3px solid #7c3aed; 
+            padding-bottom: 20px; 
+            margin-bottom: 30px; 
+        }
+        .header h1 { color: #7c3aed; font-size: 28px; margin-bottom: 5px; }
+        .header p { color: #666; font-size: 14px; }
+        .meta { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 25px;
+            font-size: 12px;
+            color: #666;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .section { 
+            margin-bottom: 25px; 
+            page-break-inside: avoid; 
+        }
+        .section-title { 
+            background: #7c3aed; 
+            color: white; 
+            padding: 8px 15px; 
+            font-size: 13px; 
+            font-weight: bold; 
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .field-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 8px 30px; 
+        }
+        .field { margin-bottom: 8px; }
+        .field-label { 
+            font-weight: bold; 
+            color: #555; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+        }
+        .field-value { 
+            color: #333; 
+            padding: 4px 0; 
+            border-bottom: 1px dotted #ccc; 
+            min-height: 22px;
+            font-size: 13px;
+        }
+        .field-full { grid-column: span 2; }
+        .textarea-value { 
+            white-space: pre-wrap; 
+            background: #f8f8f8; 
+            padding: 12px; 
+            border-radius: 4px; 
+            min-height: 60px;
+            border-left: 3px solid #7c3aed;
+            font-size: 13px;
+        }
+        .ai-section {
+            background: #fef3f3;
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .ai-section.high-risk {
+            background: #fef2f2;
+            border-color: #dc2626;
+        }
+        .score-display {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #dc2626;
+        }
+        .score-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .trust-level {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .trust-very-low { background: #dc2626; color: white; }
+        .trust-low { background: #f97316; color: white; }
+        .trust-medium { background: #eab308; color: black; }
+        .trust-high { background: #22c55e; color: white; }
+        .red-flags {
+            background: #fee2e2;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        .red-flags h4 {
+            color: #dc2626;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .red-flags ul {
+            margin-left: 20px;
+            font-size: 12px;
+        }
+        .red-flags li {
+            margin-bottom: 5px;
+        }
+        .footer { 
+            margin-top: 40px; 
+            padding-top: 20px; 
+            border-top: 2px solid #7c3aed; 
+            text-align: center; 
+            color: #666; 
+            font-size: 11px; 
+        }
+        @media print {
+            body { padding: 20px; }
+            .section { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>2good2breal</h1>
+        <p>Profile Verification Service - Submission Details</p>
+    </div>
+    
+    <div class="meta">
+        <div>
+            <strong>Reference:</strong> #4D91722E<br>
+            <strong>Status:</strong> PENDING
+        </div>
+        <div style="text-align: right;">
+            <strong>Submitted:</strong> April 07, 2026 at 09:41<br>
+            <strong>Profile:</strong> Ron 68
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Client Information</div>
+        <div class="field-grid">
+            <div class="field">
+                <div class="field-label">Client Email</div>
+                <div class="field-value">fsixou@yahoo.fr</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Client Age</div>
+                <div class="field-value">48</div>
+            </div>
+            <div class="field field-full">
+                <div class="field-label">Client Location</div>
+                <div class="field-value">Nice</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Profile Being Verified</div>
+        <div class="field-grid">
+            <div class="field">
+                <div class="field-label">Profile Name</div>
+                <div class="field-value">Ron 68</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Full Real Name</div>
+                <div class="field-value">Ron Pitcher</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Gender</div>
+                <div class="field-value">Male</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Height</div>
+                <div class="field-value"></div>
+            </div>
+            <div class="field">
+                <div class="field-label">Nationality</div>
+                <div class="field-value">US</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Language</div>
+                <div class="field-value">english</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Profile Details</div>
+        <div class="field-grid">
+            <div class="field">
+                <div class="field-label">Date of Birth</div>
+                <div class="field-value"></div>
+            </div>
+            <div class="field">
+                <div class="field-label">Assumed Age</div>
+                <div class="field-value">68</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Profile Location</div>
+                <div class="field-value">Palatine Illinois US</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Dating Platform</div>
+                <div class="field-value">onlineluxy.com</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Occupation</div>
+                <div class="field-value">business owner</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Company</div>
+                <div class="field-value">pitcher insurance agency inc</div>
+            </div>
+            <div class="field field-full">
+                <div class="field-label">Company Website</div>
+                <div class="field-value">pitcher insurance.com</div>
+            </div>
+            <div class="field field-full">
+                <div class="field-label">Profile Bio</div>
+                <div class="field-value textarea-value">I ve been divorced since 2017 now that my kids are older I am looking for a life partner. I own a business that gives me a lot of  time to travel. I am very honest, affectionate, generous , loving and kind</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Photos & Social Media</div>
+        <div class="field-grid">
+            <div class="field">
+                <div class="field-label">Number of Photos</div>
+                <div class="field-value">3</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Verified Photos</div>
+                <div class="field-value">No</div>
+            </div>
+            <div class="field field-full">
+                <div class="field-label">Social Media Links</div>
+                <div class="field-value textarea-value">facebook  (ron pitcher), linkedin (ron pitcher), instagram (pitchman 1300)</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Activity Information</div>
+        <div class="field-grid">
+            <div class="field">
+                <div class="field-label">Profile Creation Date</div>
+                <div class="field-value"></div>
+            </div>
+            <div class="field">
+                <div class="field-label">Last Active</div>
+                <div class="field-value">2026-04-07</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Communication Analysis</div>
+        <div class="field-grid">
+            <div class="field field-full">
+                <div class="field-label">Communication Frequency</div>
+                <div class="field-value textarea-value">regular, consistant and daily.</div>
+            </div>
+            <div class="field field-full">
+                <div class="field-label">Message Substance</div>
+                <div class="field-value textarea-value">polite, well educated, perfect grammar, knowladgable,however he has also sent me a picture of nudity which I find inapropriate.</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Client Observations & Concerns</div>
+        <div class="field-value textarea-value">He has sent me 2 pictures I find inapropriate, one is partial nudity, and the other of him in his jacuzzi. not interesting to me and too intimate. 
+He also yesterday sent me a picture of he , his daughter and her huband together. He said it was taken at that moment.</div>
+    </div>
+    
+    <div class="ai-section high-risk">
+        <div class="section-title" style="background: #dc2626;">AI Analysis Results</div>
+        
+        <div class="score-display">
+            <div class="score-value">15/100</div>
+            <div class="score-label">Trust Score</div>
+            <div style="margin-top: 10px;">
+                <span class="trust-level trust-very-low">VERY LOW</span>
+            </div>
+        </div>
+        
+        <div class="field field-full" style="margin-top: 20px;">
+            <div class="field-label">AI Summary</div>
+            <div class="field-value textarea-value" style="border-left-color: #dc2626;">This profile is highly suspicious and likely an identity theft/romance scam. The person is using the real identity of an insurance professional from Illinois, but the behavior—sending unsolicited nudity and the low-quality 're-photographed' images—aligns with scammer patterns rather than a professional businessman.</div>
+        </div>
+        
+        <div class="red-flags"><h4>Red Flags Detected (3)</h4><ul><li><strong>Unknown:</strong> Sending unsolicited nudity and overly intimate photos (jacuzzi) is a classic tactic used by scammers to fast-track intimacy or, in some cases, to set up 'sextortion' traps later.</li><li><strong>Unknown:</strong> While a real 'Ron Pitcher' exists at Pitcher Insurance in Palatine, IL, scammers frequently 'skin' the identities of real, successful business owners to appear credible. The photos provided appear to be 'photos of photos' (moiré patterns/screen glare), suggesting they were captured from another device or website.</li><li><strong>Unknown:</strong> The user reported a 'last active' date of 2026, which suggests a system error or a manipulated profile timeline. Furthermore, claiming a photo was 'taken at that moment' with family is a common tactic to build false trust through 'proof of life'.</li></ul></div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>2good2breal</strong> - Profile Verification Service</p>
+        <p>42, Avenue Montaigne, 75008 Paris, France</p>
+        <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com</p>
+        <p style="margin-top: 10px; font-style: italic;">This document is confidential and intended for the client only.</p>
+    </div>
+</body>
+</html>
