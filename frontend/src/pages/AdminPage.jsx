@@ -297,6 +297,10 @@ function AnalysisRow(props) {
     e.stopPropagation();
     const formData = analysis.form_data || {};
     const printWindow = window.open('', '_blank');
+    
+    // Helper function for gender display
+    const genderDisplay = formData.gender ? (formData.gender === 'male' ? 'Male' : 'Female') : '-';
+    
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -304,78 +308,223 @@ function AnalysisRow(props) {
         <title>Profile Submission - ${analysis.profile_name}</title>
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: Arial, sans-serif; padding: 40px; background: white; color: #333; }
-          .header { text-align: center; border-bottom: 3px solid #a855f7; padding-bottom: 20px; margin-bottom: 30px; }
-          .logo { font-size: 28px; font-weight: bold; color: #a855f7; }
-          .title { font-size: 22px; margin-top: 10px; color: #333; }
-          .ref { font-size: 14px; color: #666; margin-top: 5px; }
-          .section { margin-bottom: 25px; }
-          .section-title { font-size: 16px; font-weight: bold; color: #a855f7; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 15px; }
-          .row { display: flex; padding: 8px 0; border-bottom: 1px solid #eee; }
-          .label { width: 200px; font-weight: 600; color: #555; }
-          .value { flex: 1; color: #333; }
-          .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #a855f7; text-align: center; font-size: 12px; color: #666; }
-          @media print { body { padding: 20px; } }
+          body { font-family: 'Georgia', 'Times New Roman', serif; padding: 40px; color: #333; line-height: 1.6; max-width: 800px; margin: 0 auto; }
+          .header { text-align: center; border-bottom: 3px solid #7c3aed; padding-bottom: 20px; margin-bottom: 30px; }
+          .header h1 { color: #7c3aed; font-size: 28px; margin-bottom: 5px; }
+          .header p { color: #666; font-size: 14px; }
+          .date { text-align: right; color: #666; margin-bottom: 20px; font-size: 12px; }
+          .section { margin-bottom: 25px; page-break-inside: avoid; }
+          .section-title { 
+            color: #333; 
+            padding: 8px 0; 
+            font-size: 14px; 
+            font-weight: bold; 
+            margin-bottom: 15px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            border-bottom: 2px solid #7c3aed; 
+            text-decoration: underline; 
+            text-underline-offset: 5px; 
+          }
+          .subsection-title { 
+            font-weight: bold; 
+            color: #333; 
+            font-size: 12px; 
+            text-transform: uppercase; 
+            text-decoration: underline; 
+            margin: 15px 0 10px 0; 
+            letter-spacing: 0.5px; 
+          }
+          .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 30px; }
+          .field { margin-bottom: 8px; }
+          .field-label { font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+          .field-value { color: #333; padding: 4px 0; border-bottom: 1px dotted #ccc; min-height: 22px; font-size: 13px; }
+          .field-full { grid-column: span 2; }
+          .textarea-value { white-space: pre-wrap; background: #f8f8f8; padding: 12px; border-radius: 4px; min-height: 60px; border-left: 3px solid #7c3aed; font-size: 13px; }
+          .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #7c3aed; text-align: center; color: #666; font-size: 11px; }
+          @media print {
+            body { padding: 20px; }
+            .section { page-break-inside: avoid; }
+          }
         </style>
       </head>
       <body>
         <div class="header">
-          <div class="logo">2Good2bReal</div>
-          <div class="title">Profile Submission</div>
-          <div class="ref">Reference: ${analysis.id?.substring(0, 8).toUpperCase() || 'N/A'}</div>
-          <div class="ref">Date: ${dateStr}</div>
+          <h1>2good2breal</h1>
+          <p>Profile Verification Service - Submission Form</p>
         </div>
         
+        <div class="date">${dateStr}</div>
+        
+        <!-- CLIENT INFORMATION - Underlined -->
         <div class="section">
-          <div class="section-title">Client Information</div>
-          <div class="row"><span class="label">Client Name:</span><span class="value">${analysis.user_name || 'N/A'}</span></div>
-          <div class="row"><span class="label">Client Email:</span><span class="value">${analysis.user_email || 'N/A'}</span></div>
-          <div class="row"><span class="label">Client Email (for report):</span><span class="value">${formData.client_email || 'N/A'}</span></div>
-          <div class="row"><span class="label">Client Age:</span><span class="value">${formData.client_age || 'N/A'}</span></div>
-          <div class="row"><span class="label">Client Location:</span><span class="value">${formData.client_location || 'N/A'}</span></div>
+          <div class="section-title">CLIENT INFORMATION</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">Name</div>
+              <div class="field-value">${analysis.user_name || formData.client_email?.split('@')[0] || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Email</div>
+              <div class="field-value">${formData.client_email || analysis.user_email || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Age</div>
+              <div class="field-value">${formData.client_age || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Location</div>
+              <div class="field-value">${formData.client_location || '-'}</div>
+            </div>
+          </div>
         </div>
         
+        <!-- PROFILE INFORMATION - Underlined (no "Basic") -->
         <div class="section">
-          <div class="section-title">Profile Information</div>
-          <div class="row"><span class="label">Profile Name:</span><span class="value">${formData.profile_name || analysis.profile_name || 'N/A'}</span></div>
-          <div class="row"><span class="label">Full Real Name:</span><span class="value">${formData.full_real_name || 'N/A'}</span></div>
-          <div class="row"><span class="label">Gender:</span><span class="value">${formData.gender || 'N/A'}</span></div>
-          <div class="row"><span class="label">Height:</span><span class="value">${formData.height || 'N/A'}</span></div>
-          <div class="row"><span class="label">Date of Birth:</span><span class="value">${formData.date_of_birth || 'N/A'}</span></div>
-          <div class="row"><span class="label">Assumed Age:</span><span class="value">${formData.assumed_age || 'N/A'}</span></div>
-          <div class="row"><span class="label">Nationality:</span><span class="value">${formData.nationality || 'N/A'}</span></div>
-          <div class="row"><span class="label">Profile Location:</span><span class="value">${formData.profile_location || 'N/A'}</span></div>
+          <div class="section-title">PROFILE INFORMATION</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">Profile Name</div>
+              <div class="field-value">${formData.profile_name || analysis.profile_name || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Full Real Name</div>
+              <div class="field-value">${formData.full_real_name || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Gender</div>
+              <div class="field-value">${genderDisplay}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Height</div>
+              <div class="field-value">${formData.height || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Nationality</div>
+              <div class="field-value">${formData.nationality || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Language</div>
+              <div class="field-value">${formData.language_of_communication || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Assumed Marital Status</div>
+              <div class="field-value">${formData.assumed_marital_status || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Hobbies / Interests</div>
+              <div class="field-value">${formData.hobbies_interests || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">University / College</div>
+              <div class="field-value">${formData.university_college || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Year/s of Attendance</div>
+              <div class="field-value">${formData.years_attendance || '-'}</div>
+            </div>
+          </div>
         </div>
         
+        <!-- PROFILE DETAILS - Underlined -->
         <div class="section">
-          <div class="section-title">Professional Information</div>
-          <div class="row"><span class="label">Occupation:</span><span class="value">${formData.occupation || 'N/A'}</span></div>
-          <div class="row"><span class="label">Company Name:</span><span class="value">${formData.company_name || 'N/A'}</span></div>
-          <div class="row"><span class="label">Company Website:</span><span class="value">${formData.company_website || 'N/A'}</span></div>
+          <div class="section-title">PROFILE DETAILS</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">Date of Birth</div>
+              <div class="field-value">${formData.date_of_birth || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Assumed Age</div>
+              <div class="field-value">${formData.assumed_age || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Location</div>
+              <div class="field-value">${formData.profile_location || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Platform</div>
+              <div class="field-value">${formData.dating_platform || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Occupation</div>
+              <div class="field-value">${formData.occupation || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Company Name</div>
+              <div class="field-value">${formData.company_name || '-'}</div>
+            </div>
+            <div class="field field-full">
+              <div class="field-label">Company Website</div>
+              <div class="field-value">${formData.company_website || '-'}</div>
+            </div>
+          </div>
+          
+          <!-- PROFILE BIO - Underlined -->
+          <div class="subsection-title">PROFILE BIO</div>
+          <div class="field-value textarea-value">${formData.profile_bio || '-'}</div>
         </div>
         
+        <!-- PHOTOS AND SOCIAL MEDIA - Underlined -->
         <div class="section">
-          <div class="section-title">Dating Platform Details</div>
-          <div class="row"><span class="label">Dating Platform:</span><span class="value">${formData.dating_platform || 'N/A'}</span></div>
-          <div class="row"><span class="label">Profile Bio:</span><span class="value">${formData.profile_bio || 'N/A'}</span></div>
-          <div class="row"><span class="label">Photos Count:</span><span class="value">${formData.profile_photos_count || 'N/A'}</span></div>
-          <div class="row"><span class="label">Verified Photos:</span><span class="value">${formData.has_verified_photos ? 'Yes' : 'No'}</span></div>
-          <div class="row"><span class="label">Profile Creation Date:</span><span class="value">${formData.profile_creation_date || 'N/A'}</span></div>
-          <div class="row"><span class="label">Last Active:</span><span class="value">${formData.last_active || 'N/A'}</span></div>
-          <div class="row"><span class="label">Social Media Links:</span><span class="value">${formData.social_media_links || 'N/A'}</span></div>
+          <div class="section-title">PHOTOS AND SOCIAL MEDIA</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">Number of Photos</div>
+              <div class="field-value">${formData.profile_photos_count || (formData.photos ? formData.photos.length : 0) || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Verified Photos</div>
+              <div class="field-value">${formData.has_verified_photos ? 'Yes' : 'No'}</div>
+            </div>
+            <div class="field field-full">
+              <div class="field-label">Social Media Links</div>
+              <div class="field-value textarea-value">${formData.social_media_links || '-'}</div>
+            </div>
+          </div>
         </div>
         
+        <!-- ACTIVITY INFORMATION - Underlined -->
         <div class="section">
-          <div class="section-title">Communication & Observations</div>
-          <div class="row"><span class="label">Language:</span><span class="value">${formData.language_of_communication || 'N/A'}</span></div>
-          <div class="row"><span class="label">Communication Frequency:</span><span class="value">${formData.communication_frequency || 'N/A'}</span></div>
-          <div class="row"><span class="label">Message Substance:</span><span class="value">${formData.message_substance || 'N/A'}</span></div>
-          <div class="row"><span class="label">Observations/Concerns:</span><span class="value">${formData.observations_concerns || 'N/A'}</span></div>
+          <div class="section-title">ACTIVITY INFORMATION</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">Profile Creation Date</div>
+              <div class="field-value">${formData.profile_creation_date || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Last Active</div>
+              <div class="field-value">${formData.last_active || '-'}</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- COMMUNICATION ANALYSIS - Underlined -->
+        <div class="section">
+          <div class="section-title">COMMUNICATION ANALYSIS</div>
+          <div class="field-grid">
+            <div class="field field-full">
+              <div class="field-label">Communication Frequency</div>
+              <div class="field-value textarea-value">${formData.communication_frequency || '-'}</div>
+            </div>
+            <div class="field field-full">
+              <div class="field-label">Message Substance</div>
+              <div class="field-value textarea-value">${formData.message_substance || '-'}</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- OBSERVATIONS & CONCERNS - Underlined -->
+        <div class="section">
+          <div class="section-title">OBSERVATIONS & CONCERNS</div>
+          <div class="field-value textarea-value">${formData.observations_concerns || '-'}</div>
         </div>
         
         <div class="footer">
-          <p>2Good2bReal - Professional Profile Verification Service</p>
-          <p>www.2good2breal.com | contact@2good2breal.com</p>
+          <p><strong>2good2breal</strong> - Profile Verification Service</p>
+          <p>42, Avenue Montaigne, 75008 Paris, France</p>
+          <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com</p>
+          <p style="margin-top: 10px; font-style: italic;">This document is confidential and intended for the client only.</p>
         </div>
         
         <script>window.onload = function() { window.print(); }</script>
