@@ -520,11 +520,74 @@ function AnalysisRow(props) {
           <div class="field-value textarea-value">${formData.observations_concerns || '-'}</div>
         </div>
         
+        ${analysis.ai_analysis ? `
+        <!-- AI ANALYSIS SECTION -->
+        <div class="ai-section" style="background: ${(analysis.ai_analysis.overall_score || 0) >= 70 ? '#f0fdf4' : (analysis.ai_analysis.overall_score || 0) >= 40 ? '#fefce8' : '#fef2f2'}; border: 2px solid ${(analysis.ai_analysis.overall_score || 0) >= 70 ? '#22c55e' : (analysis.ai_analysis.overall_score || 0) >= 40 ? '#eab308' : '#dc2626'}; border-radius: 8px; padding: 20px; margin-top: 30px; page-break-inside: avoid;">
+          <div class="section-title" style="color: ${(analysis.ai_analysis.overall_score || 0) >= 70 ? '#166534' : (analysis.ai_analysis.overall_score || 0) >= 40 ? '#854d0e' : '#991b1b'}; border-bottom-color: ${(analysis.ai_analysis.overall_score || 0) >= 70 ? '#22c55e' : (analysis.ai_analysis.overall_score || 0) >= 40 ? '#eab308' : '#dc2626'};">AI ANALYSIS RESULTS</div>
+          
+          <!-- Trust Score Display -->
+          <div style="text-align: center; margin: 20px 0; padding: 15px; background: white; border-radius: 8px;">
+            <div style="font-size: 48px; font-weight: bold; color: ${(analysis.ai_analysis.overall_score || 0) >= 70 ? '#22c55e' : (analysis.ai_analysis.overall_score || 0) >= 40 ? '#eab308' : '#dc2626'};">${analysis.ai_analysis.overall_score || 0}/100</div>
+            <div style="font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Trust Score</div>
+            <div style="margin-top: 10px;">
+              <span style="display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 12px; text-transform: uppercase; background: ${(analysis.ai_analysis.overall_score || 0) >= 70 ? '#22c55e' : (analysis.ai_analysis.overall_score || 0) >= 40 ? '#eab308' : '#dc2626'}; color: ${(analysis.ai_analysis.overall_score || 0) >= 40 && (analysis.ai_analysis.overall_score || 0) < 70 ? '#000' : '#fff'};">
+                ${(analysis.ai_analysis.trust_level || 'unknown').replace('_', ' ').toUpperCase()}
+              </span>
+            </div>
+          </div>
+          
+          <!-- AI Summary -->
+          ${analysis.ai_analysis.analysis_summary ? `
+          <div style="margin-bottom: 20px;">
+            <div class="subsection-title" style="color: ${(analysis.ai_analysis.overall_score || 0) >= 70 ? '#166534' : (analysis.ai_analysis.overall_score || 0) >= 40 ? '#854d0e' : '#991b1b'};">AI Summary</div>
+            <div class="textarea-value" style="border-left-color: ${(analysis.ai_analysis.overall_score || 0) >= 70 ? '#22c55e' : (analysis.ai_analysis.overall_score || 0) >= 40 ? '#eab308' : '#dc2626'};">${analysis.ai_analysis.analysis_summary}</div>
+          </div>
+          ` : ''}
+          
+          <!-- Red Flags -->
+          ${analysis.ai_analysis.red_flags && analysis.ai_analysis.red_flags.length > 0 ? `
+          <div style="background: #fee2e2; padding: 15px; border-radius: 6px; margin-top: 15px;">
+            <div style="color: #dc2626; font-weight: bold; margin-bottom: 12px; font-size: 13px; text-transform: uppercase;">⚠ Red Flags Detected (${analysis.ai_analysis.red_flags.length})</div>
+            ${analysis.ai_analysis.red_flags.map(function(flag, idx) {
+              const severityColor = flag.severity === 'high' ? '#dc2626' : flag.severity === 'medium' ? '#f97316' : '#eab308';
+              const severityBg = flag.severity === 'high' ? '#fef2f2' : flag.severity === 'medium' ? '#fff7ed' : '#fefce8';
+              return `
+              <div style="background: ${severityBg}; border: 1px solid ${severityColor}; border-radius: 6px; padding: 12px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-weight: bold; color: #333; font-size: 13px;">${flag.category || 'Unknown'}</span>
+                  <span style="background: ${severityColor}; color: ${flag.severity === 'medium' || flag.severity === 'low' ? '#000' : '#fff'}; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase;">${(flag.severity || 'low').toUpperCase()}</span>
+                </div>
+                <p style="color: #555; font-size: 12px; margin: 0;">${flag.description || ''}</p>
+                ${flag.recommendation ? `<p style="color: #666; font-size: 11px; margin-top: 8px; font-style: italic;">Recommendation: ${flag.recommendation}</p>` : ''}
+              </div>
+              `;
+            }).join('')}
+          </div>
+          ` : `
+          <div style="background: #dcfce7; border: 1px solid #22c55e; border-radius: 6px; padding: 12px; margin-top: 15px;">
+            <p style="color: #166534; font-size: 13px; margin: 0;">✓ No major red flags detected</p>
+          </div>
+          `}
+          
+          <!-- Recommendations -->
+          ${analysis.ai_analysis.recommendations && analysis.ai_analysis.recommendations.length > 0 ? `
+          <div style="margin-top: 20px;">
+            <div class="subsection-title" style="color: #0891b2;">AI Recommendations</div>
+            <ul style="margin-left: 20px; font-size: 12px; color: #555;">
+              ${analysis.ai_analysis.recommendations.map(function(rec) {
+                return '<li style="margin-bottom: 5px;">' + rec + '</li>';
+              }).join('')}
+            </ul>
+          </div>
+          ` : ''}
+        </div>
+        ` : ''}
+        
         <div class="footer">
           <p><strong>2good2breal</strong> - Profile Verification Service</p>
           <p>42, Avenue Montaigne, 75008 Paris, France</p>
           <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com</p>
-          <p style="margin-top: 10px; font-style: italic;">This document is confidential and intended for the client only.</p>
+          <p style="margin-top: 10px; font-style: italic;">This document is confidential and intended for the Admin only.</p>
         </div>
         
         <script>window.onload = function() { window.print(); }</script>
