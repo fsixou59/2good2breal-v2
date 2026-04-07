@@ -208,14 +208,15 @@ class VerificationResult(BaseModel):
     id: str
     user_id: str
     profile_name: str
-    overall_score: int
-    trust_level: str  # "high", "medium", "low", "very_low"
-    red_flags: List[RedFlag]
-    analysis_summary: str
-    detailed_analysis: Dict[str, Any]
+    overall_score: int = 0
+    trust_level: str = "pending"  # "high", "medium", "low", "very_low", "pending"
+    red_flags: List[RedFlag] = []
+    analysis_summary: str = ""
+    detailed_analysis: Optional[Dict[str, Any]] = None
     image_analysis: Optional[Dict[str, Any]] = None
-    recommendations: List[str]
+    recommendations: List[str] = []
     created_at: str
+    status: Optional[str] = "pending"
 
 class FilterCreate(BaseModel):
     name: str
