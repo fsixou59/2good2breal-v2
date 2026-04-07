@@ -228,6 +228,7 @@ class FilterCreate(BaseModel):
 class CreateCheckoutRequest(BaseModel):
     package_id: str  # "basic", "comprehensive", "premium"
     origin_url: str  # Frontend origin URL for redirect
+    promo_code: Optional[str] = None  # Promo code for discount
 
 class CheckoutResponse(BaseModel):
     checkout_url: str
@@ -2613,8 +2614,26 @@ async def create_checkout(
     success_url = f"{checkout_data.origin_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{checkout_data.origin_url}/payment/cancel"
     
+    # Check for promo code and apply discount
+    VALID_PROMO_CODE = "2good2026"
+    DISCOUNT_PERCENT = 10
+    
+    original_amount = package["amount"]
+    final_amount = original_amount
+    promo_applied = False
+    
+    if checkout_data.promo_code and checkout_data.promo_code.lower() == VALID_PROMO_CODE.lower():
+        final_amount = original_amount * (100 - DISCOUNT_PERCENT) / 100
+        promo_applied = True
+        logging.info(f"Promo code applied: {DISCOUNT_PERCENT}% discount for user {current_user['email']}")
+    
     # Use native Stripe API with English locale
     stripe.api_key = STRIPE_API_KEY
+    
+    # Build product description with discount info if applicable
+    product_description = package["description"]
+    if promo_applied:
+        product_description = f"{package['description']} (Code promo -{DISCOUNT_PERCENT}% appliqué)"
     
     session = stripe.checkout.Session.create(
         payment_method_types=["card"],
@@ -2623,9 +2642,9 @@ async def create_checkout(
                 "currency": package["currency"],
                 "product_data": {
                     "name": package["name"],
-                    "description": package["description"]
+                    "description": product_description
                 },
-                "unit_amount": int(package["amount"] * 100)  # Stripe uses cents
+                "unit_amount": int(final_amount * 100)  # Stripe uses cents
             },
             "quantity": 1
         }],
@@ -2639,7 +2658,10 @@ async def create_checkout(
             "user_email": current_user["email"],
             "package_id": checkout_data.package_id,
             "package_name": package["name"],
-            "profiles_included": str(package["profiles_included"])
+            "profiles_included": str(package["profiles_included"]),
+            "promo_code": checkout_data.promo_code if promo_applied else "",
+            "original_amount": str(original_amount),
+            "discount_percent": str(DISCOUNT_PERCENT) if promo_applied else "0"
         }
     )
     
@@ -2651,9 +2673,12 @@ async def create_checkout(
         "user_email": current_user["email"],
         "package_id": checkout_data.package_id,
         "package_name": package["name"],
-        "amount": package["amount"],
+        "amount": final_amount,
+        "original_amount": original_amount,
         "currency": package["currency"],
         "profiles_included": package["profiles_included"],
+        "promo_code": checkout_data.promo_code if promo_applied else None,
+        "discount_percent": DISCOUNT_PERCENT if promo_applied else 0,
         "payment_status": "pending",
         "status": "initiated",
         "created_at": datetime.now(timezone.utc).isoformat(),

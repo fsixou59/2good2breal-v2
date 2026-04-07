@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { 
@@ -15,10 +16,14 @@ import {
   CreditCard,
   Coins,
   ArrowRight,
-  Lock
+  Lock,
+  Tag,
+  Percent
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const PROMO_CODE = '2good2026';
+const DISCOUNT_PERCENT = 10;
 
 export function PricingPage() {
   const { isAuthenticated, getAuthHeaders, user, getTotalCredits } = useAuth();
@@ -26,6 +31,8 @@ export function PricingPage() {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingPackage, setProcessingPackage] = useState(null);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoApplied, setPromoApplied] = useState(false);
   const totalCredits = getTotalCredits();
 
   useEffect(() => {
@@ -44,6 +51,23 @@ export function PricingPage() {
     }
   };
 
+  const handleApplyPromo = () => {
+    if (promoCode.trim().toLowerCase() === PROMO_CODE.toLowerCase()) {
+      setPromoApplied(true);
+      toast.success(`Code promo appliqué ! -${DISCOUNT_PERCENT}% sur tous les forfaits`);
+    } else {
+      setPromoApplied(false);
+      toast.error('Code promo invalide');
+    }
+  };
+
+  const getDiscountedPrice = (originalPrice) => {
+    if (promoApplied) {
+      return (originalPrice * (100 - DISCOUNT_PERCENT) / 100).toFixed(2);
+    }
+    return originalPrice;
+  };
+
   const handlePurchase = async (packageId) => {
     if (!isAuthenticated) {
       toast.error('Please login to purchase');
@@ -58,7 +82,8 @@ export function PricingPage() {
         `${API}/checkout`,
         {
           package_id: packageId,
-          origin_url: window.location.origin
+          origin_url: window.location.origin,
+          promo_code: promoApplied ? PROMO_CODE : null
         },
         getAuthHeaders()
       );
@@ -189,6 +214,57 @@ export function PricingPage() {
           </Card>
         )}
 
+        {/* Promo Code Section */}
+        <Card className={`mb-8 ${promoApplied ? 'bg-emerald-950/30 border-emerald-700/50' : 'bg-zinc-900/50 border-zinc-800'}`} data-testid="promo-code-section">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex items-center gap-3 flex-1">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${promoApplied ? 'bg-emerald-500/20' : 'bg-purple-500/20'}`}>
+                  {promoApplied ? <Percent className="w-5 h-5 text-emerald-400" /> : <Tag className="w-5 h-5 text-purple-400" />}
+                </div>
+                <div className="flex-1">
+                  <p className={`font-medium ${promoApplied ? 'text-emerald-400' : 'text-zinc-300'}`}>
+                    {promoApplied ? 'Code promo appliqué ! -10% sur tous les forfaits' : 'Vous avez un code promo ?'}
+                  </p>
+                  {!promoApplied && (
+                    <p className="text-zinc-500 text-sm">Entrez votre code pour bénéficier d'une réduction</p>
+                  )}
+                </div>
+              </div>
+              
+              {!promoApplied ? (
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <Input
+                    type="text"
+                    placeholder="Code promo"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleApplyPromo()}
+                    className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 w-full sm:w-40"
+                    data-testid="promo-code-input"
+                  />
+                  <Button 
+                    onClick={handleApplyPromo}
+                    variant="outline" 
+                    className="border-purple-600 text-purple-400 hover:bg-purple-950/50"
+                    data-testid="apply-promo-btn"
+                  >
+                    Appliquer
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  onClick={() => { setPromoApplied(false); setPromoCode(''); toast.info('Code promo retiré'); }}
+                  variant="outline" 
+                  className="border-zinc-600 text-zinc-400 hover:bg-zinc-800"
+                >
+                  Retirer
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {packages.map((pkg) => {
@@ -224,7 +300,19 @@ export function PricingPage() {
                 <CardContent className="space-y-6">
                   {/* Price */}
                   <div className="text-center">
-                    <span className="text-5xl font-bold text-white">€{pkg.amount}</span>
+                    {promoApplied ? (
+                      <>
+                        <div className="flex items-center justify-center gap-2 mb-1">
+                          <span className="text-2xl text-zinc-500 line-through">€{pkg.amount}</span>
+                          <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+                            -{DISCOUNT_PERCENT}%
+                          </Badge>
+                        </div>
+                        <span className="text-5xl font-bold text-emerald-400">€{getDiscountedPrice(pkg.amount)}</span>
+                      </>
+                    ) : (
+                      <span className="text-5xl font-bold text-white">€{pkg.amount}</span>
+                    )}
                     <span className="text-zinc-400 ml-2">
                       / {pkg.profiles_included > 1 ? `${pkg.profiles_included} profiles` : 'profile'}
                     </span>
