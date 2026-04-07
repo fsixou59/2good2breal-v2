@@ -293,7 +293,7 @@ export function AdminReportPage() {
 
             <div className="pr-expert-box" style={{minHeight: '120px', padding: '15px'}}>
               <p style={{margin: 0, fontSize: '13px', lineHeight: '1.7'}}>
-                {adminReport.detailedAnalysis ? adminReport.detailedAnalysis : 'The Profile exhibits 100% of the textbook indicators for a \'Military Romance Scam,\' including a mismatch between claimed identity and location, and an immediate request for funds. There is no evidence of authenticity, and the behavioral patterns are predatory and script-based. Our comprehensive analysis, extensive research and verifications conclude that, as an \'extremely high risk profile\', absolute caution and alertness is strongly encouraged. It would be wise to avoid further communication and contact with this profile. As a warning, do not provide any personal information such as: your address, financial status or banking account details.'}
+                {adminReport.detailedAnalysis ? adminReport.detailedAnalysis : (ai && ai.analysis_summary ? ai.analysis_summary : 'Expert analysis pending. Please enter your detailed analysis based on the AI findings and verification results.')}
               </p>
             </div>
           </div>
