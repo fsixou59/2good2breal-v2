@@ -1113,6 +1113,23 @@ async def save_admin_report(analysis_id: str, data: AdminReportData, admin: dict
         raise HTTPException(status_code=404, detail="Analysis not found")
     return {"message": "Report saved successfully"}
 
+@api_router.delete("/admin/analyses/{analysis_id}")
+async def delete_analysis(analysis_id: str, admin: dict = Depends(get_admin_user)):
+    """Delete a profile submission (admin only)."""
+    # First check if analysis exists
+    analysis = await db.verification_results.find_one({"id": analysis_id})
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    
+    # Delete the analysis
+    result = await db.verification_results.delete_one({"id": analysis_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=500, detail="Failed to delete analysis")
+    
+    logging.info(f"Admin deleted analysis {analysis_id}")
+    return {"message": "Analysis deleted successfully"}
+
 @api_router.post("/admin/analyses/{analysis_id}/send-report")
 async def send_report_to_client(analysis_id: str, data: SendReportData, admin: dict = Depends(get_admin_user)):
     """Send the verification report to the client via email."""

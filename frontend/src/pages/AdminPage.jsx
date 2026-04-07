@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Shield, FileText, Clock, CheckCircle, Eye, LogOut, ChevronDown, ChevronUp, AlertTriangle, RefreshCw, User, Send, Printer } from 'lucide-react';
+import { Shield, FileText, Clock, CheckCircle, Eye, LogOut, ChevronDown, ChevronUp, AlertTriangle, RefreshCw, User, Send, Printer, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 
@@ -257,12 +257,40 @@ function AnalysisRow(props) {
   const analysis = props.analysis;
   const expanded = props.expanded;
   const onToggle = props.onToggle;
+  const onRefresh = props.onRefresh;
+  
+  const [deleting, setDeleting] = useState(false);
   
   const dateStr = analysis.created_at ? new Date(analysis.created_at).toLocaleString('fr-FR') : 'N/A';
   
   function handleCreateReport(e) {
     e.stopPropagation();
     navigate('/admin/report/' + analysis.id);
+  }
+  
+  function handleDelete(e) {
+    e.stopPropagation();
+    if (!window.confirm('Are you sure you want to delete this submission?\n\nProfile: ' + analysis.profile_name + '\nClient: ' + analysis.user_email + '\n\nThis action cannot be undone.')) {
+      return;
+    }
+    
+    setDeleting(true);
+    const token = localStorage.getItem('admin_token');
+    
+    axios.delete(API + '/admin/analyses/' + analysis.id, {
+      headers: { Authorization: 'Bearer ' + token }
+    })
+    .then(function() {
+      toast.success('Submission deleted successfully');
+      if (onRefresh) onRefresh();
+    })
+    .catch(function(err) {
+      console.error(err);
+      toast.error('Failed to delete submission');
+    })
+    .finally(function() {
+      setDeleting(false);
+    });
   }
   
   function handlePrint(e) {
@@ -382,13 +410,18 @@ function AnalysisRow(props) {
       {expanded ? (
         <div className="p-6 border-t border-zinc-800">
           {/* Action Buttons */}
-          <div className="mb-4 flex justify-end gap-3">
-            <Button onClick={handlePrint} variant="outline" className="border-zinc-600 hover:bg-zinc-800">
-              <Printer className="w-4 h-4 mr-2" /> Print Submission
+          <div className="mb-4 flex justify-between">
+            <Button onClick={handleDelete} disabled={deleting} variant="outline" className="border-red-600 text-red-400 hover:bg-red-950/50">
+              <Trash2 className="w-4 h-4 mr-2" /> {deleting ? 'Deleting...' : 'Delete'}
             </Button>
-            <Button onClick={handleCreateReport} className="bg-purple-600 hover:bg-purple-500">
-              <Send className="w-4 h-4 mr-2" /> Create Report for Client
-            </Button>
+            <div className="flex gap-3">
+              <Button onClick={handlePrint} variant="outline" className="border-zinc-600 hover:bg-zinc-800">
+                <Printer className="w-4 h-4 mr-2" /> Print Submission
+              </Button>
+              <Button onClick={handleCreateReport} className="bg-purple-600 hover:bg-purple-500">
+                <Send className="w-4 h-4 mr-2" /> Create Report for Client
+              </Button>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -566,7 +599,8 @@ export function AdminPage() {
                       key={a.id} 
                       analysis={a} 
                       expanded={expandedId === a.id} 
-                      onToggle={function() { toggleExpand(a.id); }} 
+                      onToggle={function() { toggleExpand(a.id); }}
+                      onRefresh={handleRefresh}
                     />
                   );
                 })}
