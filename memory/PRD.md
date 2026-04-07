@@ -4,7 +4,7 @@
 **Name:** 2good2breal  
 **Type:** Dating Profile Verification Service  
 **Stack:** React Frontend + FastAPI Backend + MongoDB  
-**Last Updated:** April 6, 2026
+**Last Updated:** April 7, 2026
 
 ## Original Problem Statement
 A verification service website for dating profiles where users submit profiles for manual verification by an admin team. Features AI analysis (for admin eyes only) and comprehensive admin-side reporting tool to generate and send detailed manual analysis reports to clients.
@@ -29,7 +29,20 @@ A verification service website for dating profiles where users submit profiles f
 - **Stripe:** Payment processing
 - **Gemini 3 Flash:** AI analysis (Emergent LLM Key)
 
-## Completed Work (April 6, 2026)
+## Completed Work (April 7, 2026)
+
+### Admin Print Layout Alignment ✅
+- **Unified Print Layout** - Admin's "Print Submission" now matches Client's form print layout exactly
+- **Underlined Section Titles** - All section headers use consistent underlined styling (.section-title with text-decoration: underline)
+- **Field Order Corrected** - NAME appears before EMAIL in CLIENT INFORMATION section
+- **New Form Fields Added:**
+  - Assumed Marital Status
+  - Hobbies / Interests
+  - University / College
+  - Year/s of Attendance
+- **Payload Updated** - New fields are now included in the submission payload to backend
+
+### Previous Work (April 6, 2026)
 
 ### UI/UX Changes
 - **Renamed "Analyze Profile" to "Profile Submission"** across all pages and translations
@@ -127,8 +140,8 @@ A verification service website for dating profiles where users submit profiles f
 - **Resend DNS Verification Pending** - SPF/DKIM records for `send.2good2breal.com` awaiting OVH DNS propagation
 
 ## Backlog / Future Tasks
-- **P0:** Verify Resend domain DNS propagation and complete verification
-- **P1:** Re-link custom domain `2good2breal.com` to Vercel
+- **P1:** Verify Resend domain DNS propagation and complete verification (blocked on OVH support)
+- **P1:** Redeploy Vercel frontend to include latest changes
 - **P1:** Rebuild cookie consent banner with stable implementation
 - **P1:** End-to-end test of all major flows on production
 - **P2:** Enhance DashboardPage.jsx with submission history
