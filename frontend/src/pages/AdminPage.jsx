@@ -404,11 +404,11 @@ function AnalysisRow(props) {
               <div class="field-value">${formData.nationality || '-'}</div>
             </div>
             <div class="field">
-              <div class="field-label">Language</div>
+              <div class="field-label">Shared Language</div>
               <div class="field-value">${formData.language_of_communication || '-'}</div>
             </div>
             <div class="field">
-              <div class="field-label">Assumed Marital Status</div>
+              <div class="field-label">Marital Status</div>
               <div class="field-value">${formData.assumed_marital_status || '-'}</div>
             </div>
             <div class="field">
@@ -435,7 +435,7 @@ function AnalysisRow(props) {
               <div class="field-value">${formData.date_of_birth || '-'}</div>
             </div>
             <div class="field">
-              <div class="field-label">Assumed Age</div>
+              <div class="field-label">Known Age</div>
               <div class="field-value">${formData.assumed_age || '-'}</div>
             </div>
             <div class="field">
@@ -478,7 +478,7 @@ function AnalysisRow(props) {
               <div class="field-value">${formData.has_verified_photos ? 'Yes' : 'No'}</div>
             </div>
             <div class="field field-full">
-              <div class="field-label">Social Media Links</div>
+              <div class="field-label">Social Media Links (User names)</div>
               <div class="field-value textarea-value">${formData.social_media_links || '-'}</div>
             </div>
           </div>
@@ -601,33 +601,85 @@ function AnalysisRow(props) {
         
         <!-- RESEARCH AND VERIFICATIONS PERFORMED -->
         <div class="section" style="margin-top: 30px; page-break-inside: avoid;">
-          <div class="section-title">RESEARCH AND VERIFICATIONS PERFORMED</div>
-          <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Research and verifications performed include some of the following:</p>
-          <ul style="margin-left: 20px; font-size: 12px; color: #333; line-height: 1.8;">
-            <li>Reverse image search across multiple platforms (Google, TinEye, Yandex)</li>
-            <li>Social media profile verification and cross-referencing</li>
-            <li>Identity document analysis (when provided)</li>
-            <li>Professional background verification</li>
-            <li>Company and business registration checks</li>
-            <li>Dating platform profile authenticity analysis</li>
-            <li>Communication pattern and behavioral analysis</li>
-            <li>AI-powered facial recognition and photo manipulation detection</li>
-            <li>Public records and online presence research</li>
-          </ul>
+          <h2 style="color: #7c3aed; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #7c3aed; padding-bottom: 10px;">Research and Verifications performed include some of the following:</h2>
+          
+          <div style="background: #f9fafb; border-left: 4px solid #7c3aed; padding: 15px; margin-bottom: 15px;">
+            <h3 style="color: #7c3aed; font-size: 14px; margin-bottom: 8px;">1. Platform Analysis</h3>
+            <p style="font-size: 12px; color: #333; line-height: 1.6;">Intense scrutinizing of all platforms used by 'the profile' in the past and present.</p>
+          </div>
+          
+          <div style="background: #f9fafb; border-left: 4px solid #7c3aed; padding: 15px; margin-bottom: 15px;">
+            <h3 style="color: #7c3aed; font-size: 14px; margin-bottom: 8px;">2. Occupation Verification</h3>
+            <p style="font-size: 12px; color: #333; line-height: 1.6;">Resourcing and authenticating profile's occupation via one on one discrete and direct communication means.</p>
+            <p style="font-size: 12px; color: #333; line-height: 1.6;">Access to occupation and / or company official website through various complex and often unattainable platforms.</p>
+            <p style="font-size: 12px; color: #333; line-height: 1.6;">Intense cross-checking of the profile's email addresses and user names worldwide.</p>
+          </div>
+          
+          <div style="background: #f9fafb; border-left: 4px solid #7c3aed; padding: 15px; margin-bottom: 15px;">
+            <h3 style="color: #7c3aed; font-size: 14px; margin-bottom: 8px;">3. Photo Identification</h3>
+            <p style="font-size: 12px; color: #333; line-height: 1.6;">Photo identification via cross-checking of multiple image databases and reverse image search platforms.</p>
+            <p style="font-size: 12px; color: #333; line-height: 1.6;">Detection and screening for multiple and stolen identities.</p>
+          </div>
+          
+          <div style="background: #f9fafb; border-left: 4px solid #7c3aed; padding: 15px; margin-bottom: 15px;">
+            <h3 style="color: #7c3aed; font-size: 14px; margin-bottom: 8px;">4. Location Verification</h3>
+            <p style="font-size: 12px; color: #333; line-height: 1.6;">Verification of locations such as photo venues, background images and sceneries relating to where the profile claims to be or reside.</p>
+          </div>
+          
+          <div style="background: #f9fafb; border-left: 4px solid #7c3aed; padding: 15px; margin-bottom: 15px;">
+            <h3 style="color: #7c3aed; font-size: 14px; margin-bottom: 8px;">5. Location Cross Referencing</h3>
+            <p style="font-size: 12px; color: #333; line-height: 1.6;">Cross referencing of all the profile's locations and personal details to detect any mismatched information.</p>
+          </div>
+          
+          <div style="background: #f9fafb; border-left: 4px solid #7c3aed; padding: 15px; margin-bottom: 15px;">
+            <h3 style="color: #7c3aed; font-size: 14px; margin-bottom: 8px;">6. Photo Authenticity</h3>
+            <p style="font-size: 12px; color: #333; line-height: 1.6;">Clarity and authenticity of all photos provided by you and of those 2good2breal gains access to via websites, apps, platforms and other means.</p>
+          </div>
+        </div>
+        
+        <!-- OUR RECOMMENDATIONS -->
+        <div class="section" style="margin-top: 30px; page-break-inside: avoid;">
+          <h2 style="color: #7c3aed; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #7c3aed; padding-bottom: 10px;">Our Recommendations</h2>
+          
+          <div style="background: #f9fafb; border-left: 4px solid #7c3aed; padding: 15px; margin-bottom: 15px;">
+            <p style="font-size: 12px; color: #333; margin-bottom: 10px;">Based on our analysis, we recommend:</p>
+            <ul style="margin-left: 20px; font-size: 12px; color: #333; line-height: 1.8;">
+              <li>Block and report the account on the platform,</li>
+              <li>Save evidence such as screenshots and user names in the event you need to report it in future,</li>
+              <li>Talk to someone you trust about the situation for support if you feel the need.</li>
+              <li>Consider stepping back or ending the conversation and /or contact.</li>
+            </ul>
+            <p style="font-size: 12px; color: #333; margin: 15px 0; padding-left: 20px;">As the situation is extremely ambiguous, in our opinion, it is essential to walk away and disconnect.</p>
+            <ul style="margin-left: 20px; font-size: 12px; color: #333; line-height: 1.8;">
+              <li>If your situation with this profile has escalated to a point that you feel overwhelmed, do not hesitate to seek professional help.</li>
+              <li>Keep your offline life grounded and intact.</li>
+            </ul>
+          </div>
+          
+          <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 15px; margin-top: 15px;">
+            <p style="font-size: 12px; color: #92400e; font-style: italic; line-height: 1.6;"><em>If you wish further analyzing of this profile, please provide us with more personal details such as extended family information, presumed previous occupations and subsequent history on your next request.</em></p>
+          </div>
         </div>
         
         <!-- THANK YOU MESSAGE -->
-        <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 8px; text-align: center; page-break-inside: avoid;">
-          <p style="font-size: 14px; color: #7c3aed; font-weight: bold; margin-bottom: 10px;">Thank you for choosing 2good2breal</p>
-          <p style="font-size: 12px; color: #555; line-height: 1.6;">Your safety and peace of mind are our top priorities. We are committed to providing thorough and professional verification services to help you make informed decisions in your online relationships.</p>
-          <p style="font-size: 11px; color: #888; margin-top: 10px; font-style: italic;">If you have any questions about this report, please don't hesitate to contact us.</p>
+        <div style="margin-top: 30px; padding: 25px; background: #fff; border: 2px solid #e5e7eb; border-radius: 8px; text-align: center; page-break-inside: avoid;">
+          <h2 style="color: #7c3aed; font-size: 20px; font-weight: bold; margin-bottom: 15px;">Thank you for choosing 2good2breal</h2>
+          <p style="font-size: 12px; color: #333; line-height: 1.8; margin-bottom: 15px;">We hope this report assists to clarify, confirm or dismiss any doubts you may have of your Profile's authenticity or intentions.</p>
+          <p style="font-size: 12px; color: #333; line-height: 1.8; margin-bottom: 20px;">Furthermore, our team aims to provide you with an objective, informative and reliable report to help guide you towards well founded and smart decision making with this person in future.</p>
+          <p style="color: #7c3aed; font-size: 14px; font-weight: bold; margin-bottom: 20px;">All the best from our team at 2good2breal.</p>
+          
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+          
+          <p style="font-size: 11px; color: #666;">Contact: contact@2good2breal.com</p>
+          <p style="font-size: 11px; color: #666;">Report Reference: ${analysis.id || 'N/A'}</p>
+          <p style="font-size: 10px; color: #888; font-style: italic; margin-top: 10px;">This analysis should not be considered as legal advice.</p>
         </div>
         
         <div class="footer">
           <p><strong>2good2breal</strong> - Profile Verification Service</p>
           <p>42, Avenue Montaigne, 75008 Paris, France</p>
           <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com</p>
-          <p style="margin-top: 10px; font-style: italic;">This document is confidential and intended for the Admin only.</p>
+          <p style="margin-top: 10px; font-style: italic;">This document is confidential.</p>
         </div>
         
         <script>window.onload = function() { window.print(); }</script>
