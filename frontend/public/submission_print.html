@@ -44,6 +44,18 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+        .section-title-underline {
+            color: #333;
+            padding: 8px 0; 
+            font-size: 14px; 
+            font-weight: bold; 
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #7c3aed;
+            text-decoration: underline;
+            text-underline-offset: 5px;
+        }
         .field-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
@@ -73,6 +85,15 @@
             min-height: 60px;
             border-left: 3px solid #7c3aed;
             font-size: 13px;
+        }
+        .subsection-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 12px;
+            text-transform: uppercase;
+            text-decoration: underline;
+            margin: 15px 0 10px 0;
+            letter-spacing: 0.5px;
         }
         .ai-section {
             background: #fef3f3;
@@ -160,26 +181,32 @@
         </div>
     </div>
     
+    <!-- CLIENT INFORMATION - Underlined -->
     <div class="section">
-        <div class="section-title">Client Information</div>
+        <div class="section-title-underline">Client Information</div>
         <div class="field-grid">
             <div class="field">
-                <div class="field-label">Client Email</div>
+                <div class="field-label">Name</div>
                 <div class="field-value">fsixou@yahoo.fr</div>
             </div>
             <div class="field">
-                <div class="field-label">Client Age</div>
+                <div class="field-label">Email</div>
+                <div class="field-value">fsixou@yahoo.fr</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Age</div>
                 <div class="field-value">48</div>
             </div>
-            <div class="field field-full">
-                <div class="field-label">Client Location</div>
+            <div class="field">
+                <div class="field-label">Location</div>
                 <div class="field-value">Nice</div>
             </div>
         </div>
     </div>
     
+    <!-- PROFILE INFORMATION - Underlined (removed "Basic") -->
     <div class="section">
-        <div class="section-title">Profile Being Verified</div>
+        <div class="section-title-underline">Profile Information</div>
         <div class="field-grid">
             <div class="field">
                 <div class="field-label">Profile Name</div>
@@ -205,11 +232,29 @@
                 <div class="field-label">Language</div>
                 <div class="field-value">english</div>
             </div>
+            <!-- New fields below Nationality -->
+            <div class="field">
+                <div class="field-label">Assumed Marital Status</div>
+                <div class="field-value">-</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Hobbies / Interests</div>
+                <div class="field-value">-</div>
+            </div>
+            <div class="field">
+                <div class="field-label">University / College</div>
+                <div class="field-value">-</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Year/s of Attendance</div>
+                <div class="field-value">-</div>
+            </div>
         </div>
     </div>
     
+    <!-- PROFILE DETAILS - Underlined -->
     <div class="section">
-        <div class="section-title">Profile Details</div>
+        <div class="section-title-underline">Profile Details</div>
         <div class="field-grid">
             <div class="field">
                 <div class="field-label">Date of Birth</div>
@@ -220,7 +265,7 @@
                 <div class="field-value">68</div>
             </div>
             <div class="field">
-                <div class="field-label">Profile Location</div>
+                <div class="field-label">Location</div>
                 <div class="field-value">Palatine Illinois US</div>
             </div>
             <div class="field">
@@ -232,22 +277,23 @@
                 <div class="field-value">business owner</div>
             </div>
             <div class="field">
-                <div class="field-label">Company</div>
+                <div class="field-label">Company Name</div>
                 <div class="field-value">pitcher insurance agency inc</div>
             </div>
             <div class="field field-full">
                 <div class="field-label">Company Website</div>
                 <div class="field-value">pitcher insurance.com</div>
             </div>
-            <div class="field field-full">
-                <div class="field-label">Profile Bio</div>
-                <div class="field-value textarea-value">I ve been divorced since 2017 now that my kids are older I am looking for a life partner. I own a business that gives me a lot of  time to travel. I am very honest, affectionate, generous , loving and kind</div>
-            </div>
         </div>
+        
+        <!-- PROFILE BIO - Underlined -->
+        <div class="subsection-title">Profile Bio</div>
+        <div class="field-value textarea-value">I ve been divorced since 2017 now that my kids are older I am looking for a life partner. I own a business that gives me a lot of  time to travel. I am very honest, affectionate, generous , loving and kind</div>
     </div>
     
+    <!-- PHOTOS AND SOCIAL MEDIA - Underlined -->
     <div class="section">
-        <div class="section-title">Photos & Social Media</div>
+        <div class="section-title-underline">Photos and Social Media</div>
         <div class="field-grid">
             <div class="field">
                 <div class="field-label">Number of Photos</div>
@@ -264,8 +310,9 @@
         </div>
     </div>
     
+    <!-- ACTIVITY INFORMATION - Underlined -->
     <div class="section">
-        <div class="section-title">Activity Information</div>
+        <div class="section-title-underline">Activity Information</div>
         <div class="field-grid">
             <div class="field">
                 <div class="field-label">Profile Creation Date</div>
@@ -278,8 +325,9 @@
         </div>
     </div>
     
+    <!-- COMMUNICATION ANALYSIS - Underlined -->
     <div class="section">
-        <div class="section-title">Communication Analysis</div>
+        <div class="section-title-underline">Communication Analysis</div>
         <div class="field-grid">
             <div class="field field-full">
                 <div class="field-label">Communication Frequency</div>
@@ -292,8 +340,9 @@
         </div>
     </div>
     
+    <!-- OBSERVATIONS & CONCERNS - Underlined -->
     <div class="section">
-        <div class="section-title">Client Observations & Concerns</div>
+        <div class="section-title-underline">Observations & Concerns</div>
         <div class="field-value textarea-value">He has sent me 2 pictures I find inapropriate, one is partial nudity, and the other of him in his jacuzzi. not interesting to me and too intimate. 
 He also yesterday sent me a picture of he , his daughter and her huband together. He said it was taken at that moment.</div>
     </div>
