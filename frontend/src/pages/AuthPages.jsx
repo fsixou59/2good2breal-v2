@@ -109,6 +109,15 @@ export const LoginPage = () => {
                   data-testid="login-password"
                 />
               </div>
+              <div className="flex justify-end">
+                <Link 
+                  to="/forgot-password" 
+                  className="text-sm text-purple-400 hover:text-purple-300"
+                  data-testid="forgot-password-link"
+                >
+                  {t('auth.login.forgotPassword') || 'Forgot password?'}
+                </Link>
+              </div>
               <Button 
                 type="submit" 
                 className="w-full bg-purple-600 hover:bg-purple-500 text-white"
@@ -323,6 +332,321 @@ export const RegisterPage = () => {
               </Link>
             </p>
           </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Forgot Password Page
+export const ForgotPasswordPage = () => {
+  const { t } = useLanguage();
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      await axios.post(`${API}/auth/forgot-password`, { email });
+      setSubmitted(true);
+      toast.success(t('auth.forgotPassword.success') || 'If an account exists, you will receive a reset link.');
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      toast.error(error.response?.data?.detail || t('common.error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-zinc-950 pt-16 flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-gradient-to-b from-purple-950/10 via-transparent to-transparent" />
+      
+      <Card className="w-full max-w-md bg-zinc-900/80 border-zinc-800 backdrop-blur-xl relative" data-testid="forgot-password-card">
+        <CardHeader className="text-center pb-2">
+          <div className="flex justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-teal-500 flex items-center justify-center">
+              <Lock className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-2xl text-white">
+            {t('auth.forgotPassword.title') || 'Forgot Password'}
+          </CardTitle>
+          <CardDescription className="text-zinc-400">
+            {t('auth.forgotPassword.subtitle') || 'Enter your email to receive a reset link'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {submitted ? (
+            <div className="text-center py-4">
+              <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-8 h-8 text-green-400" />
+              </div>
+              <p className="text-zinc-300 mb-4">
+                {t('auth.forgotPassword.checkEmail') || 'Check your email for a password reset link.'}
+              </p>
+              <p className="text-zinc-500 text-sm mb-6">
+                {t('auth.forgotPassword.expiry') || 'The link will expire in 1 hour.'}
+              </p>
+              <Link to="/login">
+                <Button className="bg-purple-600 hover:bg-purple-500 text-white">
+                  {t('auth.forgotPassword.backToLogin') || 'Back to Login'}
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-zinc-300">
+                  {t('auth.login.email') || 'Email'}
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600 focus:ring-purple-600/20"
+                  placeholder="you@example.com"
+                  required
+                  data-testid="forgot-password-email"
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full bg-purple-600 hover:bg-purple-500 text-white"
+                disabled={loading}
+                data-testid="forgot-password-submit"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {t('common.loading')}
+                  </>
+                ) : (
+                  t('auth.forgotPassword.submit') || 'Send Reset Link'
+                )}
+              </Button>
+              
+              <div className="mt-6 text-center">
+                <Link to="/login" className="text-purple-400 hover:text-purple-300 text-sm">
+                  {t('auth.forgotPassword.backToLogin') || 'Back to Login'}
+                </Link>
+              </div>
+            </form>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Reset Password Page
+export const ResetPasswordPage = () => {
+  const { t } = useLanguage();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [verifying, setVerifying] = useState(true);
+  const [tokenValid, setTokenValid] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [resetSuccess, setResetSuccess] = useState(false);
+  
+  // Get token from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  // Verify token on mount
+  React.useEffect(() => {
+    const verifyToken = async () => {
+      if (!token) {
+        setVerifying(false);
+        return;
+      }
+      
+      try {
+        await axios.get(`${API}/auth/verify-reset-token/${token}`);
+        setTokenValid(true);
+      } catch (error) {
+        console.error('Token verification error:', error);
+        setTokenValid(false);
+      } finally {
+        setVerifying(false);
+      }
+    };
+    
+    verifyToken();
+  }, [token]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast.error(t('auth.resetPassword.mismatch') || 'Passwords do not match');
+      return;
+    }
+    
+    if (password.length < 6) {
+      toast.error(t('auth.resetPassword.tooShort') || 'Password must be at least 6 characters');
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      await axios.post(`${API}/auth/reset-password`, { 
+        token, 
+        new_password: password 
+      });
+      setResetSuccess(true);
+      toast.success(t('auth.resetPassword.success') || 'Password reset successfully!');
+    } catch (error) {
+      console.error('Reset password error:', error);
+      toast.error(error.response?.data?.detail || t('common.error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Loading state
+  if (verifying) {
+    return (
+      <div className="min-h-screen bg-zinc-950 pt-16 flex items-center justify-center px-4">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-purple-500 mx-auto mb-4" />
+          <p className="text-zinc-400">{t('common.loading') || 'Verifying...'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Invalid or expired token
+  if (!token || !tokenValid) {
+    return (
+      <div className="min-h-screen bg-zinc-950 pt-16 flex items-center justify-center px-4">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-950/10 via-transparent to-transparent" />
+        
+        <Card className="w-full max-w-md bg-zinc-900/80 border-zinc-800 backdrop-blur-xl relative">
+          <CardContent className="pt-8 text-center">
+            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-8 h-8 text-red-400" />
+            </div>
+            <h2 className="text-xl text-white font-semibold mb-2">
+              {t('auth.resetPassword.invalidToken') || 'Invalid or Expired Link'}
+            </h2>
+            <p className="text-zinc-400 mb-6">
+              {t('auth.resetPassword.invalidTokenDesc') || 'This password reset link is invalid or has expired. Please request a new one.'}
+            </p>
+            <Link to="/forgot-password">
+              <Button className="bg-purple-600 hover:bg-purple-500 text-white">
+                {t('auth.resetPassword.requestNew') || 'Request New Link'}
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Success state
+  if (resetSuccess) {
+    return (
+      <div className="min-h-screen bg-zinc-950 pt-16 flex items-center justify-center px-4">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-950/10 via-transparent to-transparent" />
+        
+        <Card className="w-full max-w-md bg-zinc-900/80 border-zinc-800 backdrop-blur-xl relative">
+          <CardContent className="pt-8 text-center">
+            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+              <Shield className="w-8 h-8 text-green-400" />
+            </div>
+            <h2 className="text-xl text-white font-semibold mb-2">
+              {t('auth.resetPassword.successTitle') || 'Password Reset!'}
+            </h2>
+            <p className="text-zinc-400 mb-6">
+              {t('auth.resetPassword.successDesc') || 'Your password has been reset successfully. You can now log in with your new password.'}
+            </p>
+            <Link to="/login">
+              <Button className="bg-purple-600 hover:bg-purple-500 text-white">
+                {t('auth.resetPassword.goToLogin') || 'Go to Login'}
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Reset password form
+  return (
+    <div className="min-h-screen bg-zinc-950 pt-16 flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-gradient-to-b from-purple-950/10 via-transparent to-transparent" />
+      
+      <Card className="w-full max-w-md bg-zinc-900/80 border-zinc-800 backdrop-blur-xl relative" data-testid="reset-password-card">
+        <CardHeader className="text-center pb-2">
+          <div className="flex justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-teal-500 flex items-center justify-center">
+              <Lock className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-2xl text-white">
+            {t('auth.resetPassword.title') || 'Reset Password'}
+          </CardTitle>
+          <CardDescription className="text-zinc-400">
+            {t('auth.resetPassword.subtitle') || 'Enter your new password'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-zinc-300">
+                {t('auth.resetPassword.newPassword') || 'New Password'}
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600 focus:ring-purple-600/20"
+                placeholder="••••••••"
+                required
+                minLength={6}
+                data-testid="reset-password-new"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-zinc-300">
+                {t('auth.resetPassword.confirmPassword') || 'Confirm Password'}
+              </Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600 focus:ring-purple-600/20"
+                placeholder="••••••••"
+                required
+                minLength={6}
+                data-testid="reset-password-confirm"
+              />
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full bg-purple-600 hover:bg-purple-500 text-white"
+              disabled={loading}
+              data-testid="reset-password-submit"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {t('common.loading')}
+                </>
+              ) : (
+                t('auth.resetPassword.submit') || 'Reset Password'
+              )}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>

@@ -149,6 +149,13 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
 class UserResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str
@@ -826,6 +833,138 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         premium_credits=current_user.get("premium_credits", 0),
         free_credits=current_user.get("free_credits", 0)
     )
+
+# ============== PASSWORD RESET ==============
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(request: ForgotPasswordRequest):
+    """Send password reset email."""
+    user = await db.users.find_one({"email": request.email})
+    
+    # Always return success to prevent email enumeration
+    if not user:
+        return {"message": "If an account exists with this email, you will receive a password reset link."}
+    
+    # Generate reset token (valid for 1 hour)
+    reset_token = str(uuid.uuid4())
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    
+    # Store reset token in database
+    await db.password_resets.delete_many({"email": request.email})  # Remove old tokens
+    await db.password_resets.insert_one({
+        "email": request.email,
+        "token": reset_token,
+        "expires_at": expires_at.isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Send reset email
+    try:
+        # Get the frontend URL from environment or use default
+        frontend_url = os.environ.get('FRONTEND_URL', 'https://2good2breal.com')
+        reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+        
+        params = {
+            "from": "2good2breal <onboarding@resend.dev>",
+            "to": [request.email],
+            "subject": "Reset Your Password - 2good2breal",
+            "html": f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #7c3aed; margin-bottom: 10px;">2good2breal</h1>
+                        <p style="color: #666;">Password Reset Request</p>
+                    </div>
+                    
+                    <p style="color: #333; font-size: 16px;">Hello,</p>
+                    
+                    <p style="color: #333; font-size: 16px;">
+                        We received a request to reset your password. Click the button below to create a new password:
+                    </p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{reset_link}" style="background: linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                            Reset Password
+                        </a>
+                    </div>
+                    
+                    <p style="color: #666; font-size: 14px;">
+                        This link will expire in 1 hour. If you didn't request a password reset, you can safely ignore this email.
+                    </p>
+                    
+                    <p style="color: #666; font-size: 14px;">
+                        Or copy and paste this link into your browser:<br/>
+                        <a href="{reset_link}" style="color: #7c3aed; word-break: break-all;">{reset_link}</a>
+                    </p>
+                    
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+                    
+                    <p style="color: #999; font-size: 12px; text-align: center;">
+                        2good2breal - Profile Verification Service<br/>
+                        42, Avenue Montaigne, 75008 Paris, France<br/>
+                        contact@2good2breal.com | +33 (0) 7 67 92 55 45
+                    </p>
+                </div>
+            """
+        }
+        await asyncio.to_thread(resend.Emails.send, params)
+        logger.info(f"Password reset email sent to: {request.email}")
+    except Exception as e:
+        logger.error(f"Failed to send password reset email: {str(e)}")
+        # Still return success to prevent email enumeration
+    
+    return {"message": "If an account exists with this email, you will receive a password reset link."}
+
+@api_router.post("/auth/reset-password")
+async def reset_password(request: ResetPasswordRequest):
+    """Reset password using token."""
+    # Find and validate token
+    reset_record = await db.password_resets.find_one({"token": request.token})
+    
+    if not reset_record:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    # Check if token is expired
+    expires_at = datetime.fromisoformat(reset_record["expires_at"].replace('Z', '+00:00'))
+    if datetime.now(timezone.utc) > expires_at:
+        await db.password_resets.delete_one({"token": request.token})
+        raise HTTPException(status_code=400, detail="Reset token has expired. Please request a new one.")
+    
+    # Validate password length
+    if len(request.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters long")
+    
+    # Update user's password
+    hashed_password = hash_password(request.new_password)
+    result = await db.users.update_one(
+        {"email": reset_record["email"]},
+        {"$set": {"password": hashed_password}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="Failed to update password")
+    
+    # Delete used token
+    await db.password_resets.delete_one({"token": request.token})
+    
+    logger.info(f"Password reset successful for: {reset_record['email']}")
+    
+    return {"message": "Password has been reset successfully. You can now log in with your new password."}
+
+@api_router.get("/auth/verify-reset-token/{token}")
+async def verify_reset_token(token: str):
+    """Verify if a reset token is valid."""
+    reset_record = await db.password_resets.find_one({"token": token})
+    
+    if not reset_record:
+        raise HTTPException(status_code=400, detail="Invalid reset token")
+    
+    # Check if token is expired
+    expires_at = datetime.fromisoformat(reset_record["expires_at"].replace('Z', '+00:00'))
+    if datetime.now(timezone.utc) > expires_at:
+        await db.password_resets.delete_one({"token": token})
+        raise HTTPException(status_code=400, detail="Reset token has expired")
+    
+    return {"valid": True, "email": reset_record["email"]}
 
 # ============== ADMIN ROUTES ==============
 

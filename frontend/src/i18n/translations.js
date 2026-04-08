@@ -122,7 +122,8 @@ export const translations = {
         password: "Password",
         submit: "Sign In",
         noAccount: "Don't have an account?",
-        register: "Sign up"
+        register: "Sign up",
+        forgotPassword: "Forgot password?"
       },
       register: {
         title: "Create Account",
@@ -133,6 +134,31 @@ export const translations = {
         submit: "Create Account",
         hasAccount: "Already have an account?",
         login: "Sign in"
+      },
+      forgotPassword: {
+        title: "Forgot Password",
+        subtitle: "Enter your email to receive a reset link",
+        submit: "Send Reset Link",
+        backToLogin: "Back to Login",
+        success: "If an account exists, you will receive a reset link.",
+        checkEmail: "Check your email for a password reset link.",
+        expiry: "The link will expire in 1 hour."
+      },
+      resetPassword: {
+        title: "Reset Password",
+        subtitle: "Enter your new password",
+        newPassword: "New Password",
+        confirmPassword: "Confirm Password",
+        submit: "Reset Password",
+        mismatch: "Passwords do not match",
+        tooShort: "Password must be at least 6 characters",
+        success: "Password reset successfully!",
+        successTitle: "Password Reset!",
+        successDesc: "Your password has been reset successfully. You can now log in with your new password.",
+        goToLogin: "Go to Login",
+        invalidToken: "Invalid or Expired Link",
+        invalidTokenDesc: "This password reset link is invalid or has expired. Please request a new one.",
+        requestNew: "Request New Link"
       }
     },
     
@@ -406,7 +432,8 @@ export const translations = {
         password: "Mot de passe",
         submit: "Se Connecter",
         noAccount: "Vous n'avez pas de compte?",
-        register: "S'inscrire"
+        register: "S'inscrire",
+        forgotPassword: "Mot de passe oublié?"
       },
       register: {
         title: "Créer un Compte",
@@ -417,6 +444,31 @@ export const translations = {
         submit: "Créer un Compte",
         hasAccount: "Vous avez déjà un compte?",
         login: "Se connecter"
+      },
+      forgotPassword: {
+        title: "Mot de passe oublié",
+        subtitle: "Entrez votre email pour recevoir un lien de réinitialisation",
+        submit: "Envoyer le lien",
+        backToLogin: "Retour à la connexion",
+        success: "Si un compte existe, vous recevrez un lien de réinitialisation.",
+        checkEmail: "Vérifiez votre email pour le lien de réinitialisation.",
+        expiry: "Le lien expirera dans 1 heure."
+      },
+      resetPassword: {
+        title: "Réinitialiser le mot de passe",
+        subtitle: "Entrez votre nouveau mot de passe",
+        newPassword: "Nouveau mot de passe",
+        confirmPassword: "Confirmer le mot de passe",
+        submit: "Réinitialiser",
+        mismatch: "Les mots de passe ne correspondent pas",
+        tooShort: "Le mot de passe doit contenir au moins 6 caractères",
+        success: "Mot de passe réinitialisé avec succès!",
+        successTitle: "Mot de passe réinitialisé!",
+        successDesc: "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+        goToLogin: "Aller à la connexion",
+        invalidToken: "Lien invalide ou expiré",
+        invalidTokenDesc: "Ce lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.",
+        requestNew: "Demander un nouveau lien"
       }
     },
     

@@ -29,6 +29,22 @@ A verification service website for dating profiles where users submit profiles f
 - **Stripe:** Payment processing
 - **Gemini 3 Flash:** AI analysis (Emergent LLM Key)
 
+## Completed Work (April 8, 2026)
+
+### Password Reset Feature ✅
+- **Backend endpoints added:**
+  - `POST /api/auth/forgot-password` - Sends reset email with unique token
+  - `POST /api/auth/reset-password` - Resets password using token
+  - `GET /api/auth/verify-reset-token/{token}` - Validates reset token
+- **Frontend pages added:**
+  - `ForgotPasswordPage` - Form to request password reset
+  - `ResetPasswordPage` - Form to set new password
+- **Features:**
+  - Token expires after 1 hour for security
+  - Email sent via Resend with branded template
+  - Bilingual support (English/French)
+  - "Forgot password?" link on login page
+
 ## Completed Work (April 7, 2026)
 
 ### Admin Print Layout Alignment ✅

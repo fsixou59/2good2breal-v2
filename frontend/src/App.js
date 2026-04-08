@@ -7,7 +7,7 @@ import { LanguageProvider } from "./i18n/LanguageContext";
 import { Navbar } from "./components/Navbar";
 import { SEOHead } from "./components/SEOHead";
 import { LandingPage } from "./pages/LandingPage";
-import { LoginPage, RegisterPage } from "./pages/AuthPages";
+import { LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage } from "./pages/AuthPages";
 import { DashboardPage } from "./pages/DashboardPage";
 import { AnalyzePage } from "./pages/AnalyzePage";
 import { ResultsPage } from "./pages/ResultsPage";
@@ -78,6 +78,16 @@ function AppRoutes() {
         <Route path="/register" element={
           <PublicRoute>
             <RegisterPage />
+          </PublicRoute>
+        } />
+        <Route path="/forgot-password" element={
+          <PublicRoute>
+            <ForgotPasswordPage />
+          </PublicRoute>
+        } />
+        <Route path="/reset-password" element={
+          <PublicRoute>
+            <ResetPasswordPage />
           </PublicRoute>
         } />
         <Route path="/dashboard" element={
