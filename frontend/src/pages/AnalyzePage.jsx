@@ -572,7 +572,6 @@ export const AnalyzePage = () => {
         
         <div class="footer">
           <p><strong>2good2breal</strong> - Profile Verification Service</p>
-          <p>42, Avenue Montaigne, 75008 Paris, France</p>
           <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com</p>
           <p style="margin-top: 10px; font-style: italic;">This document is confidential and intended for the client only.</p>
         </div>
@@ -662,9 +661,8 @@ export const AnalyzePage = () => {
                   <p className="text-gray-600 text-sm">Profile Verification Service</p>
                 </div>
                 <div className="text-right text-sm text-gray-600">
-                  <p>42, Avenue Montaigne</p>
-                  <p>75008 Paris, France</p>
                   <p>contact@2good2breal.com</p>
+                  <p>+33 (0) 7 67 92 55 45</p>
                 </div>
               </div>
             </div>

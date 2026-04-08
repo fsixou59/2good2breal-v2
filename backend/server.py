@@ -900,7 +900,6 @@ async def forgot_password(request: ForgotPasswordRequest):
                     
                     <p style="color: #999; font-size: 12px; text-align: center;">
                         2good2breal - Profile Verification Service<br/>
-                        42, Avenue Montaigne, 75008 Paris, France<br/>
                         contact@2good2breal.com | +33 (0) 7 67 92 55 45
                     </p>
                 </div>
@@ -1608,7 +1607,6 @@ def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
     contact = doc.add_paragraph()
     contact.alignment = WD_ALIGN_PARAGRAPH.CENTER
     contact.add_run("2good2breal - Profile Verification Service\n").bold = True
-    contact.add_run("42, Avenue Montaigne, 75008 Paris, France\n")
     contact.add_run("contact@2good2breal.com | +33 (0) 7 67 92 55 45\n")
     contact.add_run("www.2good2breal.com")
     
@@ -2261,7 +2259,6 @@ def generate_acceptance_pdf(user_name: str, reference_id: str, package_type: str
     elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#e0e0e0'), spaceAfter=15))
     
     # Footer
-    elements.append(Paragraph("42, Avenue Montaigne, 75008 Paris, France", footer_style))
     elements.append(Paragraph("WhatsApp: +33 (0) 7 43 66 05 55 | Office: +33 (0) 7 67 92 55 45", footer_style))
     
     # Build PDF
@@ -2422,7 +2419,6 @@ async def send_client_acceptance_confirmation(user_email: str, user_name: str, r
                 </div>
                 
                 <div class="footer">
-                    <p>42, Avenue Montaigne, 75008 Paris, France</p>
                     <p>WhatsApp: +33 (0) 7 43 66 05 55 | Office: +33 (0) 7 67 92 55 45</p>
                 </div>
             </div>

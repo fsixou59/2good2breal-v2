@@ -164,7 +164,6 @@ const FAQPage = () => {
               {" | "}
               WhatsApp 2 : <a href="tel:+33767925545" className="text-purple-400 hover:text-purple-300 underline">+33 (0) 7 67 92 55 45</a>
             </p>
-            <p>{isFr ? "Adresse" : "Address"}: 42, Avenue Montaigne, 75008 Paris, France</p>
           </div>
         </div>
 

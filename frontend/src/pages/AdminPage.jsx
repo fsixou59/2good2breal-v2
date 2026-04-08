@@ -677,7 +677,6 @@ function AnalysisRow(props) {
         
         <div class="footer">
           <p><strong>2good2breal</strong> - Profile Verification Service</p>
-          <p>42, Avenue Montaigne, 75008 Paris, France</p>
           <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com</p>
           <p style="margin-top: 10px; font-style: italic;">This document is confidential.</p>
         </div>
