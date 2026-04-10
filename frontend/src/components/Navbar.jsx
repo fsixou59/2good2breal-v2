@@ -33,7 +33,9 @@ export const Navbar = () => {
               alt="2good2breal Logo" 
               className="h-[103px] w-auto group-hover:scale-105 transition-transform"
             />
-            <span className="text-2xl font-bold text-white">2good2breal</span>
+            <span className="text-2xl font-bold text-white tracking-tight" style={{ fontVariantNumeric: 'lining-nums' }}>
+              <span className="text-2xl">2</span>good<span className="text-2xl">2</span>breal
+            </span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -445,7 +445,7 @@ export const AnalyzePage = () => {
               <div class="field-value">${formData.language_of_communication || '-'}</div>
             </div>
             <div class="field">
-              <div class="field-label">${isFr ? 'Statut marital supposé' : 'Assumed Marital Status'}</div>
+              <div class="field-label">${isFr ? 'Statut marital' : 'Marital Status'}</div>
               <div class="field-value">${formData.assumed_marital_status || '-'}</div>
             </div>
             <div class="field">
@@ -472,7 +472,7 @@ export const AnalyzePage = () => {
               <div class="field-value">${formData.date_of_birth || '-'}</div>
             </div>
             <div class="field">
-              <div class="field-label">${isFr ? 'Âge supposé' : 'Assumed Age'}</div>
+              <div class="field-label">${isFr ? 'Âge connu' : 'Known Age'}</div>
               <div class="field-value">${formData.assumed_age || '-'}</div>
             </div>
             <div class="field">
@@ -1071,7 +1071,7 @@ export const AnalyzePage = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="assumed_marital_status" className="text-zinc-300">
-                        {isFr ? "Statut marital supposé" : "Assumed Marital Status"}
+                        {isFr ? "Statut marital" : "Marital Status"}
                       </Label>
                       <Input
                         id="assumed_marital_status"
@@ -1158,7 +1158,7 @@ export const AnalyzePage = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="assumed_age" className="text-zinc-300">
-                        {isFr ? "Âge supposé" : "Assumed Age"}
+                        {isFr ? "Âge connu" : "Known Age"}
                       </Label>
                       <Input
                         id="assumed_age"
