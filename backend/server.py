@@ -1957,7 +1957,7 @@ async def send_report_to_client(analysis_id: str, data: SendReportData, admin: d
 def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
     """
     Generate a DOCX report matching the exact template provided by the user.
-    Format: No tables, UPPERCASE section headers, LABEL value format on each line.
+    Format: Logo header on each page, 2-column layout for page 1, UPPERCASE section headers.
     """
     doc = Document()
     
@@ -1969,7 +1969,152 @@ def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
     style.font.name = 'Calibri'
     style.font.size = Pt(11)
     
-    # Helper function to add a field line (BOLD LABEL followed by value)
+    # ====== ADD LOGO TO HEADER (appears on all pages) ======
+    logo_path = ROOT_DIR / "logo.png"
+    section = doc.sections[0]
+    header = section.header
+    header_para = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
+    header_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    
+    if logo_path.exists():
+        try:
+            run = header_para.add_run()
+            run.add_picture(str(logo_path), width=Inches(1.5))
+        except Exception as e:
+            logging.warning(f"Could not add logo to header: {e}")
+            # Fallback to text logo
+            run = header_para.add_run("2good2breal")
+            run.bold = True
+            run.font.size = Pt(16)
+            run.font.color.rgb = RGBColor(165, 83, 190)
+    else:
+        # Text logo fallback
+        run = header_para.add_run("2good2breal")
+        run.bold = True
+        run.font.size = Pt(16)
+        run.font.color.rgb = RGBColor(165, 83, 190)
+    
+    # ====== PAGE 1: HEADER ======
+    # Title
+    title_para = doc.add_paragraph()
+    title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title_run = title_para.add_run("Profile Verification Service – Manual Report")
+    title_run.bold = True
+    title_run.font.size = Pt(16)
+    
+    # Date
+    date_para = doc.add_paragraph()
+    date_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    date_para.add_run(f"Date: {datetime.now().strftime('%Y-%m-%d')}")
+    
+    doc.add_paragraph()  # Spacer
+    
+    # ====== PAGE 1: TWO-COLUMN TABLE FOR CLIENT & PROFILE INFO ======
+    # Create a 2-column table for the layout
+    info_table = doc.add_table(rows=1, cols=2)
+    info_table.autofit = True
+    
+    # Left column - CLIENT INFORMATION
+    left_cell = info_table.rows[0].cells[0]
+    left_cell.width = Inches(3.5)
+    
+    # CLIENT INFORMATION header
+    p = left_cell.paragraphs[0]
+    run = p.add_run("CLIENT INFORMATION")
+    run.bold = True
+    run.font.size = Pt(12)
+    run.font.color.rgb = RGBColor(165, 83, 190)
+    
+    # Client fields
+    client_fields = [
+        ("NAME", analysis.get("user_name", "") or "-"),
+        ("EMAIL", analysis.get("user_email", "") or "-"),
+        ("AGE", form_data.get("client_age", "") or "-"),
+        ("LOCATION", form_data.get("client_location", "") or "-"),
+    ]
+    
+    for label, value in client_fields:
+        p = left_cell.add_paragraph()
+        p.add_run(f"{label}: ").bold = True
+        p.add_run(str(value))
+    
+    # Spacer
+    left_cell.add_paragraph()
+    
+    # PROFILE INFORMATION header in left column
+    p = left_cell.add_paragraph()
+    run = p.add_run("PROFILE INFORMATION")
+    run.bold = True
+    run.font.size = Pt(12)
+    run.font.color.rgb = RGBColor(165, 83, 190)
+    
+    # Profile fields (left side)
+    profile_fields_left = [
+        ("PROFILE NAME", form_data.get("profile_name", "") or "-"),
+        ("FULL REAL NAME", form_data.get("full_real_name", "") or "-"),
+        ("GENDER", (form_data.get("gender", "") or "-").capitalize()),
+        ("HEIGHT", form_data.get("height", "") or "-"),
+        ("NATIONALITY", form_data.get("nationality", "") or "-"),
+        ("SHARED LANGUAGE", form_data.get("language_of_communication", "") or form_data.get("shared_language", "") or "-"),
+    ]
+    
+    for label, value in profile_fields_left:
+        p = left_cell.add_paragraph()
+        p.add_run(f"{label}: ").bold = True
+        p.add_run(str(value))
+    
+    # Right column - PROFILE DETAILS
+    right_cell = info_table.rows[0].cells[1]
+    right_cell.width = Inches(3.5)
+    
+    # PROFILE DETAILS header
+    p = right_cell.paragraphs[0]
+    run = p.add_run("PROFILE DETAILS")
+    run.bold = True
+    run.font.size = Pt(12)
+    run.font.color.rgb = RGBColor(165, 83, 190)
+    
+    # Profile details fields
+    profile_fields_right = [
+        ("DATE OF BIRTH", form_data.get("date_of_birth", "") or "-"),
+        ("KNOWN AGE", form_data.get("assumed_age", "") or "-"),
+        ("LOCATION", form_data.get("profile_location", "") or "-"),
+        ("PLATFORM", form_data.get("dating_platform", "") or "-"),
+        ("OCCUPATION", form_data.get("occupation", "") or "-"),
+        ("COMPANY NAME", form_data.get("company_name", "") or "-"),
+        ("COMPANY WEBSITE", form_data.get("company_website", "") or "-"),
+    ]
+    
+    for label, value in profile_fields_right:
+        p = right_cell.add_paragraph()
+        p.add_run(f"{label}: ").bold = True
+        p.add_run(str(value))
+    
+    # Spacer
+    right_cell.add_paragraph()
+    
+    # Additional profile info in right column
+    p = right_cell.add_paragraph()
+    run = p.add_run("ADDITIONAL INFO")
+    run.bold = True
+    run.font.size = Pt(12)
+    run.font.color.rgb = RGBColor(165, 83, 190)
+    
+    additional_fields = [
+        ("MARITAL STATUS", form_data.get("assumed_marital_status", "") or "-"),
+        ("HOBBIES / INTERESTS", form_data.get("hobbies_interests", "") or "-"),
+        ("UNIVERSITY / COLLEGE", form_data.get("university_college", "") or "-"),
+        ("YEAR/S ATTENDANCE", form_data.get("years_of_attendance", "") or "-"),
+    ]
+    
+    for label, value in additional_fields:
+        p = right_cell.add_paragraph()
+        p.add_run(f"{label}: ").bold = True
+        p.add_run(str(value))
+    
+    doc.add_paragraph()  # Spacer after table
+    
+    # Helper function to add a field line (used for remaining sections)
     def add_field_line(label: str, value: str):
         para = doc.add_paragraph()
         run_label = para.add_run(f"{label} ")
@@ -1984,64 +2129,6 @@ def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
         run.bold = True
         run.font.size = Pt(14)
         doc.add_paragraph()  # Spacer after header
-    
-    # ====== HEADER ======
-    # Logo text "2good2breal"
-    header_para = doc.add_paragraph()
-    header_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    logo_run = header_para.add_run("2good2breal")
-    logo_run.bold = True
-    logo_run.font.size = Pt(24)
-    logo_run.font.color.rgb = RGBColor(165, 83, 190)  # Purple
-    
-    # Subtitle
-    subtitle_para = doc.add_paragraph()
-    subtitle_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    sub_run = subtitle_para.add_run("Profile Verification Service – Manual Report")
-    sub_run.bold = True
-    sub_run.font.size = Pt(14)
-    
-    # Date
-    date_para = doc.add_paragraph()
-    date_para.add_run(f"Date: {datetime.now().strftime('%Y-%m-%d')}")
-    
-    # ====== CLIENT INFORMATION ======
-    add_section_header("CLIENT INFORMATION")
-    
-    # Get client name - use user_name from analysis
-    client_name = analysis.get("user_name", "") or ""
-    add_field_line("NAME", client_name)
-    add_field_line("EMAIL", analysis.get("user_email", "") or "")
-    add_field_line("AGE", form_data.get("client_age", "") or "")
-    add_field_line("LOCATION", form_data.get("client_location", "") or "")
-    
-    # ====== PROFILE INFORMATION ======
-    add_section_header("PROFILE INFORMATION")
-    
-    add_field_line("PROFILE NAME", form_data.get("profile_name", "") or "")
-    add_field_line("FULL REAL NAME", form_data.get("full_real_name", "") or "")
-    gender = form_data.get("gender", "") or ""
-    add_field_line("GENDER", gender.capitalize() if gender else "")
-    add_field_line("HEIGHT", form_data.get("height", "") or "")
-    add_field_line("NATIONALITY", form_data.get("nationality", "") or "")
-    # Use language_of_communication field
-    shared_lang = form_data.get("language_of_communication", "") or form_data.get("shared_language", "") or ""
-    add_field_line("SHARED LANGUAGE", shared_lang)
-    add_field_line("MARITAL STATUS", form_data.get("assumed_marital_status", "") or "")
-    add_field_line("HOBBIES / INTERESTS", form_data.get("hobbies_interests", "") or "")
-    add_field_line("UNIVERSITY / COLLEGE", form_data.get("university_college", "") or "")
-    add_field_line("YEAR/S OF ATTENDANCE / GRADUATION", form_data.get("years_of_attendance", "") or "")
-    
-    # ====== PROFILE DETAILS ======
-    add_section_header("PROFILE DETAILS")
-    
-    add_field_line("DATE OF BIRTH", form_data.get("date_of_birth", ""))
-    add_field_line("KNOWN AGE", form_data.get("assumed_age", ""))
-    add_field_line("LOCATION", form_data.get("profile_location", ""))
-    add_field_line("PLATFORM", form_data.get("dating_platform", ""))
-    add_field_line("OCCUPATION", form_data.get("occupation", ""))
-    add_field_line("COMPANY NAME", form_data.get("company_name", ""))
-    add_field_line("COMPANY WEBSITE", form_data.get("company_website", ""))
     
     # ====== ANALYSIS RESULTS ======
     add_section_header("ANALYSIS RESULTS")

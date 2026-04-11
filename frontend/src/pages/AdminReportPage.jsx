@@ -214,42 +214,57 @@ export function AdminReportPage() {
         <div className="py-8 px-4">
           <div style={docxStyles.page} className="shadow-xl rounded-lg border border-zinc-300">
             
-            {/* HEADER */}
-            <div style={docxStyles.header}>
-              <p style={docxStyles.logo}>2good2breal</p>
-              <p style={docxStyles.subtitle}>Profile Verification Service – Manual Report</p>
-              <p style={docxStyles.date}>Date: {new Date().toISOString().split('T')[0]}</p>
+            {/* HEADER with Logo */}
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', borderBottom: '2px solid #a553be', paddingBottom: '15px'}}>
+              <img src="/logo.png" alt="2good2breal" style={{height: '50px'}} />
+              <div style={{textAlign: 'right'}}>
+                <p style={{fontSize: '14px', fontWeight: 'bold'}}>Profile Verification Service – Manual Report</p>
+                <p style={{fontSize: '12px', color: '#666'}}>Date: {new Date().toISOString().split('T')[0]}</p>
+              </div>
             </div>
 
-            {/* CLIENT INFORMATION */}
-            <p style={docxStyles.sectionHeader}>CLIENT INFORMATION</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NAME</span> {analysis.user_name || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>EMAIL</span> {analysis.user_email || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>AGE</span> {formData.client_age || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION</span> {formData.client_location || '-'}</p>
+            {/* PAGE 1: TWO COLUMN LAYOUT */}
+            <div style={{display: 'flex', gap: '30px'}}>
+              
+              {/* LEFT COLUMN */}
+              <div style={{flex: 1}}>
+                {/* CLIENT INFORMATION */}
+                <p style={{...docxStyles.sectionHeader, color: '#a553be', marginTop: 0}}>CLIENT INFORMATION</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NAME:</span> {analysis.user_name || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>EMAIL:</span> {analysis.user_email || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>AGE:</span> {formData.client_age || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION:</span> {formData.client_location || '-'}</p>
 
-            {/* PROFILE INFORMATION */}
-            <p style={docxStyles.sectionHeader}>PROFILE INFORMATION</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PROFILE NAME</span> {formData.profile_name || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>FULL REAL NAME</span> {formData.full_real_name || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>GENDER</span> {formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HEIGHT</span> {formData.height || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NATIONALITY</span> {formData.nationality || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>SHARED LANGUAGE</span> {sharedLanguage || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>MARITAL STATUS</span> {formData.assumed_marital_status || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HOBBIES / INTERESTS</span> {formData.hobbies_interests || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>UNIVERSITY / COLLEGE</span> {formData.university_college || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>YEAR/S OF ATTENDANCE / GRADUATION</span> {formData.years_of_attendance || '-'}</p>
+                {/* PROFILE INFORMATION */}
+                <p style={{...docxStyles.sectionHeader, color: '#a553be'}}>PROFILE INFORMATION</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PROFILE NAME:</span> {formData.profile_name || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>FULL REAL NAME:</span> {formData.full_real_name || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>GENDER:</span> {formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HEIGHT:</span> {formData.height || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NATIONALITY:</span> {formData.nationality || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>SHARED LANGUAGE:</span> {sharedLanguage || '-'}</p>
+              </div>
 
-            {/* PROFILE DETAILS */}
-            <p style={docxStyles.sectionHeader}>PROFILE DETAILS</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>DATE OF BIRTH</span> {formData.date_of_birth || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>KNOWN AGE</span> {formData.assumed_age || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION</span> {formData.profile_location || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PLATFORM</span> {formData.dating_platform || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>OCCUPATION</span> {formData.occupation || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY NAME</span> {formData.company_name || '-'}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY WEBSITE</span> {formData.company_website || '-'}</p>
+              {/* RIGHT COLUMN */}
+              <div style={{flex: 1}}>
+                {/* PROFILE DETAILS */}
+                <p style={{...docxStyles.sectionHeader, color: '#a553be', marginTop: 0}}>PROFILE DETAILS</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>DATE OF BIRTH:</span> {formData.date_of_birth || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>KNOWN AGE:</span> {formData.assumed_age || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION:</span> {formData.profile_location || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PLATFORM:</span> {formData.dating_platform || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>OCCUPATION:</span> {formData.occupation || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY NAME:</span> {formData.company_name || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY WEBSITE:</span> {formData.company_website || '-'}</p>
+
+                {/* ADDITIONAL INFO */}
+                <p style={{...docxStyles.sectionHeader, color: '#a553be'}}>ADDITIONAL INFO</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>MARITAL STATUS:</span> {formData.assumed_marital_status || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HOBBIES / INTERESTS:</span> {formData.hobbies_interests || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>UNIVERSITY / COLLEGE:</span> {formData.university_college || '-'}</p>
+                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>YEAR/S ATTENDANCE:</span> {formData.years_of_attendance || '-'}</p>
+              </div>
+            </div>
 
             {/* ANALYSIS RESULTS */}
             <p style={docxStyles.sectionHeader}>ANALYSIS RESULTS</p>
