@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Shield, FileText, Clock, CheckCircle, Eye, LogOut, ChevronDown, ChevronUp, AlertTriangle, RefreshCw, User, Send, Printer, Trash2 } from 'lucide-react';
+import { Shield, FileText, Clock, CheckCircle, Eye, LogOut, ChevronDown, ChevronUp, AlertTriangle, RefreshCw, User, Send, Printer, Trash2, Download, FileDown } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 
@@ -717,12 +717,26 @@ function AnalysisRow(props) {
             <Button onClick={handleDelete} disabled={deleting} variant="outline" className="border-red-600 text-red-400 hover:bg-red-950/50">
               <Trash2 className="w-4 h-4 mr-2" /> {deleting ? 'Deleting...' : 'Delete'}
             </Button>
-            <div className="flex gap-3">
+            <div className="flex gap-2 flex-wrap justify-end">
               <Button onClick={handlePrint} variant="outline" className="border-zinc-600 hover:bg-zinc-800">
-                <Printer className="w-4 h-4 mr-2" /> Print Submission
+                <Printer className="w-4 h-4 mr-2" /> Print
+              </Button>
+              <Button 
+                onClick={() => window.open(`${API}/admin/analyses/${analysis.id}/submission-pdf`, '_blank')} 
+                variant="outline" 
+                className="border-blue-600 text-blue-400 hover:bg-blue-950/50"
+              >
+                <Download className="w-4 h-4 mr-2" /> PDF
+              </Button>
+              <Button 
+                onClick={() => window.open(`${API}/admin/analyses/${analysis.id}/submission-docx`, '_blank')} 
+                variant="outline" 
+                className="border-green-600 text-green-400 hover:bg-green-950/50"
+              >
+                <FileDown className="w-4 h-4 mr-2" /> DOCX
               </Button>
               <Button onClick={handleCreateReport} className="bg-purple-600 hover:bg-purple-500">
-                <Send className="w-4 h-4 mr-2" /> Create Report for Client
+                <Send className="w-4 h-4 mr-2" /> Create Report
               </Button>
             </div>
           </div>

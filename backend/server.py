@@ -1270,6 +1270,338 @@ async def delete_analysis(analysis_id: str, admin: dict = Depends(get_admin_user
     logging.info(f"Admin deleted analysis {analysis_id}")
     return {"message": "Analysis deleted successfully"}
 
+@api_router.get("/admin/analyses/{analysis_id}/submission-pdf")
+async def download_submission_pdf(analysis_id: str, admin: dict = Depends(get_admin_user)):
+    """Download the submission form as PDF (admin only)."""
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RLImage, HRFlowable
+    from reportlab.lib.units import inch, cm
+    from io import BytesIO
+    import base64
+    
+    analysis = await db.verification_results.find_one({"id": analysis_id}, {"_id": 0})
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    
+    form_data = analysis.get("form_data", {})
+    ai_analysis = analysis.get("ai_analysis", {})
+    
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
+    elements = []
+    
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('Title', parent=styles['Heading1'], fontSize=24, textColor=colors.HexColor('#7c3aed'), alignment=1, spaceAfter=20)
+    section_style = ParagraphStyle('Section', parent=styles['Heading2'], fontSize=14, textColor=colors.HexColor('#7c3aed'), spaceBefore=15, spaceAfter=10, underline=True)
+    label_style = ParagraphStyle('Label', parent=styles['Normal'], fontSize=10, textColor=colors.HexColor('#666666'), fontName='Helvetica-Bold')
+    value_style = ParagraphStyle('Value', parent=styles['Normal'], fontSize=11, textColor=colors.black)
+    footer_style = ParagraphStyle('Footer', parent=styles['Normal'], fontSize=9, textColor=colors.HexColor('#888888'), alignment=1)
+    
+    # Header
+    elements.append(Paragraph("2good2breal", title_style))
+    elements.append(Paragraph("Profile Verification Service - Submission Form", ParagraphStyle('Subtitle', parent=styles['Normal'], fontSize=12, alignment=1, textColor=colors.HexColor('#666666'))))
+    elements.append(Spacer(1, 20))
+    
+    # Date
+    elements.append(Paragraph(f"Date: {analysis.get('created_at', 'N/A')[:10] if analysis.get('created_at') else 'N/A'}", ParagraphStyle('Date', parent=styles['Normal'], fontSize=10, alignment=2)))
+    elements.append(Spacer(1, 15))
+    
+    # CLIENT INFORMATION
+    elements.append(Paragraph("CLIENT INFORMATION", section_style))
+    client_data = [
+        ["Name:", analysis.get("user_name", "-"), "Email:", form_data.get("client_email", analysis.get("user_email", "-"))],
+        ["Age:", form_data.get("client_age", "-"), "Location:", form_data.get("client_location", "-")],
+    ]
+    client_table = Table(client_data, colWidths=[70, 150, 70, 150])
+    client_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#555555')),
+        ('TEXTCOLOR', (2, 0), (2, -1), colors.HexColor('#555555')),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(client_table)
+    elements.append(Spacer(1, 15))
+    
+    # PROFILE INFORMATION
+    elements.append(Paragraph("PROFILE INFORMATION", section_style))
+    profile_data = [
+        ["Profile Name:", form_data.get("profile_name", "-"), "Full Real Name:", form_data.get("full_real_name", "-")],
+        ["Gender:", (form_data.get("gender", "-") or "-").capitalize(), "Height:", form_data.get("height", "-")],
+        ["Nationality:", form_data.get("nationality", "-"), "Shared Language:", form_data.get("language_of_communication", "-")],
+        ["Marital Status:", form_data.get("assumed_marital_status", "-"), "Hobbies/Interests:", form_data.get("hobbies_interests", "-")],
+        ["University:", form_data.get("university_college", "-"), "Years Attendance:", form_data.get("years_attendance", "-")],
+    ]
+    profile_table = Table(profile_data, colWidths=[90, 130, 90, 130])
+    profile_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#555555')),
+        ('TEXTCOLOR', (2, 0), (2, -1), colors.HexColor('#555555')),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(profile_table)
+    elements.append(Spacer(1, 15))
+    
+    # PROFILE DETAILS
+    elements.append(Paragraph("PROFILE DETAILS", section_style))
+    details_data = [
+        ["Date of Birth:", form_data.get("date_of_birth", "-"), "Known Age:", form_data.get("assumed_age", "-")],
+        ["Location:", form_data.get("profile_location", "-"), "Platform:", form_data.get("dating_platform", "-")],
+        ["Occupation:", form_data.get("occupation", "-"), "Company:", form_data.get("company_name", "-")],
+    ]
+    details_table = Table(details_data, colWidths=[90, 130, 90, 130])
+    details_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#555555')),
+        ('TEXTCOLOR', (2, 0), (2, -1), colors.HexColor('#555555')),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(details_table)
+    elements.append(Spacer(1, 10))
+    
+    # Profile Bio
+    if form_data.get("profile_bio"):
+        elements.append(Paragraph("Profile Bio:", label_style))
+        elements.append(Paragraph(form_data.get("profile_bio", "-"), value_style))
+        elements.append(Spacer(1, 15))
+    
+    # PHOTOS AND SOCIAL MEDIA
+    elements.append(Paragraph("PHOTOS AND SOCIAL MEDIA", section_style))
+    photos_data = [
+        ["Number of Photos:", str(form_data.get("profile_photos_count", len(form_data.get("photos", [])))), "Verified Photos:", "Yes" if form_data.get("has_verified_photos") else "No"],
+    ]
+    photos_table = Table(photos_data, colWidths=[100, 120, 100, 120])
+    photos_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(photos_table)
+    
+    if form_data.get("social_media_links"):
+        elements.append(Paragraph("Social Media Links (User names):", label_style))
+        elements.append(Paragraph(form_data.get("social_media_links", "-"), value_style))
+    elements.append(Spacer(1, 15))
+    
+    # COMMUNICATION ANALYSIS
+    elements.append(Paragraph("COMMUNICATION ANALYSIS", section_style))
+    if form_data.get("communication_frequency"):
+        elements.append(Paragraph("Communication Frequency:", label_style))
+        elements.append(Paragraph(form_data.get("communication_frequency", "-"), value_style))
+    if form_data.get("message_substance"):
+        elements.append(Paragraph("Message Substance:", label_style))
+        elements.append(Paragraph(form_data.get("message_substance", "-"), value_style))
+    elements.append(Spacer(1, 15))
+    
+    # OBSERVATIONS & CONCERNS
+    elements.append(Paragraph("OBSERVATIONS & CONCERNS", section_style))
+    elements.append(Paragraph(form_data.get("observations_concerns", "-"), value_style))
+    elements.append(Spacer(1, 20))
+    
+    # AI ANALYSIS (if available)
+    if ai_analysis:
+        elements.append(Paragraph("AI ANALYSIS RESULTS", section_style))
+        score = ai_analysis.get("overall_score", 0)
+        trust_level = ai_analysis.get("trust_level", "unknown").replace("_", " ").upper()
+        elements.append(Paragraph(f"Trust Score: {score}/100 - {trust_level}", ParagraphStyle('Score', parent=styles['Normal'], fontSize=14, textColor=colors.HexColor('#dc2626') if score < 40 else colors.HexColor('#22c55e') if score >= 70 else colors.HexColor('#eab308'))))
+        
+        if ai_analysis.get("analysis_summary"):
+            elements.append(Spacer(1, 10))
+            elements.append(Paragraph("AI Summary:", label_style))
+            elements.append(Paragraph(ai_analysis.get("analysis_summary", "-"), value_style))
+        
+        red_flags = ai_analysis.get("red_flags", [])
+        if red_flags:
+            elements.append(Spacer(1, 10))
+            elements.append(Paragraph(f"Red Flags Detected ({len(red_flags)}):", label_style))
+            for flag in red_flags:
+                elements.append(Paragraph(f"• [{flag.get('severity', 'low').upper()}] {flag.get('category', '')}: {flag.get('description', '')}", value_style))
+        elements.append(Spacer(1, 20))
+    
+    # Footer
+    elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#e0e0e0'), spaceAfter=15))
+    elements.append(Paragraph("2good2breal - Profile Verification Service", footer_style))
+    elements.append(Paragraph("contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com", footer_style))
+    
+    doc.build(elements)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    
+    profile_name = form_data.get("profile_name", "submission").replace(" ", "_")
+    filename = f"submission_{profile_name}_{analysis_id[:8]}.pdf"
+    
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+@api_router.get("/admin/analyses/{analysis_id}/submission-docx")
+async def download_submission_docx(analysis_id: str, admin: dict = Depends(get_admin_user)):
+    """Download the submission form as DOCX (admin only)."""
+    from docx import Document
+    from docx.shared import Inches, Pt, RGBColor
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from io import BytesIO
+    
+    analysis = await db.verification_results.find_one({"id": analysis_id}, {"_id": 0})
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+    
+    form_data = analysis.get("form_data", {})
+    ai_analysis = analysis.get("ai_analysis", {})
+    
+    doc = Document()
+    
+    # Title
+    title = doc.add_heading('2good2breal', 0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    for run in title.runs:
+        run.font.color.rgb = RGBColor(124, 58, 237)
+    
+    subtitle = doc.add_paragraph('Profile Verification Service - Submission Form')
+    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # Date
+    date_para = doc.add_paragraph()
+    date_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    date_para.add_run(f"Date: {analysis.get('created_at', 'N/A')[:10] if analysis.get('created_at') else 'N/A'}")
+    
+    # CLIENT INFORMATION
+    doc.add_heading('CLIENT INFORMATION', level=1)
+    client_table = doc.add_table(rows=2, cols=4)
+    client_table.style = 'Table Grid'
+    
+    client_data = [
+        ("Name", analysis.get("user_name", "-"), "Email", form_data.get("client_email", analysis.get("user_email", "-"))),
+        ("Age", form_data.get("client_age", "-"), "Location", form_data.get("client_location", "-")),
+    ]
+    for i, row_data in enumerate(client_data):
+        cells = client_table.rows[i].cells
+        cells[0].text = row_data[0]
+        cells[0].paragraphs[0].runs[0].font.bold = True
+        cells[1].text = str(row_data[1])
+        cells[2].text = row_data[2]
+        cells[2].paragraphs[0].runs[0].font.bold = True
+        cells[3].text = str(row_data[3])
+    
+    doc.add_paragraph()
+    
+    # PROFILE INFORMATION
+    doc.add_heading('PROFILE INFORMATION', level=1)
+    profile_table = doc.add_table(rows=5, cols=4)
+    profile_table.style = 'Table Grid'
+    
+    profile_data = [
+        ("Profile Name", form_data.get("profile_name", "-"), "Full Real Name", form_data.get("full_real_name", "-")),
+        ("Gender", (form_data.get("gender", "-") or "-").capitalize(), "Height", form_data.get("height", "-")),
+        ("Nationality", form_data.get("nationality", "-"), "Shared Language", form_data.get("language_of_communication", "-")),
+        ("Marital Status", form_data.get("assumed_marital_status", "-"), "Hobbies/Interests", form_data.get("hobbies_interests", "-")),
+        ("University", form_data.get("university_college", "-"), "Years Attendance", form_data.get("years_attendance", "-")),
+    ]
+    for i, row_data in enumerate(profile_data):
+        cells = profile_table.rows[i].cells
+        cells[0].text = row_data[0]
+        cells[0].paragraphs[0].runs[0].font.bold = True
+        cells[1].text = str(row_data[1])
+        cells[2].text = row_data[2]
+        cells[2].paragraphs[0].runs[0].font.bold = True
+        cells[3].text = str(row_data[3])
+    
+    doc.add_paragraph()
+    
+    # PROFILE DETAILS
+    doc.add_heading('PROFILE DETAILS', level=1)
+    details_table = doc.add_table(rows=3, cols=4)
+    details_table.style = 'Table Grid'
+    
+    details_data = [
+        ("Date of Birth", form_data.get("date_of_birth", "-"), "Known Age", form_data.get("assumed_age", "-")),
+        ("Location", form_data.get("profile_location", "-"), "Platform", form_data.get("dating_platform", "-")),
+        ("Occupation", form_data.get("occupation", "-"), "Company", form_data.get("company_name", "-")),
+    ]
+    for i, row_data in enumerate(details_data):
+        cells = details_table.rows[i].cells
+        cells[0].text = row_data[0]
+        cells[0].paragraphs[0].runs[0].font.bold = True
+        cells[1].text = str(row_data[1])
+        cells[2].text = row_data[2]
+        cells[2].paragraphs[0].runs[0].font.bold = True
+        cells[3].text = str(row_data[3])
+    
+    # Profile Bio
+    if form_data.get("profile_bio"):
+        doc.add_paragraph()
+        bio_heading = doc.add_paragraph()
+        bio_heading.add_run("Profile Bio:").bold = True
+        doc.add_paragraph(form_data.get("profile_bio", "-"))
+    
+    doc.add_paragraph()
+    
+    # OBSERVATIONS & CONCERNS
+    doc.add_heading('OBSERVATIONS & CONCERNS', level=1)
+    doc.add_paragraph(form_data.get("observations_concerns", "-"))
+    
+    # AI ANALYSIS
+    if ai_analysis:
+        doc.add_paragraph()
+        doc.add_heading('AI ANALYSIS RESULTS', level=1)
+        
+        score = ai_analysis.get("overall_score", 0)
+        trust_level = ai_analysis.get("trust_level", "unknown").replace("_", " ").upper()
+        
+        score_para = doc.add_paragraph()
+        score_run = score_para.add_run(f"Trust Score: {score}/100 - {trust_level}")
+        score_run.font.size = Pt(14)
+        score_run.font.bold = True
+        if score < 40:
+            score_run.font.color.rgb = RGBColor(220, 38, 38)
+        elif score >= 70:
+            score_run.font.color.rgb = RGBColor(34, 197, 94)
+        else:
+            score_run.font.color.rgb = RGBColor(234, 179, 8)
+        
+        if ai_analysis.get("analysis_summary"):
+            summary_heading = doc.add_paragraph()
+            summary_heading.add_run("AI Summary:").bold = True
+            doc.add_paragraph(ai_analysis.get("analysis_summary", "-"))
+        
+        red_flags = ai_analysis.get("red_flags", [])
+        if red_flags:
+            flags_heading = doc.add_paragraph()
+            flags_heading.add_run(f"Red Flags Detected ({len(red_flags)}):").bold = True
+            for flag in red_flags:
+                doc.add_paragraph(f"• [{flag.get('severity', 'low').upper()}] {flag.get('category', '')}: {flag.get('description', '')}")
+    
+    # Footer
+    doc.add_paragraph()
+    footer = doc.add_paragraph()
+    footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    footer.add_run("2good2breal - Profile Verification Service\n").bold = True
+    footer.add_run("contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com")
+    
+    # Save to buffer
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    
+    profile_name = form_data.get("profile_name", "submission").replace(" ", "_")
+    filename = f"submission_{profile_name}_{analysis_id[:8]}.docx"
+    
+    return Response(
+        content=buffer.getvalue(),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 @api_router.post("/admin/analyses/{analysis_id}/send-report")
 async def send_report_to_client(analysis_id: str, data: SendReportData, admin: dict = Depends(get_admin_user)):
     """Send the verification report to the client via email."""
