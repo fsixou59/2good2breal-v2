@@ -1446,11 +1446,13 @@ async def download_submission_pdf(analysis_id: str, admin: dict = Depends(get_ad
 
 @api_router.get("/admin/analyses/{analysis_id}/submission-docx")
 async def download_submission_docx(analysis_id: str, admin: dict = Depends(get_admin_user)):
-    """Download the submission form as DOCX (admin only)."""
+    """Download the complete submission form as DOCX (admin only) - All 7 pages."""
     from docx import Document
-    from docx.shared import Inches, Pt, RGBColor
+    from docx.shared import Inches, Pt, RGBColor, Cm
     from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.enum.table import WD_TABLE_ALIGNMENT
     from io import BytesIO
+    import base64
     
     analysis = await db.verification_results.find_one({"id": analysis_id}, {"_id": 0})
     if not analysis:
@@ -1458,8 +1460,18 @@ async def download_submission_docx(analysis_id: str, admin: dict = Depends(get_a
     
     form_data = analysis.get("form_data", {})
     ai_analysis = analysis.get("ai_analysis", {})
+    photos = form_data.get("photos", [])
     
     doc = Document()
+    
+    # Set document margins
+    for section in doc.sections:
+        section.top_margin = Cm(2)
+        section.bottom_margin = Cm(2)
+        section.left_margin = Cm(2.5)
+        section.right_margin = Cm(2.5)
+    
+    # ========== PAGE 1: HEADER + CLIENT INFO + PROFILE INFO ==========
     
     # Title
     title = doc.add_heading('2good2breal', 0)
@@ -1473,7 +1485,11 @@ async def download_submission_docx(analysis_id: str, admin: dict = Depends(get_a
     # Date
     date_para = doc.add_paragraph()
     date_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    date_para.add_run(f"Date: {analysis.get('created_at', 'N/A')[:10] if analysis.get('created_at') else 'N/A'}")
+    created_at = analysis.get('created_at', '')
+    date_str = created_at[:10] if created_at else 'N/A'
+    date_para.add_run(f"Date: {date_str}")
+    
+    doc.add_paragraph()
     
     # CLIENT INFORMATION
     doc.add_heading('CLIENT INFORMATION', level=1)
@@ -1481,17 +1497,17 @@ async def download_submission_docx(analysis_id: str, admin: dict = Depends(get_a
     client_table.style = 'Table Grid'
     
     client_data = [
-        ("Name", analysis.get("user_name", "-"), "Email", form_data.get("client_email", analysis.get("user_email", "-"))),
-        ("Age", form_data.get("client_age", "-"), "Location", form_data.get("client_location", "-")),
+        ("NAME", analysis.get("user_name", "-"), "EMAIL", form_data.get("client_email", analysis.get("user_email", "-"))),
+        ("AGE", form_data.get("client_age", "-"), "LOCATION", form_data.get("client_location", "-")),
     ]
     for i, row_data in enumerate(client_data):
         cells = client_table.rows[i].cells
         cells[0].text = row_data[0]
         cells[0].paragraphs[0].runs[0].font.bold = True
-        cells[1].text = str(row_data[1])
+        cells[1].text = str(row_data[1]) if row_data[1] else "-"
         cells[2].text = row_data[2]
         cells[2].paragraphs[0].runs[0].font.bold = True
-        cells[3].text = str(row_data[3])
+        cells[3].text = str(row_data[3]) if row_data[3] else "-"
     
     doc.add_paragraph()
     
@@ -1501,66 +1517,156 @@ async def download_submission_docx(analysis_id: str, admin: dict = Depends(get_a
     profile_table.style = 'Table Grid'
     
     profile_data = [
-        ("Profile Name", form_data.get("profile_name", "-"), "Full Real Name", form_data.get("full_real_name", "-")),
-        ("Gender", (form_data.get("gender", "-") or "-").capitalize(), "Height", form_data.get("height", "-")),
-        ("Nationality", form_data.get("nationality", "-"), "Shared Language", form_data.get("language_of_communication", "-")),
-        ("Marital Status", form_data.get("assumed_marital_status", "-"), "Hobbies/Interests", form_data.get("hobbies_interests", "-")),
-        ("University", form_data.get("university_college", "-"), "Years Attendance / Graduation", form_data.get("years_attendance", "-")),
+        ("PROFILE NAME", form_data.get("profile_name", "-"), "FULL REAL NAME", form_data.get("full_real_name", "-")),
+        ("GENDER", (form_data.get("gender", "-") or "-").capitalize(), "HEIGHT", form_data.get("height", "-")),
+        ("NATIONALITY", form_data.get("nationality", "-"), "SHARED LANGUAGE", form_data.get("language_of_communication", "-")),
+        ("MARITAL STATUS", form_data.get("assumed_marital_status", "-"), "HOBBIES / INTERESTS", form_data.get("hobbies_interests", "-")),
+        ("UNIVERSITY / COLLEGE", form_data.get("university_college", "-"), "YEAR/S OF ATTENDANCE / GRADUATION", form_data.get("years_attendance", "-")),
     ]
     for i, row_data in enumerate(profile_data):
         cells = profile_table.rows[i].cells
         cells[0].text = row_data[0]
         cells[0].paragraphs[0].runs[0].font.bold = True
-        cells[1].text = str(row_data[1])
+        cells[1].text = str(row_data[1]) if row_data[1] else "-"
         cells[2].text = row_data[2]
         cells[2].paragraphs[0].runs[0].font.bold = True
-        cells[3].text = str(row_data[3])
+        cells[3].text = str(row_data[3]) if row_data[3] else "-"
     
-    doc.add_paragraph()
+    # ========== PAGE 2: PROFILE DETAILS + BIO ==========
+    doc.add_page_break()
     
-    # PROFILE DETAILS
     doc.add_heading('PROFILE DETAILS', level=1)
-    details_table = doc.add_table(rows=3, cols=4)
+    details_table = doc.add_table(rows=4, cols=4)
     details_table.style = 'Table Grid'
     
     details_data = [
-        ("Date of Birth", form_data.get("date_of_birth", "-"), "Known Age", form_data.get("assumed_age", "-")),
-        ("Location", form_data.get("profile_location", "-"), "Platform", form_data.get("dating_platform", "-")),
-        ("Occupation", form_data.get("occupation", "-"), "Company", form_data.get("company_name", "-")),
+        ("DATE OF BIRTH", form_data.get("date_of_birth", "-"), "KNOWN AGE", form_data.get("assumed_age", "-")),
+        ("LOCATION", form_data.get("profile_location", "-"), "PLATFORM", form_data.get("dating_platform", "-")),
+        ("OCCUPATION", form_data.get("occupation", "-"), "COMPANY NAME", form_data.get("company_name", "-")),
+        ("COMPANY WEBSITE", form_data.get("company_website", "-"), "", ""),
     ]
     for i, row_data in enumerate(details_data):
         cells = details_table.rows[i].cells
         cells[0].text = row_data[0]
-        cells[0].paragraphs[0].runs[0].font.bold = True
-        cells[1].text = str(row_data[1])
+        if row_data[0]:
+            cells[0].paragraphs[0].runs[0].font.bold = True
+        cells[1].text = str(row_data[1]) if row_data[1] else "-"
         cells[2].text = row_data[2]
-        cells[2].paragraphs[0].runs[0].font.bold = True
-        cells[3].text = str(row_data[3])
-    
-    # Profile Bio
-    if form_data.get("profile_bio"):
-        doc.add_paragraph()
-        bio_heading = doc.add_paragraph()
-        bio_heading.add_run("Profile Bio:").bold = True
-        doc.add_paragraph(form_data.get("profile_bio", "-"))
+        if row_data[2]:
+            cells[2].paragraphs[0].runs[0].font.bold = True
+        cells[3].text = str(row_data[3]) if row_data[3] else "-"
     
     doc.add_paragraph()
     
-    # OBSERVATIONS & CONCERNS
-    doc.add_heading('OBSERVATIONS & CONCERNS', level=1)
-    doc.add_paragraph(form_data.get("observations_concerns", "-"))
+    # PROFILE BIO
+    doc.add_heading('PROFILE BIO', level=1)
+    doc.add_paragraph(form_data.get("profile_bio", "-") or "-")
     
-    # AI ANALYSIS
+    # ========== PAGE 3: PHOTOS AND SOCIAL MEDIA ==========
+    doc.add_page_break()
+    
+    doc.add_heading('PHOTOS AND SOCIAL MEDIA', level=1)
+    photos_info_table = doc.add_table(rows=1, cols=4)
+    photos_info_table.style = 'Table Grid'
+    
+    photos_count = form_data.get("profile_photos_count", len(photos))
+    verified = "Yes" if form_data.get("has_verified_photos") else "No"
+    
+    cells = photos_info_table.rows[0].cells
+    cells[0].text = "NUMBER OF PHOTOS"
+    cells[0].paragraphs[0].runs[0].font.bold = True
+    cells[1].text = str(photos_count)
+    cells[2].text = "VERIFIED PHOTOS"
+    cells[2].paragraphs[0].runs[0].font.bold = True
+    cells[3].text = verified
+    
+    doc.add_paragraph()
+    
+    # Social Media Links
+    social_heading = doc.add_paragraph()
+    social_heading.add_run("SOCIAL MEDIA LINKS (USER NAMES):").bold = True
+    doc.add_paragraph(form_data.get("social_media_links", "-") or "-")
+    
+    doc.add_paragraph()
+    
+    # UPLOADED PHOTOS
+    if photos:
+        photos_heading = doc.add_paragraph()
+        photos_heading.add_run(f"UPLOADED PHOTOS ({len(photos)})").bold = True
+        
+        for idx, photo in enumerate(photos):
+            photo_name = photo.get("name", photo.get("filename", f"Photo {idx + 1}"))
+            photo_data = photo.get("base64", photo.get("data", ""))
+            
+            if photo_data and isinstance(photo_data, str):
+                try:
+                    # Remove data URI prefix if present
+                    if "," in photo_data:
+                        photo_data = photo_data.split(",")[1]
+                    
+                    image_bytes = base64.b64decode(photo_data)
+                    image_stream = BytesIO(image_bytes)
+                    
+                    # Add image with max width
+                    doc.add_picture(image_stream, width=Inches(3))
+                    last_paragraph = doc.paragraphs[-1]
+                    last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    
+                    # Add photo caption
+                    caption = doc.add_paragraph(photo_name)
+                    caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    for run in caption.runs:
+                        run.font.size = Pt(9)
+                        run.font.italic = True
+                except Exception as e:
+                    doc.add_paragraph(f"[Photo: {photo_name} - Could not embed]")
+    
+    doc.add_paragraph()
+    
+    # ACTIVITY INFORMATION
+    doc.add_heading('ACTIVITY INFORMATION', level=1)
+    activity_table = doc.add_table(rows=1, cols=4)
+    activity_table.style = 'Table Grid'
+    
+    cells = activity_table.rows[0].cells
+    cells[0].text = "PROFILE CREATION DATE"
+    cells[0].paragraphs[0].runs[0].font.bold = True
+    cells[1].text = form_data.get("profile_creation_date", "-") or "-"
+    cells[2].text = "LAST ACTIVE"
+    cells[2].paragraphs[0].runs[0].font.bold = True
+    cells[3].text = form_data.get("last_active", "-") or "-"
+    
+    # ========== PAGE 4: COMMUNICATION ANALYSIS + OBSERVATIONS ==========
+    doc.add_page_break()
+    
+    doc.add_heading('COMMUNICATION ANALYSIS', level=1)
+    
+    comm_heading = doc.add_paragraph()
+    comm_heading.add_run("COMMUNICATION FREQUENCY:").bold = True
+    doc.add_paragraph(form_data.get("communication_frequency", "-") or "-")
+    
+    msg_heading = doc.add_paragraph()
+    msg_heading.add_run("MESSAGE SUBSTANCE:").bold = True
+    doc.add_paragraph(form_data.get("message_substance", "-") or "-")
+    
+    doc.add_paragraph()
+    
+    doc.add_heading('OBSERVATIONS & CONCERNS', level=1)
+    doc.add_paragraph(form_data.get("observations_concerns", "-") or "-")
+    
+    # ========== PAGE 5: AI ANALYSIS ==========
     if ai_analysis:
-        doc.add_paragraph()
+        doc.add_page_break()
+        
         doc.add_heading('AI ANALYSIS RESULTS', level=1)
         
         score = ai_analysis.get("overall_score", 0)
         trust_level = ai_analysis.get("trust_level", "unknown").replace("_", " ").upper()
         
+        # Trust Score
         score_para = doc.add_paragraph()
         score_run = score_para.add_run(f"Trust Score: {score}/100 - {trust_level}")
-        score_run.font.size = Pt(14)
+        score_run.font.size = Pt(16)
         score_run.font.bold = True
         if score < 40:
             score_run.font.color.rgb = RGBColor(220, 38, 38)
@@ -1569,24 +1675,148 @@ async def download_submission_docx(analysis_id: str, admin: dict = Depends(get_a
         else:
             score_run.font.color.rgb = RGBColor(234, 179, 8)
         
+        doc.add_paragraph()
+        
+        # AI Summary
         if ai_analysis.get("analysis_summary"):
             summary_heading = doc.add_paragraph()
-            summary_heading.add_run("AI Summary:").bold = True
+            summary_heading.add_run("AI SUMMARY:").bold = True
             doc.add_paragraph(ai_analysis.get("analysis_summary", "-"))
         
+        doc.add_paragraph()
+        
+        # Red Flags
         red_flags = ai_analysis.get("red_flags", [])
         if red_flags:
             flags_heading = doc.add_paragraph()
-            flags_heading.add_run(f"Red Flags Detected ({len(red_flags)}):").bold = True
+            flags_heading.add_run(f"RED FLAGS DETECTED ({len(red_flags)}):").bold = True
+            
             for flag in red_flags:
-                doc.add_paragraph(f"• [{flag.get('severity', 'low').upper()}] {flag.get('category', '')}: {flag.get('description', '')}")
+                doc.add_paragraph()
+                flag_title = doc.add_paragraph()
+                flag_title.add_run(f"{flag.get('category', 'Unknown')}:").bold = True
+                
+                desc_para = doc.add_paragraph()
+                desc_para.add_run("Description: ").bold = True
+                desc_para.add_run(flag.get('description', '-'))
+                
+                if flag.get('recommendation'):
+                    rec_para = doc.add_paragraph()
+                    rec_para.add_run("Recommendation: ").bold = True
+                    rec_para.add_run(flag.get('recommendation', ''))
+                
+                sev_para = doc.add_paragraph()
+                sev_para.add_run("Severity: ").bold = True
+                sev_para.add_run(flag.get('severity', 'low').upper())
+        else:
+            doc.add_paragraph("No major red flags detected.")
+        
+        doc.add_paragraph()
+        
+        # AI Recommendations
+        recommendations = ai_analysis.get("recommendations", [])
+        if recommendations:
+            rec_heading = doc.add_paragraph()
+            rec_heading.add_run("AI RECOMMENDATIONS:").bold = True
+            for rec in recommendations:
+                doc.add_paragraph(f"• {rec}", style='List Bullet')
+    
+    # ========== PAGE 6: RESEARCH AND VERIFICATIONS ==========
+    doc.add_page_break()
+    
+    doc.add_heading('Research and Verifications performed include some of the following:', level=1)
+    
+    verifications = [
+        ("1. Platform Analysis", "Intense scrutinizing of all platforms used by 'the profile' in the past and present."),
+        ("2. Occupation Verification", "Resourcing and authenticating profile's occupation via one on one discrete and direct communication means.\n\nAccess to occupation and / or company official website through various complex and often unattainable platforms.\n\nIntense cross-checking of the profile's email addresses and user names worldwide."),
+        ("3. Photo Identification", "Photo identification via cross-checking of multiple image databases and reverse image search platforms.\n\nDetection and screening for multiple and stolen identities."),
+        ("4. Location Verification", "Verification of locations such as photo venues, background images and sceneries relating to where the profile claims to be or reside."),
+        ("5. Location Cross Referencing", "Cross referencing of all the profile's locations and personal details to detect any mismatched information."),
+        ("6. Photo Authenticity", "Clarity and authenticity of all photos provided by you and of those 2good2breal gains access to via websites, apps, platforms and other means."),
+    ]
+    
+    for title, description in verifications:
+        v_heading = doc.add_paragraph()
+        v_heading.add_run(title).bold = True
+        v_heading.runs[0].font.color.rgb = RGBColor(124, 58, 237)
+        doc.add_paragraph(description)
+        doc.add_paragraph()
+    
+    # ========== PAGE 7: RECOMMENDATIONS + THANK YOU ==========
+    doc.add_page_break()
+    
+    doc.add_heading('Our Recommendations', level=1)
+    
+    doc.add_paragraph("Based on our analysis, we recommend:")
+    
+    our_recommendations = [
+        "Block and report the account on the platform,",
+        "Save evidence such as screenshots and user names in the event you need to report it in future,",
+        "Talk to someone you trust about the situation for support if you feel the need.",
+        "Consider stepping back or ending the conversation and /or contact.",
+    ]
+    
+    for rec in our_recommendations:
+        doc.add_paragraph(f"• {rec}", style='List Bullet')
+    
+    doc.add_paragraph()
+    doc.add_paragraph("As the situation is extremely ambiguous, in our opinion, it is essential to walk away and disconnect.")
+    doc.add_paragraph()
+    
+    additional_recs = [
+        "If your situation with this profile has escalated to a point that you feel overwhelmed, do not hesitate to seek professional help.",
+        "Keep your offline life grounded and intact.",
+    ]
+    
+    for rec in additional_recs:
+        doc.add_paragraph(f"• {rec}", style='List Bullet')
+    
+    doc.add_paragraph()
+    
+    # Further analysis note
+    further_para = doc.add_paragraph()
+    further_para.add_run("If you wish further analyzing of this profile, please provide us with more personal details such as extended family information, presumed previous occupations and subsequent history on your next request.").italic = True
+    
+    doc.add_paragraph()
+    doc.add_paragraph()
+    
+    # THANK YOU
+    thank_you = doc.add_heading('Thank you for choosing 2good2breal', level=1)
+    thank_you.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    for run in thank_you.runs:
+        run.font.color.rgb = RGBColor(124, 58, 237)
+    
+    ty_text1 = doc.add_paragraph("We hope this report assists to clarify, confirm or dismiss any doubts you may have of your Profile's authenticity or intentions.")
+    ty_text1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    ty_text2 = doc.add_paragraph("Furthermore, our team aims to provide you with an objective, informative and reliable report to help guide you towards well founded and smart decision making with this person in future.")
+    ty_text2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    doc.add_paragraph()
+    
+    all_best = doc.add_paragraph("All the best from our team at 2good2breal.")
+    all_best.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    for run in all_best.runs:
+        run.font.bold = True
+        run.font.color.rgb = RGBColor(124, 58, 237)
+    
+    doc.add_paragraph()
+    
+    # Contact info
+    contact = doc.add_paragraph()
+    contact.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    contact.add_run(f"Contact: contact@2good2breal.com\n")
+    contact.add_run(f"Report Reference: {analysis_id}\n")
+    contact.add_run("This analysis should not be considered as legal advice.").italic = True
+    
+    doc.add_paragraph()
     
     # Footer
-    doc.add_paragraph()
     footer = doc.add_paragraph()
     footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
     footer.add_run("2good2breal - Profile Verification Service\n").bold = True
-    footer.add_run("contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com")
+    footer.add_run("contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com\n")
+    footer.add_run("This document is confidential.").italic = True
     
     # Save to buffer
     buffer = BytesIO()
