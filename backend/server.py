@@ -2157,6 +2157,15 @@ def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
     # ====== CONCLUSIVE ANALYSIS - POINTS ======
     add_section_header("CONCLUSIVE ANALYSIS - POINTS")
     
+    # ====== CONCLUSIVE ANALYSIS - OVERALL RECOMMANDATIONS ======
+    add_section_header("CONCLUSIVE ANALYSIS - OVERALL RECOMMANDATIONS")
+    
+    # Subtitle: OVERALL Research and Verifications...
+    overall_para = doc.add_paragraph()
+    overall_run = overall_para.add_run("OVERALL Research and Verifications performed include some of the following:")
+    overall_run.bold = True
+    doc.add_paragraph()
+    
     conclusive_points = [
         ("1. Platform Analysis", "Intense scrutinizing of all platforms used by 'the profile' in the past and present."),
         ("2. Occupation Verification", "Resourcing and authenticating profile's occupation via one on one discrete and direct communication means. Access to occupation and / or company official website through various complex and often unattainable platforms. Intense cross-checking of the profile's email addresses and user names worldwide."),

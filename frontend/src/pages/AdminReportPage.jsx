@@ -302,6 +302,11 @@ export function AdminReportPage() {
             {/* CONCLUSIVE ANALYSIS - POINTS */}
             <p style={docxStyles.sectionHeader}>CONCLUSIVE ANALYSIS - POINTS</p>
             
+            {/* CONCLUSIVE ANALYSIS - OVERALL RECOMMANDATIONS */}
+            <p style={docxStyles.sectionHeader}>CONCLUSIVE ANALYSIS - OVERALL RECOMMANDATIONS</p>
+            
+            <p style={{fontWeight: 'bold', fontSize: '13px', margin: '15px 0'}}>OVERALL Research and Verifications performed include some of the following:</p>
+            
             <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>1. Platform Analysis</span> Intense scrutinizing of all platforms used by 'the profile' in the past and present.</p>
             <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>2. Occupation Verification</span> Resourcing and authenticating profile's occupation via one on one discrete and direct communication means. Access to occupation and / or company official website through various complex and often unattainable platforms. Intense cross-checking of the profile's email addresses and user names worldwide.</p>
             <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>3. Photo Identification</span> Photo identification via cross-checking of multiple image databases and reverse image search platforms. Detection and screening for multiple and stolen identities.</p>
@@ -611,6 +616,9 @@ export function AdminReportPage() {
             <h1 className="text-xl font-bold text-white">Profile Verification Report</h1>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={function() { setShowDocxPreview(true); }} className="border-green-700 text-green-400 hover:bg-green-900/30">
+              <Eye className="w-4 h-4 mr-2" /> Aperçu DOCX
+            </Button>
             <Button variant="outline" size="sm" onClick={handleDownloadDocx} className="border-blue-700 text-blue-400 hover:bg-blue-900/30">
               <Download className="w-4 h-4 mr-2" /> DOCX
             </Button>
