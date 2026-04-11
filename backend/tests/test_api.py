@@ -11,9 +11,9 @@ import uuid
 # Use environment variable for BASE_URL
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
-# Test credentials
-TEST_EMAIL = "testai@example.com"
-TEST_PASSWORD = "test123"
+# Test credentials - these are for testing only, not real credentials
+TEST_EMAIL = os.environ.get('TEST_EMAIL', 'testai@example.com')
+TEST_PASSWORD = os.environ.get('TEST_PASSWORD', 'test123')
 
 
 class TestHealthEndpoints:
@@ -279,7 +279,7 @@ class TestFilters:
         data = response.json()
         assert data["name"] == filter_data["name"]
         assert data["description"] == filter_data["description"]
-        assert data["is_active"] == True
+        assert data["is_active"] is True
         assert "id" in data
         print(f"✓ Filter '{data['name']}' created")
         return data["id"]
@@ -307,7 +307,7 @@ class TestFilters:
         assert response.status_code == 200
         data = response.json()
         assert data["name"] == updated_data["name"]
-        assert data["is_active"] == False
+        assert data["is_active"] is False
         print(f"✓ Filter {filter_id} updated")
     
     def test_delete_filter(self, authenticated_client, create_test_filter):

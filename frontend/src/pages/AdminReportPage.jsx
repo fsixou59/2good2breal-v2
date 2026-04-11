@@ -8,9 +8,9 @@ import { ArrowLeft, Printer, Send, Save, AlertTriangle, CheckCircle, Clock, Aler
 import axios from 'axios';
 import { toast } from 'sonner';
 
-var API = process.env.REACT_APP_BACKEND_URL + '/api';
+const API = process.env.REACT_APP_BACKEND_URL + '/api';
 
-var printStyles = `
+const printStyles = `
 @media print {
   body * { visibility: hidden; }
   #print-area, #print-area * { visibility: visible; }
@@ -55,14 +55,14 @@ function getScoreInfo(score) {
 }
 
 export function AdminReportPage() {
-  var navigate = useNavigate();
-  var params = useParams();
-  var analysisId = params.analysisId;
-  var [analysis, setAnalysis] = useState(null);
-  var [loading, setLoading] = useState(true);
-  var [saving, setSaving] = useState(false);
-  var [showPreview, setShowPreview] = useState(false);
-  var [adminReport, setAdminReport] = useState({
+  const navigate = useNavigate();
+  const params = useParams();
+  const analysisId = params.analysisId;
+  const [analysis, setAnalysis] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [adminReport, setAdminReport] = useState({
     verdict: '',
     detailedAnalysis: '',
     recommendations: '',
@@ -70,7 +70,7 @@ export function AdminReportPage() {
   });
 
   useEffect(function() {
-    var token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('admin_token');
     if (!token) { navigate('/login'); return; }
     axios.get(API + '/admin/analyses/' + analysisId, { headers: { Authorization: 'Bearer ' + token } })
       .then(function(res) {
@@ -83,15 +83,15 @@ export function AdminReportPage() {
 
   function updateReport(field, value) {
     setAdminReport(function(prev) {
-      var updated = {};
-      for (var key in prev) updated[key] = prev[key];
+      const updated = {};
+      for (const key in prev) updated[key] = prev[key];
       updated[field] = value;
       return updated;
     });
   }
 
   function handleSave() {
-    var token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('admin_token');
     if (!token) return;
     setSaving(true);
     axios.post(API + '/admin/analyses/' + analysisId + '/report', { admin_report: adminReport, status: 'completed' }, { headers: { Authorization: 'Bearer ' + token } })
@@ -100,7 +100,7 @@ export function AdminReportPage() {
   }
 
   function handleSend() {
-    var token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('admin_token');
     if (!token || !adminReport.verdict || !analysis) return;
     setSaving(true);
     axios.post(API + '/admin/analyses/' + analysisId + '/send-report', { admin_report: adminReport, client_email: analysis.user_email }, { headers: { Authorization: 'Bearer ' + token } })
@@ -109,11 +109,11 @@ export function AdminReportPage() {
   }
 
   function handleDownloadDocx() {
-    var token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('admin_token');
     if (!token) return;
     
     // Create download link
-    var downloadUrl = API + '/admin/analyses/' + analysisId + '/download-docx';
+    const downloadUrl = API + '/admin/analyses/' + analysisId + '/download-docx';
     
     fetch(downloadUrl, {
       method: 'GET',
@@ -124,8 +124,8 @@ export function AdminReportPage() {
       return response.blob();
     })
     .then(function(blob) {
-      var url = window.URL.createObjectURL(blob);
-      var a = document.createElement('a');
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
       a.href = url;
       a.download = 'Report_' + (formData.profile_name || 'profile') + '_' + new Date().toISOString().split('T')[0] + '.docx';
       document.body.appendChild(a);
@@ -143,17 +143,17 @@ export function AdminReportPage() {
   if (loading) return React.createElement('div', {className: 'min-h-screen bg-zinc-950 flex items-center justify-center'}, React.createElement('div', {className: 'text-purple-400'}, 'Loading...'));
   if (!analysis) return React.createElement('div', {className: 'min-h-screen bg-zinc-950 flex items-center justify-center'}, React.createElement('div', {className: 'text-red-400'}, 'Not found'));
 
-  var formData = analysis.form_data || {};
-  var ai = analysis.ai_analysis;
-  var scoreInfo = ai ? getScoreInfo(ai.overall_score || 0) : null;
+  const formData = analysis.form_data || {};
+  const ai = analysis.ai_analysis;
+  const scoreInfo = ai ? getScoreInfo(ai.overall_score || 0) : null;
   
-  var verdictInfo = {
+  const verdictInfo = {
     safe: { bg: '#10b981', text: 'SAFE - Profile appears authentic' },
     suspicious: { bg: '#f59e0b', text: 'SUSPICIOUS - Exercise caution' },
     dangerous: { bg: '#ef4444', text: 'DANGEROUS - High risk of scam' },
     inconclusive: { bg: '#6b7280', text: 'INCONCLUSIVE - More information needed' }
   };
-  var vInfo = verdictInfo[adminReport.verdict] || verdictInfo.inconclusive;
+  const vInfo = verdictInfo[adminReport.verdict] || verdictInfo.inconclusive;
 
   if (showPreview) {
     return (
