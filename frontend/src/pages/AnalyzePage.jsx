@@ -583,8 +583,26 @@ export const AnalyzePage = () => {
       </html>
     `;
     
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    // Secure approach: Use srcdoc instead of document.write to prevent XSS
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    iframe.srcdoc = htmlContent;
+    
+    iframe.onload = function() {
+      setTimeout(function() {
+        iframe.contentWindow.print();
+        // Clean up after print dialog closes
+        setTimeout(function() {
+          document.body.removeChild(iframe);
+        }, 1000);
+      }, 250);
+    };
+    
+    document.body.appendChild(iframe);
+    printWindow.close();
   };
 
   // Step labels for progress indicator

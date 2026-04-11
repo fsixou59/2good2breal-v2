@@ -9,7 +9,9 @@ const CookieConsent = () => {
     try {
       const storedLang = localStorage.getItem('language');
       if (storedLang) setLang(storedLang);
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Could not read language from localStorage:', e.message);
+    }
 
     // Check if consent already given
     try {
@@ -17,20 +19,28 @@ const CookieConsent = () => {
       if (!consent) {
         setTimeout(() => setShow(true), 1000);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Could not read cookie consent from localStorage:', e.message);
+      // Show consent dialog as fallback when localStorage is unavailable
+      setTimeout(() => setShow(true), 1000);
+    }
   }, []);
 
   const handleAccept = () => {
     try {
       localStorage.setItem('2g2b_cookie_consent', 'accepted');
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Could not save cookie consent:', e.message);
+    }
     setShow(false);
   };
 
   const handleReject = () => {
     try {
       localStorage.setItem('2g2b_cookie_consent', 'rejected');
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Could not save cookie rejection:', e.message);
+    }
     setShow(false);
   };
 

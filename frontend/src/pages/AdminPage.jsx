@@ -737,7 +737,31 @@ function AnalysisRow(props) {
       </body>
       </html>
     `);
-    printWindow.document.close();
+    
+    // Secure approach: Use srcdoc instead of document.write to prevent XSS
+    const htmlContent = printWindow.document.documentElement.outerHTML;
+    printWindow.close();
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    iframe.srcdoc = htmlContent;
+    
+    iframe.onload = function() {
+      setTimeout(function() {
+        iframe.contentWindow.print();
+        // Clean up after print dialog closes
+        setTimeout(function() {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+        }, 1000);
+      }, 250);
+    };
+    
+    document.body.appendChild(iframe);
   }
   
   return (
@@ -821,7 +845,7 @@ export function AdminPage() {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(function() {
-    var token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('admin_token');
     if (!token) { 
       navigate('/login'); 
       return; 
@@ -843,7 +867,7 @@ export function AdminPage() {
   }, [navigate]);
 
   function handleRefresh() {
-    var token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('admin_token');
     if (!token) return;
     setRefreshing(true);
     axios.get(API + '/admin/analyses', { headers: { Authorization: 'Bearer ' + token } })
