@@ -296,6 +296,7 @@ function AnalysisRow(props) {
   // Download PDF with authentication
   async function handleDownloadPDF(e) {
     e.stopPropagation();
+    const token = localStorage.getItem('admin_token');
     try {
       const response = await axios.get(`${API}/admin/analyses/${analysis.id}/submission-pdf`, {
         headers: { Authorization: 'Bearer ' + token },
@@ -321,6 +322,7 @@ function AnalysisRow(props) {
   // Download DOCX with authentication
   async function handleDownloadDOCX(e) {
     e.stopPropagation();
+    const token = localStorage.getItem('admin_token');
     try {
       const response = await axios.get(`${API}/admin/analyses/${analysis.id}/submission-docx`, {
         headers: { Authorization: 'Bearer ' + token },
