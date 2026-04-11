@@ -214,57 +214,42 @@ export function AdminReportPage() {
         <div className="py-8 px-4">
           <div style={docxStyles.page} className="shadow-xl rounded-lg border border-zinc-300">
             
-            {/* HEADER with Logo */}
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', borderBottom: '2px solid #a553be', paddingBottom: '15px'}}>
-              <img src="/logo.png" alt="2good2breal" style={{height: '50px'}} />
-              <div style={{textAlign: 'right'}}>
-                <p style={{fontSize: '14px', fontWeight: 'bold'}}>Profile Verification Service – Manual Report</p>
-                <p style={{fontSize: '12px', color: '#666'}}>Date: {new Date().toISOString().split('T')[0]}</p>
-              </div>
+            {/* HEADER */}
+            <div style={{marginBottom: '20px'}}>
+              <p style={{fontSize: '24px', fontWeight: 'bold', color: '#7c3aed', margin: 0}}>2good2breal</p>
+              <p style={{fontSize: '16px', fontWeight: 'bold', margin: '5px 0'}}>Profile Verification Report</p>
+              <p style={{fontSize: '13px'}}><span style={{fontWeight: 'bold'}}>Date:</span> {new Date().toISOString().split('T')[0]}</p>
             </div>
 
-            {/* PAGE 1: TWO COLUMN LAYOUT */}
-            <div style={{display: 'flex', gap: '30px'}}>
-              
-              {/* LEFT COLUMN */}
-              <div style={{flex: 1}}>
-                {/* CLIENT INFORMATION */}
-                <p style={{...docxStyles.sectionHeader, color: '#a553be', marginTop: 0}}>CLIENT INFORMATION</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NAME:</span> {analysis.user_name || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>EMAIL:</span> {analysis.user_email || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>AGE:</span> {formData.client_age || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION:</span> {formData.client_location || '-'}</p>
+            {/* CLIENT INFORMATION */}
+            <p style={docxStyles.sectionHeader}>CLIENT INFORMATION</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NAME -</span> {analysis.user_name || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>EMAIL</span> {analysis.user_email || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>AGE</span> {formData.client_age || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION</span> {formData.client_location || ''}</p>
 
-                {/* PROFILE INFORMATION */}
-                <p style={{...docxStyles.sectionHeader, color: '#a553be'}}>PROFILE INFORMATION</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PROFILE NAME:</span> {formData.profile_name || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>FULL REAL NAME:</span> {formData.full_real_name || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>GENDER:</span> {formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HEIGHT:</span> {formData.height || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NATIONALITY:</span> {formData.nationality || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>SHARED LANGUAGE:</span> {sharedLanguage || '-'}</p>
-              </div>
+            {/* PROFILE INFORMATION */}
+            <p style={docxStyles.sectionHeader}>PROFILE INFORMATION</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PROFILE NAME</span> {formData.profile_name || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>FULL REAL NAME</span> {formData.full_real_name || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>GENDER</span> {formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HEIGHT -</span> {formData.height || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NATIONALITY</span> {formData.nationality || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>SHARED LANGUAGE</span> {sharedLanguage || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>MARITAL STATUS -</span> {formData.assumed_marital_status || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HOBBIES / INTERESTS -</span> {formData.hobbies_interests || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>UNIVERSITY / COLLEGE -</span> {formData.university_college || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>YEAR/S OF ATTENDANCE / GRADUATION -</span> {formData.years_of_attendance || ''}</p>
 
-              {/* RIGHT COLUMN */}
-              <div style={{flex: 1}}>
-                {/* PROFILE DETAILS */}
-                <p style={{...docxStyles.sectionHeader, color: '#a553be', marginTop: 0}}>PROFILE DETAILS</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>DATE OF BIRTH:</span> {formData.date_of_birth || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>KNOWN AGE:</span> {formData.assumed_age || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION:</span> {formData.profile_location || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PLATFORM:</span> {formData.dating_platform || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>OCCUPATION:</span> {formData.occupation || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY NAME:</span> {formData.company_name || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY WEBSITE:</span> {formData.company_website || '-'}</p>
-
-                {/* ADDITIONAL INFO */}
-                <p style={{...docxStyles.sectionHeader, color: '#a553be'}}>ADDITIONAL INFO</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>MARITAL STATUS:</span> {formData.assumed_marital_status || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HOBBIES / INTERESTS:</span> {formData.hobbies_interests || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>UNIVERSITY / COLLEGE:</span> {formData.university_college || '-'}</p>
-                <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>YEAR/S ATTENDANCE:</span> {formData.years_of_attendance || '-'}</p>
-              </div>
-            </div>
+            {/* PROFILE DETAILS */}
+            <p style={docxStyles.sectionHeader}>PROFILE DETAILS</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>DATE OF BIRTH</span> {formData.date_of_birth || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>KNOWN AGE</span> {formData.assumed_age || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION</span> {formData.profile_location || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PLATFORM</span> {formData.dating_platform || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>OCCUPATION</span> {formData.occupation || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY NAME</span> {formData.company_name || ''}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY WEBSITE</span> {formData.company_website || ''}</p>
 
             {/* ANALYSIS RESULTS */}
             <p style={docxStyles.sectionHeader}>ANALYSIS RESULTS</p>
@@ -301,8 +286,8 @@ export function AdminReportPage() {
               );
             })}
 
-            {/* RECOMMENDATIONS */}
-            <p style={docxStyles.sectionHeader}>RECOMMENDATIONS:</p>
+            {/* SOME RECOMMENDATIONS */}
+            <p style={docxStyles.sectionHeader}>SOME RECOMMENDATIONS:</p>
             {aiRecommendations.length > 0 ? (
               <ul style={docxStyles.bulletList}>
                 {aiRecommendations.map(function(rec, index) {
@@ -313,8 +298,8 @@ export function AdminReportPage() {
               <ul style={docxStyles.bulletList}>
                 <li style={docxStyles.bulletItem}>Continue communicating through the platform or verified channels.</li>
                 <li style={docxStyles.bulletItem}>Schedule a video call to fully bridge the gap between digital profile and reality.</li>
-                <li style={docxStyles.bulletItem}>Verify any 'travel' claims if financial assistance is requested.</li>
-                <li style={docxStyles.bulletItem}>Save evidence such as screenshots and user names for future reference.</li>
+                <li style={docxStyles.bulletItem}>The lack of news for one day is common for a business owner; do not interpret this as a 'disappearing' tactic yet.</li>
+                <li style={docxStyles.bulletItem}>Verify the 'travel' claims if he asks for any financial assistance involving travel (though no current signs of this exist).</li>
               </ul>
             )}
 
