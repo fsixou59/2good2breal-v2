@@ -215,41 +215,99 @@ export function AdminReportPage() {
           <div style={docxStyles.page} className="shadow-xl rounded-lg border border-zinc-300">
             
             {/* HEADER */}
-            <div style={{marginBottom: '20px'}}>
+            <div style={{marginBottom: '20px', textAlign: 'center'}}>
+              <img src="/logo.png" alt="2good2breal" style={{height: '40px', marginBottom: '10px'}} onError={(e) => { e.target.style.display = 'none'; }} />
               <p style={{fontSize: '24px', fontWeight: 'bold', color: '#7c3aed', margin: 0}}>2good2breal</p>
               <p style={{fontSize: '16px', fontWeight: 'bold', margin: '5px 0'}}>Profile Verification Report</p>
-              <p style={{fontSize: '13px'}}><span style={{fontWeight: 'bold'}}>Date:</span> {new Date().toISOString().split('T')[0]}</p>
+              <p style={{fontSize: '13px', textAlign: 'right'}}><span style={{fontWeight: 'bold'}}>Date:</span> {new Date().toISOString().split('T')[0]}</p>
             </div>
 
-            {/* CLIENT INFORMATION */}
+            {/* TABLE 1: CLIENT INFORMATION */}
             <p style={docxStyles.sectionHeader}>CLIENT INFORMATION</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NAME -</span> {analysis.user_name || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>EMAIL</span> {analysis.user_email || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>AGE</span> {formData.client_age || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION</span> {formData.client_location || ''}</p>
+            <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '15px', fontSize: '12px'}}>
+              <tbody>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', width: '15%', backgroundColor: '#f9f9f9'}}>NAME</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', width: '35%'}}>{analysis.user_name || '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', width: '15%', backgroundColor: '#f9f9f9'}}>EMAIL</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', width: '35%'}}>{analysis.user_email || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>AGE</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.client_age || '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>LOCATION</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.client_location || '-'}</td>
+                </tr>
+              </tbody>
+            </table>
 
-            {/* PROFILE INFORMATION */}
+            {/* TABLE 2: PROFILE INFORMATION */}
             <p style={docxStyles.sectionHeader}>PROFILE INFORMATION</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PROFILE NAME</span> {formData.profile_name || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>FULL REAL NAME</span> {formData.full_real_name || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>GENDER</span> {formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HEIGHT -</span> {formData.height || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NATIONALITY</span> {formData.nationality || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>SHARED LANGUAGE</span> {sharedLanguage || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>MARITAL STATUS -</span> {formData.assumed_marital_status || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HOBBIES / INTERESTS -</span> {formData.hobbies_interests || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>UNIVERSITY / COLLEGE -</span> {formData.university_college || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>YEAR/S OF ATTENDANCE / GRADUATION -</span> {formData.years_of_attendance || ''}</p>
+            <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '15px', fontSize: '12px'}}>
+              <tbody>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>PROFILE NAME</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.profile_name || '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>FULL REAL NAME</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.full_real_name || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>GENDER</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>HEIGHT</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.height || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>NATIONALITY</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.nationality || '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>SHARED LANGUAGE</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{sharedLanguage || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>MARITAL STATUS</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.assumed_marital_status || '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>HOBBIES / INTERESTS</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.hobbies_interests || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>UNIVERSITY / COLLEGE</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.university_college || '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>YEAR/S OF ATTENDANCE</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.years_of_attendance || '-'}</td>
+                </tr>
+              </tbody>
+            </table>
 
-            {/* PROFILE DETAILS */}
+            {/* TABLE 3: PROFILE DETAILS */}
             <p style={docxStyles.sectionHeader}>PROFILE DETAILS</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>DATE OF BIRTH</span> {formData.date_of_birth || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>KNOWN AGE</span> {formData.assumed_age || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION</span> {formData.profile_location || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PLATFORM</span> {formData.dating_platform || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>OCCUPATION</span> {formData.occupation || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY NAME</span> {formData.company_name || ''}</p>
-            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY WEBSITE</span> {formData.company_website || ''}</p>
+            <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '15px', fontSize: '12px'}}>
+              <tbody>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>DATE OF BIRTH</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.date_of_birth || '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>KNOWN AGE</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.assumed_age || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>LOCATION</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.profile_location || '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>PLATFORM</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.dating_platform || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>OCCUPATION</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.occupation || '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>COMPANY NAME</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.company_name || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #ccc', padding: '6px', fontWeight: 'bold', backgroundColor: '#f9f9f9'}}>COMPANY WEBSITE</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}>{formData.company_website || '-'}</td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}></td>
+                  <td style={{border: '1px solid #ccc', padding: '6px'}}></td>
+                </tr>
+              </tbody>
+            </table>
 
             {/* ANALYSIS RESULTS */}
             <p style={docxStyles.sectionHeader}>ANALYSIS RESULTS</p>

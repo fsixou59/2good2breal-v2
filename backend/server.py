@@ -1956,330 +1956,308 @@ async def send_report_to_client(analysis_id: str, data: SendReportData, admin: d
 
 def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
     """
-    Generate a DOCX report matching the EXACT template layout provided by the user.
-    Format: Single column, simple label-value pairs, specific section structure.
+    Generate a DOCX report matching the EXACT template layout.
+    Format: Logo header on all pages, 2-column tables on page 1, 7 pages total.
     """
     doc = Document()
     
     form_data = analysis.get("form_data", {})
     ai = analysis.get("ai_analysis", {})
     
-    # Document styling - Calibri font
+    # Document styling
     style = doc.styles['Normal']
     style.font.name = 'Calibri'
     style.font.size = Pt(11)
     
-    # Helper: Add bold label followed by value
-    def add_field(label, value, add_dash=True):
-        para = doc.add_paragraph()
-        label_text = f"{label} -" if add_dash else f"{label}"
-        run = para.add_run(label_text)
-        run.bold = True
-        if value:
-            para.add_run(f" {value}")
+    # Add logo to header (appears on all pages)
+    logo_path = ROOT_DIR / "logo.png"
+    section = doc.sections[0]
+    header = section.header
+    header_para = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
+    if logo_path.exists():
+        try:
+            run = header_para.add_run()
+            run.add_picture(str(logo_path), width=Inches(1.2))
+        except Exception as e:
+            logging.warning(f"Logo error: {e}")
     
-    # Helper: Add section header (bold, larger)
-    def add_section_header(title):
-        doc.add_paragraph()
-        para = doc.add_paragraph()
-        run = para.add_run(title)
+    # Helper functions
+    def style_header_cell(cell, text):
+        cell.text = ""
+        para = cell.paragraphs[0]
+        run = para.add_run(text)
         run.bold = True
-        run.font.size = Pt(12)
+        run.font.size = Pt(10)
     
-    # ====== DOCUMENT HEADER ======
-    # Logo/Title
+    def style_data_cell(cell, text):
+        cell.text = str(text) if text else "-"
+    
+    # ====== PAGE 1 ======
+    # Title
     title_para = doc.add_paragraph()
-    logo_run = title_para.add_run("2good2breal")
-    logo_run.bold = True
-    logo_run.font.size = Pt(20)
-    logo_run.font.color.rgb = RGBColor(124, 58, 237)  # Purple
+    title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title_run = title_para.add_run("2good2breal")
+    title_run.bold = True
+    title_run.font.size = Pt(24)
+    title_run.font.color.rgb = RGBColor(124, 58, 237)
     
-    # Subtitle
     subtitle_para = doc.add_paragraph()
+    subtitle_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
     sub_run = subtitle_para.add_run("Profile Verification Report")
     sub_run.bold = True
     sub_run.font.size = Pt(14)
     
-    # Date
     date_para = doc.add_paragraph()
-    date_run = date_para.add_run("Date: ")
-    date_run.bold = True
-    date_para.add_run(datetime.now().strftime('%Y-%m-%d'))
-    
-    # ====== CLIENT INFORMATION ======
-    add_section_header("CLIENT INFORMATION")
-    add_field("NAME", analysis.get("user_name", "") or "")
-    add_field("EMAIL", analysis.get("user_email", "") or "", add_dash=False)
-    add_field("AGE", form_data.get("client_age", "") or "", add_dash=False)
-    add_field("LOCATION", form_data.get("client_location", "") or "", add_dash=False)
-    
-    # ====== PROFILE INFORMATION ======
-    add_section_header("PROFILE INFORMATION")
-    add_field("PROFILE NAME", form_data.get("profile_name", "") or "", add_dash=False)
-    add_field("FULL REAL NAME", form_data.get("full_real_name", "") or "", add_dash=False)
-    gender = form_data.get("gender", "") or ""
-    add_field("GENDER", gender.capitalize() if gender else "", add_dash=False)
-    add_field("HEIGHT", form_data.get("height", "") or "")
-    add_field("NATIONALITY", form_data.get("nationality", "") or "", add_dash=False)
-    shared_lang = form_data.get("language_of_communication", "") or form_data.get("shared_language", "") or ""
-    add_field("SHARED LANGUAGE", shared_lang, add_dash=False)
-    add_field("MARITAL STATUS", form_data.get("assumed_marital_status", "") or "")
-    add_field("HOBBIES / INTERESTS", form_data.get("hobbies_interests", "") or "")
-    add_field("UNIVERSITY / COLLEGE", form_data.get("university_college", "") or "")
-    add_field("YEAR/S OF ATTENDANCE / GRADUATION", form_data.get("years_of_attendance", "") or "")
-    
-    # ====== PROFILE DETAILS ======
-    add_section_header("PROFILE DETAILS")
-    add_field("DATE OF BIRTH", form_data.get("date_of_birth", "") or "", add_dash=False)
-    add_field("KNOWN AGE", form_data.get("assumed_age", "") or "", add_dash=False)
-    add_field("LOCATION", form_data.get("profile_location", "") or "", add_dash=False)
-    add_field("PLATFORM", form_data.get("dating_platform", "") or "", add_dash=False)
-    add_field("OCCUPATION", form_data.get("occupation", "") or "", add_dash=False)
-    add_field("COMPANY NAME", form_data.get("company_name", "") or "", add_dash=False)
-    add_field("COMPANY WEBSITE", form_data.get("company_website", "") or "", add_dash=False)
-    
-    # ====== ANALYSIS RESULTS ======
-    add_section_header("ANALYSIS RESULTS")
-    
-    # Trust Score
-    score = ai.get("overall_score", 0) if ai else 0
-    
-    # Determine risk level
-    if score <= 25:
-        risk_level = "EXTREME HIGH RISK"
-    elif score <= 51:
-        risk_level = "HIGH"
-    elif score <= 70:
-        risk_level = "MEDIUM"
-    elif score <= 85:
-        risk_level = "LOW"
-    else:
-        risk_level = "VERY LOW"
-    
-    # Trust Score line
-    score_para = doc.add_paragraph()
-    score_label = score_para.add_run("Trust Score: ")
-    score_label.bold = True
-    score_para.add_run(f"{score}/100 - ")
-    risk_run = score_para.add_run(risk_level)
-    risk_run.bold = True
+    date_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    date_para.add_run(f"Date: {datetime.now().strftime('%Y-%m-%d')}")
     
     doc.add_paragraph()
     
-    # Insert Rating Scale Image if exists
-    rating_image_path = ROOT_DIR / "rating_scale.png"
-    if rating_image_path.exists():
-        try:
-            doc.add_picture(str(rating_image_path), width=Inches(5.5))
-            last_paragraph = doc.paragraphs[-1]
-            last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            doc.add_paragraph()
-        except Exception as e:
-            logging.warning(f"Could not insert rating scale image: {e}")
+    # TABLE 1: CLIENT INFORMATION
+    client_header = doc.add_paragraph()
+    client_run = client_header.add_run("CLIENT INFORMATION")
+    client_run.bold = True
+    client_run.font.size = Pt(12)
     
-    # SUMMARY
-    summary_text = ai.get("analysis_summary", "") or ai.get("summary", "") if ai else ""
-    if summary_text:
-        summary_para = doc.add_paragraph()
-        summary_run = summary_para.add_run("SUMMARY: ")
-        summary_run.bold = True
-        summary_para.add_run(summary_text)
+    client_table = doc.add_table(rows=2, cols=4)
+    client_table.style = 'Table Grid'
+    style_header_cell(client_table.rows[0].cells[0], "NAME")
+    style_data_cell(client_table.rows[0].cells[1], analysis.get("user_name", ""))
+    style_header_cell(client_table.rows[0].cells[2], "EMAIL")
+    style_data_cell(client_table.rows[0].cells[3], analysis.get("user_email", ""))
+    style_header_cell(client_table.rows[1].cells[0], "AGE")
+    style_data_cell(client_table.rows[1].cells[1], form_data.get("client_age", ""))
+    style_header_cell(client_table.rows[1].cells[2], "LOCATION")
+    style_data_cell(client_table.rows[1].cells[3], form_data.get("client_location", ""))
+    
+    doc.add_paragraph()
+    
+    # TABLE 2: PROFILE INFORMATION
+    profile_header = doc.add_paragraph()
+    profile_run = profile_header.add_run("PROFILE INFORMATION")
+    profile_run.bold = True
+    profile_run.font.size = Pt(12)
+    
+    profile_table = doc.add_table(rows=5, cols=4)
+    profile_table.style = 'Table Grid'
+    style_header_cell(profile_table.rows[0].cells[0], "PROFILE NAME")
+    style_data_cell(profile_table.rows[0].cells[1], form_data.get("profile_name", ""))
+    style_header_cell(profile_table.rows[0].cells[2], "FULL REAL NAME")
+    style_data_cell(profile_table.rows[0].cells[3], form_data.get("full_real_name", ""))
+    style_header_cell(profile_table.rows[1].cells[0], "GENDER")
+    gender = form_data.get("gender", "") or ""
+    style_data_cell(profile_table.rows[1].cells[1], gender.capitalize() if gender else "")
+    style_header_cell(profile_table.rows[1].cells[2], "HEIGHT")
+    style_data_cell(profile_table.rows[1].cells[3], form_data.get("height", ""))
+    style_header_cell(profile_table.rows[2].cells[0], "NATIONALITY")
+    style_data_cell(profile_table.rows[2].cells[1], form_data.get("nationality", ""))
+    style_header_cell(profile_table.rows[2].cells[2], "SHARED LANGUAGE")
+    shared_lang = form_data.get("language_of_communication", "") or form_data.get("shared_language", "") or ""
+    style_data_cell(profile_table.rows[2].cells[3], shared_lang)
+    style_header_cell(profile_table.rows[3].cells[0], "MARITAL STATUS")
+    style_data_cell(profile_table.rows[3].cells[1], form_data.get("assumed_marital_status", ""))
+    style_header_cell(profile_table.rows[3].cells[2], "HOBBIES / INTERESTS")
+    style_data_cell(profile_table.rows[3].cells[3], form_data.get("hobbies_interests", ""))
+    style_header_cell(profile_table.rows[4].cells[0], "UNIVERSITY / COLLEGE")
+    style_data_cell(profile_table.rows[4].cells[1], form_data.get("university_college", ""))
+    style_header_cell(profile_table.rows[4].cells[2], "YEAR/S OF ATTENDANCE / GRADUATION")
+    style_data_cell(profile_table.rows[4].cells[3], form_data.get("years_of_attendance", ""))
+    
+    doc.add_paragraph()
+    
+    # TABLE 3: PROFILE DETAILS
+    details_header = doc.add_paragraph()
+    details_run = details_header.add_run("PROFILE DETAILS")
+    details_run.bold = True
+    details_run.font.size = Pt(12)
+    
+    details_table = doc.add_table(rows=4, cols=4)
+    details_table.style = 'Table Grid'
+    style_header_cell(details_table.rows[0].cells[0], "DATE OF BIRTH")
+    style_data_cell(details_table.rows[0].cells[1], form_data.get("date_of_birth", ""))
+    style_header_cell(details_table.rows[0].cells[2], "KNOWN AGE")
+    style_data_cell(details_table.rows[0].cells[3], form_data.get("assumed_age", ""))
+    style_header_cell(details_table.rows[1].cells[0], "LOCATION")
+    style_data_cell(details_table.rows[1].cells[1], form_data.get("profile_location", ""))
+    style_header_cell(details_table.rows[1].cells[2], "PLATFORM")
+    style_data_cell(details_table.rows[1].cells[3], form_data.get("dating_platform", ""))
+    style_header_cell(details_table.rows[2].cells[0], "OCCUPATION")
+    style_data_cell(details_table.rows[2].cells[1], form_data.get("occupation", ""))
+    style_header_cell(details_table.rows[2].cells[2], "COMPANY NAME")
+    style_data_cell(details_table.rows[2].cells[3], form_data.get("company_name", ""))
+    style_header_cell(details_table.rows[3].cells[0], "COMPANY WEBSITE")
+    style_data_cell(details_table.rows[3].cells[1], form_data.get("company_website", ""))
+    details_table.rows[3].cells[2].text = ""
+    details_table.rows[3].cells[3].text = ""
+    
+    # ====== PAGE 2: ANALYSIS RESULTS ======
+    doc.add_page_break()
+    
+    results_header = doc.add_paragraph()
+    results_run = results_header.add_run("ANALYSIS RESULTS")
+    results_run.bold = True
+    results_run.font.size = Pt(14)
+    
+    score = ai.get("overall_score", 0) if ai else 0
+    if score <= 25: risk_level = "EXTREME HIGH RISK"
+    elif score <= 51: risk_level = "HIGH"
+    elif score <= 70: risk_level = "MEDIUM"
+    elif score <= 85: risk_level = "LOW"
+    else: risk_level = "VERY LOW"
+    
+    score_para = doc.add_paragraph()
+    score_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    score_run = score_para.add_run(f"Trust Score: {score}/100 - {risk_level}")
+    score_run.bold = True
+    score_run.font.size = Pt(16)
+    
+    doc.add_paragraph()
+    
+    # Rating image
+    rating_path = ROOT_DIR / "rating_scale.png"
+    if rating_path.exists():
+        try:
+            doc.add_picture(str(rating_path), width=Inches(5.5))
+            doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            doc.add_paragraph()
+        except: pass
+    
+    # Summary
+    summary = ai.get("analysis_summary", "") or ai.get("summary", "") if ai else ""
+    if summary:
+        s_header = doc.add_paragraph()
+        s_header.add_run("SUMMARY").bold = True
+        doc.add_paragraph(summary)
         doc.add_paragraph()
     
-    # ====== RED FLAGS DETECTED ======
+    # Red Flags
     red_flags = ai.get("red_flags", []) if ai else []
-    red_flags_count = len(red_flags)
+    rf_header = doc.add_paragraph()
+    rf_header.add_run(f"RED FLAGS DETECTED ({len(red_flags)})").bold = True
     
-    flags_para = doc.add_paragraph()
-    flags_run = flags_para.add_run(f"RED FLAGS DETECTED ({red_flags_count}):")
-    flags_run.bold = True
-    
-    # Individual red flags
     for flag in red_flags:
         doc.add_paragraph()
-        
         if isinstance(flag, dict):
-            flag_category = flag.get("category", "") or flag.get("type", "Unknown")
-            description = flag.get("description", "")
-            recommendation = flag.get("recommendation", "")
-            severity = (flag.get("severity", "LOW") or "LOW").upper()
-            
-            # Flag category name
+            cat = flag.get("category", "") or flag.get("type", "Unknown")
             cat_para = doc.add_paragraph()
-            cat_para.add_run(f"{flag_category}")
-            
-            # Description
-            if description:
-                desc_para = doc.add_paragraph()
-                desc_run = desc_para.add_run("Description: ")
-                desc_run.bold = True
-                desc_para.add_run(description)
-            
-            # Recommendation
-            if recommendation:
-                rec_para = doc.add_paragraph()
-                rec_run = rec_para.add_run("Recommendation: ")
-                rec_run.bold = True
-                rec_para.add_run(recommendation)
-            
-            # Severity
-            sev_para = doc.add_paragraph()
-            sev_run = sev_para.add_run("Severity: ")
-            sev_run.bold = True
-            sev_para.add_run(severity)
+            cat_para.add_run(cat).bold = True
+            if flag.get("description"):
+                d = doc.add_paragraph()
+                d.add_run("Description: ").bold = True
+                d.add_run(flag["description"])
+            if flag.get("recommendation"):
+                r = doc.add_paragraph()
+                r.add_run("Recommendation: ").bold = True
+                r.add_run(flag["recommendation"])
+            sev = (flag.get("severity", "LOW") or "LOW").upper()
+            sv = doc.add_paragraph()
+            sv.add_run("Severity: ").bold = True
+            sv.add_run(sev)
         else:
             doc.add_paragraph(f"• {str(flag)}")
     
     doc.add_paragraph()
     
-    # ====== SOME RECOMMENDATIONS ======
-    reco_header = doc.add_paragraph()
-    reco_run = reco_header.add_run("SOME RECOMMENDATIONS:")
-    reco_run.bold = True
-    
-    # Use AI recommendations or defaults
-    ai_recommendations = ai.get("recommendations", []) if ai else []
-    if ai_recommendations:
-        for rec in ai_recommendations:
-            doc.add_paragraph(f"• {rec}")
-    else:
-        default_recs = [
-            "Continue communicating through the platform or verified channels.",
-            "Schedule a video call to fully bridge the gap between digital profile and reality.",
-            "The lack of news for one day is common for a business owner; do not interpret this as a 'disappearing' tactic yet.",
-            "Verify the 'travel' claims if he asks for any financial assistance involving travel (though no current signs of this exist)."
-        ]
-        for rec in default_recs:
-            doc.add_paragraph(f"• {rec}")
-    
-    # ====== PAGE BREAK - CONCLUSIVE ANALYSIS ======
-    doc.add_page_break()
-    
-    # CONCLUSIVE ANALYSIS - POINTS
-    points_para = doc.add_paragraph()
-    points_run = points_para.add_run("CONCLUSIVE ANALYSIS - POINTS")
-    points_run.bold = True
-    points_run.font.size = Pt(14)
-    
-    doc.add_paragraph()
-    
-    # CONCLUSIVE ANALYSIS - OVERALL RECOMMANDATIONS
-    overall_header = doc.add_paragraph()
-    overall_run = overall_header.add_run("CONCLUSIVE ANALYSIS - OVERALL RECOMMANDATIONS")
-    overall_run.bold = True
-    overall_run.font.size = Pt(14)
-    
-    doc.add_paragraph()
-    
-    # OVERALL
-    overall_title = doc.add_paragraph()
-    overall_title_run = overall_title.add_run("OVERALL")
-    overall_title_run.bold = True
-    
-    doc.add_paragraph()
-    
-    # Research and Verifications subtitle
-    research_header = doc.add_paragraph()
-    research_run = research_header.add_run("Research and Verifications performed include some of the following:")
-    research_run.bold = True
-    
-    doc.add_paragraph()
-    
-    # The 6 verification points
-    verification_points = [
-        ("1. Platform Analysis", "Intense scrutinizing of all platforms used by 'the profile' in the past and present."),
-        ("2. Occupation Verification", "Resourcing and authenticating profile's occupation via one on one discrete and direct communication means. Access to occupation and / or company official website through various complex and often unattainable platforms. Intense cross-checking of the profile's email addresses and user names worldwide."),
-        ("3. Photo Identification", "Photo identification via cross-checking of multiple image databases and reverse image search platforms. Detection and screening for multiple and stolen identities."),
-        ("4. Location Verification", "Verification of locations such as photo venues, background images and sceneries relating to where the profile claims to be or reside."),
-        ("5. Location Cross Referencing", "Cross referencing of all the profile's locations and personal details to detect any mismatched information."),
-        ("6. Photo Authenticity", "Clarity and authenticity of all photos provided by you and of those 2good2breal gains access to via websites, apps, platforms and other means.")
+    # Recommendations
+    reco_h = doc.add_paragraph()
+    reco_h.add_run("SOME RECOMMENDATIONS").bold = True
+    ai_recs = ai.get("recommendations", []) if ai else []
+    recs = ai_recs if ai_recs else [
+        "Continue communicating through the platform or verified channels.",
+        "Schedule a video call to fully bridge the gap between digital profile and reality.",
+        "The lack of news for one day is common; do not interpret this as a 'disappearing' tactic yet.",
+        "Verify 'travel' claims if financial assistance is requested."
     ]
-    
-    for title, description in verification_points:
-        para = doc.add_paragraph()
-        title_run = para.add_run(f"{title} ")
-        title_run.bold = True
-        para.add_run(description)
-        doc.add_paragraph()
-    
-    # Additional Recommendations header
-    add_reco_para = doc.add_paragraph()
-    add_reco_run = add_reco_para.add_run("Additional Recommendations Based on our analysis, we recommend:")
-    add_reco_run.bold = True
-    
-    doc.add_paragraph()
-    
-    # Additional recommendations bullet points
-    additional_recs = [
-        "Block and report the account on the platform,",
-        "Save evidence such as screenshots and user names in the event you need to report it in future,",
-        "Talk to someone you trust about the situation for support if you feel the need.",
-        "Consider stepping back or ending the conversation and /or contact. As the situation is extremely ambiguous, in our opinion, it is essential to walk away and disconnect.",
-        "If your situation with this profile has escalated to a point that you feel overwhelmed, do not hesitate to seek professional help.",
-        "Keep your offline life grounded and intact."
-    ]
-    
-    for rec in additional_recs:
+    for rec in recs:
         doc.add_paragraph(f"• {rec}")
     
+    # ====== PAGE 3: CONCLUSIVE ANALYSIS - POINTS ======
+    doc.add_page_break()
+    p3 = doc.add_paragraph()
+    p3.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p3.add_run("CONCLUSIVE ANALYSIS - POINTS").bold = True
+    
+    # ====== PAGE 4: CONCLUSIVE ANALYSIS - OVERALL ======
+    doc.add_page_break()
+    p4 = doc.add_paragraph()
+    p4.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p4.add_run("CONCLUSIVE ANALYSIS - OVERALL").bold = True
+    
+    # ====== PAGE 5: RECOMMANDATIONS OVERALL ======
+    doc.add_page_break()
+    p5 = doc.add_paragraph()
+    p5.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p5.add_run("RECOMMANDATIONS OVERALL").bold = True
+    
+    # ====== PAGE 6: Research and Verifications ======
+    doc.add_page_break()
+    research_h = doc.add_paragraph()
+    research_h.add_run("Research and Verifications performed include some of the following:").bold = True
     doc.add_paragraph()
     
-    # Further analysis note
-    further_para = doc.add_paragraph()
-    further_para.add_run("If you wish further analyzing of this profile, please provide us with more personal details such as extended family information, presumed previous occupations and subsequent history on your next request.")
+    verifications = [
+        ("1. Platform Analysis", "Intense scrutinizing of all platforms used by 'the profile' in the past and present."),
+        ("2. Occupation Verification", "Resourcing and authenticating profile's occupation via direct communication means."),
+        ("3. Photo Identification", "Photo identification via cross-checking of multiple image databases and reverse image search platforms."),
+        ("4. Location Verification", "Verification of locations such as photo venues, background images and sceneries."),
+        ("5. Location Cross Referencing", "Cross referencing of all the profile's locations and personal details."),
+        ("6. Photo Authenticity", "Clarity and authenticity of all photos provided by you and accessed via various means.")
+    ]
+    for title, desc in verifications:
+        vp = doc.add_paragraph()
+        vp.add_run(f"{title} ").bold = True
+        vp.add_run(desc)
+        doc.add_paragraph()
     
+    # ====== PAGE 7: Additional Recommendations ======
+    doc.add_page_break()
+    add_h = doc.add_paragraph()
+    add_h.add_run("Additional Recommendations").bold = True
     doc.add_paragraph()
     
-    # ====== THANK YOU SECTION ======
-    thank_para = doc.add_paragraph()
-    thank_run = thank_para.add_run("Thank you for choosing 2good2breal")
-    thank_run.bold = True
-    thank_run.font.size = Pt(14)
+    add_recs = [
+        "Block and report the account on the platform,",
+        "Save evidence such as screenshots and user names for future reference,",
+        "Talk to someone you trust about the situation for support,",
+        "Consider stepping back or ending the conversation and/or contact,",
+        "If overwhelmed, do not hesitate to seek professional help,",
+        "Keep your offline life grounded and intact."
+    ]
+    for ar in add_recs:
+        doc.add_paragraph(f"• {ar}")
     
     doc.add_paragraph()
-    
-    closing_text = "We hope this report assists to clarify, confirm or dismiss any doubts you may have of your Profile's authenticity or intentions. Furthermore, our team aims to provide you with an objective, informative and reliable report to help guide you towards well founded and smart decision making with this person in future. All the best from our team at 2good2breal."
-    doc.add_paragraph(closing_text)
-    
+    doc.add_paragraph("If you wish further analyzing of this profile, please provide us with more personal details such as extended family information, presumed previous occupations and subsequent history on your next request.")
     doc.add_paragraph()
     
-    # Contact
-    contact_para = doc.add_paragraph()
-    contact_run = contact_para.add_run("Contact: ")
-    contact_run.bold = True
-    contact_para.add_run("contact@2good2breal.com")
-    
-    # Report Reference
-    ref_para = doc.add_paragraph()
-    ref_run = ref_para.add_run("Report Reference: ")
-    ref_run.bold = True
-    ref_para.add_run(analysis.get("id", ""))
-    
+    thank_p = doc.add_paragraph()
+    thank_p.add_run("Thank you for choosing 2good2breal").bold = True
+    doc.add_paragraph()
+    doc.add_paragraph("We hope this report assists to clarify, confirm or dismiss any doubts you may have of your Profile's authenticity or intentions. All the best from our team at 2good2breal.")
     doc.add_paragraph()
     
-    # Legal disclaimer
-    disclaimer_para = doc.add_paragraph()
-    disclaimer_run = disclaimer_para.add_run("This analysis should not be considered as legal advice.")
-    disclaimer_run.bold = True
-    
+    contact_p = doc.add_paragraph()
+    contact_p.add_run("Contact: ").bold = True
+    contact_p.add_run("contact@2good2breal.com")
+    ref_p = doc.add_paragraph()
+    ref_p.add_run("Report Reference: ").bold = True
+    ref_p.add_run(analysis.get("id", ""))
     doc.add_paragraph()
     
-    # Footer
-    footer_para = doc.add_paragraph()
-    footer_run = footer_para.add_run("2good2breal - Profile Verification Service")
-    footer_run.bold = True
-    
-    contact_footer = doc.add_paragraph()
-    contact_footer.add_run("contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com")
-    
+    disc_p = doc.add_paragraph()
+    disc_p.add_run("This analysis should not be considered as legal advice.").bold = True
     doc.add_paragraph()
     
-    # Confidential notice
-    conf_para = doc.add_paragraph()
-    conf_run = conf_para.add_run("This document is confidential.")
-    conf_run.bold = True
+    footer_p = doc.add_paragraph()
+    footer_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    footer_p.add_run("2good2breal - Profile Verification Service\n").bold = True
+    footer_p.add_run("contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com")
+    doc.add_paragraph()
     
-    # Save to bytes
+    conf_p = doc.add_paragraph()
+    conf_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    conf_p.add_run("This document is confidential.").bold = True
+    
     buffer = BytesIO()
     doc.save(buffer)
     buffer.seek(0)
