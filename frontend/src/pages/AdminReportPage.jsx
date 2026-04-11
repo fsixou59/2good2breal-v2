@@ -257,6 +257,15 @@ export function AdminReportPage() {
               <span style={docxStyles.fieldLabel}>Trust Score:</span> {trustScore}/100 - {getRiskLevel(trustScore)}
             </p>
             
+            {/* Rating Scale Image */}
+            <div style={{textAlign: 'center', margin: '20px 0'}}>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_3b0bb19a-dfb7-4f27-b093-a7f016f93d48/artifacts/pf1lendc_Screenshot%202026-04-11%20at%2011.34.21.png" 
+                alt="Dishonesty and Integrity Profile Rating Scale" 
+                style={{maxWidth: '100%', width: '500px', border: '1px solid #ddd', borderRadius: '4px'}}
+              />
+            </div>
+            
             {summary && (
               <p style={{...docxStyles.fieldLine, marginTop: '15px'}}>
                 <span style={docxStyles.fieldLabel}>SUMMARY:</span> {summary}

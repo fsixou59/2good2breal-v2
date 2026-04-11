@@ -2069,6 +2069,18 @@ def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
     
     doc.add_paragraph()
     
+    # Insert the Dishonesty and Integrity Profile Rating image
+    rating_image_path = ROOT_DIR / "rating_scale.png"
+    if rating_image_path.exists():
+        try:
+            doc.add_picture(str(rating_image_path), width=Inches(5.5))
+            # Center the image
+            last_paragraph = doc.paragraphs[-1]
+            last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            doc.add_paragraph()  # Spacer after image
+        except Exception as e:
+            logging.warning(f"Could not insert rating scale image: {e}")
+    
     # SUMMARY - use analysis_summary field
     summary_text = ai.get("analysis_summary", "") or ai.get("summary", "") if ai else ""
     if summary_text:
