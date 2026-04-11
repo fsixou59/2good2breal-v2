@@ -1955,228 +1955,287 @@ async def send_report_to_client(analysis_id: str, data: SendReportData, admin: d
         raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
 
 def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
-    """Generate a DOCX report for the admin to customize."""
+    """
+    Generate a DOCX report matching the exact template provided by the user.
+    Format: No tables, UPPERCASE section headers, LABEL value format on each line.
+    """
     doc = Document()
     
     form_data = analysis.get("form_data", {})
     ai = analysis.get("ai_analysis", {})
     
-    # Get verdict info
-    verdict_texts = {
-        "safe": "SAFE - Profile appears authentic",
-        "suspicious": "SUSPICIOUS - Exercise caution",
-        "dangerous": "DANGEROUS - High risk of scam",
-        "inconclusive": "INCONCLUSIVE - More information needed"
-    }
-    verdict = admin_report.get("verdict", "inconclusive")
-    verdict_text = verdict_texts.get(verdict, "INCONCLUSIVE")
-    
-    # Document styling
+    # Document styling - Calibri font
     style = doc.styles['Normal']
     style.font.name = 'Calibri'
     style.font.size = Pt(11)
     
+    # Helper function to add a field line (BOLD LABEL followed by value)
+    def add_field_line(label: str, value: str):
+        para = doc.add_paragraph()
+        run_label = para.add_run(f"{label} ")
+        run_label.bold = True
+        para.add_run(str(value) if value else "-")
+    
+    # Helper function to add section header (UPPERCASE, bold)
+    def add_section_header(title: str):
+        doc.add_paragraph()  # Spacer
+        para = doc.add_paragraph()
+        run = para.add_run(title.upper())
+        run.bold = True
+        run.font.size = Pt(14)
+        doc.add_paragraph()  # Spacer after header
+    
     # ====== HEADER ======
-    header = doc.add_heading('2good2breal', 0)
-    header.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    for run in header.runs:
-        run.font.color.rgb = RGBColor(165, 83, 190)  # Purple
+    # Logo text "2good2breal"
+    header_para = doc.add_paragraph()
+    header_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    logo_run = header_para.add_run("2good2breal")
+    logo_run.bold = True
+    logo_run.font.size = Pt(24)
+    logo_run.font.color.rgb = RGBColor(165, 83, 190)  # Purple
     
-    subtitle = doc.add_paragraph('PREMIUM VERIFICATION REPORT')
-    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    subtitle.runs[0].font.bold = True
-    subtitle.runs[0].font.color.rgb = RGBColor(165, 83, 190)
+    # Subtitle
+    subtitle_para = doc.add_paragraph()
+    subtitle_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    sub_run = subtitle_para.add_run("Profile Verification Service – Manual Report")
+    sub_run.bold = True
+    sub_run.font.size = Pt(14)
     
-    # Date and Reference
-    info_para = doc.add_paragraph()
-    info_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    info_para.add_run(f"Date: {datetime.now().strftime('%d/%m/%Y')}\n")
-    info_para.add_run(f"Reference: #{(analysis.get('id', ''))[:8].upper()}")
+    # Date
+    date_para = doc.add_paragraph()
+    date_para.add_run(f"Date: {datetime.now().strftime('%Y-%m-%d')}")
     
-    doc.add_paragraph()  # Spacer
+    # ====== CLIENT INFORMATION ======
+    add_section_header("CLIENT INFORMATION")
     
-    # ====== SECTION A: CLIENT INFORMATION ======
-    doc.add_heading('A. Client Information', level=1)
+    # Get client name - use user_name from analysis
+    client_name = analysis.get("user_name", "") or ""
+    add_field_line("NAME", client_name)
+    add_field_line("EMAIL", analysis.get("user_email", "") or "")
+    add_field_line("AGE", form_data.get("client_age", "") or "")
+    add_field_line("LOCATION", form_data.get("client_location", "") or "")
     
-    client_table = doc.add_table(rows=2, cols=4)
-    client_table.style = 'Table Grid'
+    # ====== PROFILE INFORMATION ======
+    add_section_header("PROFILE INFORMATION")
     
-    cells = client_table.rows[0].cells
-    cells[0].text = "Name"
-    cells[1].text = analysis.get("user_name", "N/A")
-    cells[2].text = "Email"
-    cells[3].text = analysis.get("user_email", "N/A")
+    add_field_line("PROFILE NAME", form_data.get("profile_name", "") or "")
+    add_field_line("FULL REAL NAME", form_data.get("full_real_name", "") or "")
+    gender = form_data.get("gender", "") or ""
+    add_field_line("GENDER", gender.capitalize() if gender else "")
+    add_field_line("HEIGHT", form_data.get("height", "") or "")
+    add_field_line("NATIONALITY", form_data.get("nationality", "") or "")
+    # Use language_of_communication field
+    shared_lang = form_data.get("language_of_communication", "") or form_data.get("shared_language", "") or ""
+    add_field_line("SHARED LANGUAGE", shared_lang)
+    add_field_line("MARITAL STATUS", form_data.get("assumed_marital_status", "") or "")
+    add_field_line("HOBBIES / INTERESTS", form_data.get("hobbies_interests", "") or "")
+    add_field_line("UNIVERSITY / COLLEGE", form_data.get("university_college", "") or "")
+    add_field_line("YEAR/S OF ATTENDANCE / GRADUATION", form_data.get("years_of_attendance", "") or "")
     
-    cells = client_table.rows[1].cells
-    cells[0].text = "Age"
-    cells[1].text = form_data.get("client_age", "N/A")
-    cells[2].text = "Location"
-    cells[3].text = form_data.get("client_location", "N/A")
+    # ====== PROFILE DETAILS ======
+    add_section_header("PROFILE DETAILS")
     
-    doc.add_paragraph()  # Spacer
+    add_field_line("DATE OF BIRTH", form_data.get("date_of_birth", ""))
+    add_field_line("KNOWN AGE", form_data.get("assumed_age", ""))
+    add_field_line("LOCATION", form_data.get("profile_location", ""))
+    add_field_line("PLATFORM", form_data.get("dating_platform", ""))
+    add_field_line("OCCUPATION", form_data.get("occupation", ""))
+    add_field_line("COMPANY NAME", form_data.get("company_name", ""))
+    add_field_line("COMPANY WEBSITE", form_data.get("company_website", ""))
     
-    # ====== SECTION B: PROFILE VERIFIED ======
-    doc.add_heading('B. Profile Verified', level=1)
+    # ====== ANALYSIS RESULTS ======
+    add_section_header("ANALYSIS RESULTS")
     
-    profile_table = doc.add_table(rows=5, cols=4)
-    profile_table.style = 'Table Grid'
-    
-    profile_fields = [
-        ("Profile Name", form_data.get("profile_name", "N/A"), "Full Name", form_data.get("full_real_name", "N/A")),
-        ("Gender", (form_data.get("gender", "N/A") or "N/A").capitalize(), "Age", form_data.get("assumed_age", "N/A")),
-        ("Nationality", form_data.get("nationality", "N/A"), "Location", form_data.get("profile_location", "N/A")),
-        ("Occupation", form_data.get("occupation", "N/A"), "Company", form_data.get("company_name", "N/A")),
-        ("Platform", form_data.get("dating_platform", "N/A"), "Photos", str(form_data.get("profile_photos_count", "N/A"))),
-    ]
-    
-    for i, row_data in enumerate(profile_fields):
-        cells = profile_table.rows[i].cells
-        cells[0].text = row_data[0]
-        cells[0].paragraphs[0].runs[0].font.bold = True
-        cells[1].text = str(row_data[1])
-        cells[2].text = row_data[2]
-        cells[2].paragraphs[0].runs[0].font.bold = True
-        cells[3].text = str(row_data[3])
-    
-    doc.add_paragraph()
-    
-    # Client Observations
-    if form_data.get("observations_concerns"):
-        doc.add_heading('Client Observations and Concerns', level=2)
-        obs_para = doc.add_paragraph(form_data.get("observations_concerns", ""))
-        obs_para.paragraph_format.left_indent = Cm(0.5)
-    
-    # Message Substance
-    if form_data.get("message_substance"):
-        doc.add_heading('Message Substance', level=2)
-        msg_para = doc.add_paragraph(form_data.get("message_substance", ""))
-        msg_para.paragraph_format.left_indent = Cm(0.5)
-    
-    # Page break
-    doc.add_page_break()
-    
-    # ====== SECTION C: TRUST SCORE ======
-    doc.add_heading('C. Trust Score', level=1)
-    
+    # Trust Score
     score = ai.get("overall_score", 0) if ai else 0
-    score_para = doc.add_paragraph()
-    score_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    score_run = score_para.add_run(f"{score}/100")
-    score_run.font.size = Pt(36)
-    score_run.font.bold = True
     
-    # Score interpretation
+    # Determine risk level
     if score <= 25:
-        score_text = "Extreme High Risk"
+        risk_level = "EXTREME HIGH RISK"
     elif score <= 51:
-        score_text = "Medium to High Risk"
+        risk_level = "HIGH"
     elif score <= 70:
-        score_text = "Average to Low Risk"
+        risk_level = "MEDIUM"
     elif score <= 85:
-        score_text = "Reliable, Satisfactory Profile"
+        risk_level = "LOW"
     else:
-        score_text = "Approved, Certified Profile"
+        risk_level = "VERY LOW"
     
-    interp_para = doc.add_paragraph(score_text)
-    interp_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    interp_para.runs[0].font.bold = True
+    # Trust Score line
+    score_para = doc.add_paragraph()
+    score_label = score_para.add_run("Trust Score: ")
+    score_label.bold = True
+    score_para.add_run(f"{score}/100 - {risk_level}")
     
     doc.add_paragraph()
     
-    # AI Summary
-    if ai and ai.get("summary"):
-        doc.add_heading('AI Analysis Summary', level=2)
-        doc.add_paragraph(ai.get("summary", ""))
+    # SUMMARY - use analysis_summary field
+    summary_text = ai.get("analysis_summary", "") or ai.get("summary", "") if ai else ""
+    if summary_text:
+        summary_para = doc.add_paragraph()
+        summary_label = summary_para.add_run("SUMMARY: ")
+        summary_label.bold = True
+        summary_para.add_run(summary_text)
     
-    # Red Flags
-    if ai and ai.get("red_flags"):
-        doc.add_heading('Red Flags Detected', level=2)
-        for flag in ai.get("red_flags", []):
-            if isinstance(flag, dict):
-                flag_para = doc.add_paragraph(style='List Bullet')
-                flag_para.add_run(f"{flag.get('type', 'Unknown')}: ").bold = True
-                flag_para.add_run(flag.get("description", ""))
-            else:
-                doc.add_paragraph(str(flag), style='List Bullet')
+    doc.add_paragraph()
     
-    # Page break
+    # RED FLAGS DETECTED
+    red_flags = ai.get("red_flags", []) if ai else []
+    red_flags_count = len(red_flags)
+    
+    flags_header = doc.add_paragraph()
+    flags_run = flags_header.add_run(f"RED FLAGS DETECTED ({red_flags_count}):")
+    flags_run.bold = True
+    flags_run.font.color.rgb = RGBColor(220, 38, 38)  # Red color
+    
+    # Individual red flags
+    for flag in red_flags:
+        doc.add_paragraph()
+        
+        if isinstance(flag, dict):
+            # Use 'category' field (or fallback to 'type')
+            flag_type = flag.get("category", "") or flag.get("type", "Unknown")
+            description = flag.get("description", "")
+            recommendation = flag.get("recommendation", "")
+            severity = (flag.get("severity", "MEDIUM") or "MEDIUM").upper()
+            
+            # Flag type
+            type_para = doc.add_paragraph()
+            type_run = type_para.add_run(f"{flag_type}:")
+            type_run.bold = True
+            
+            # Description
+            if description:
+                desc_para = doc.add_paragraph()
+                desc_label = desc_para.add_run("Description: ")
+                desc_label.bold = True
+                desc_para.add_run(description)
+            
+            # Recommendation
+            if recommendation:
+                rec_para = doc.add_paragraph()
+                rec_label = rec_para.add_run("Recommendation: ")
+                rec_label.bold = True
+                rec_para.add_run(recommendation)
+            
+            # Severity
+            sev_para = doc.add_paragraph()
+            sev_label = sev_para.add_run("Severity: ")
+            sev_label.bold = True
+            sev_para.add_run(severity)
+        else:
+            # Simple string flag
+            doc.add_paragraph(str(flag), style='List Bullet')
+    
+    # ====== RECOMMENDATIONS ======
+    add_section_header("RECOMMENDATIONS:")
+    
+    # Admin recommendations or default list
+    admin_recommendations = admin_report.get("recommendations", "")
+    
+    if admin_recommendations:
+        doc.add_paragraph(admin_recommendations)
+    else:
+        # Default recommendations from AI or standard list
+        ai_recommendations = ai.get("recommendations", []) if ai else []
+        if ai_recommendations:
+            for rec in ai_recommendations:
+                doc.add_paragraph(str(rec), style='List Bullet')
+        else:
+            default_recs = [
+                "Continue communicating through the platform or verified channels.",
+                "Schedule a video call to fully bridge the gap between digital profile and reality.",
+                "Verify any 'travel' claims if financial assistance is requested.",
+                "Save evidence such as screenshots and user names for future reference."
+            ]
+            for rec in default_recs:
+                doc.add_paragraph(rec, style='List Bullet')
+    
+    # Page break before Conclusive Analysis
     doc.add_page_break()
     
-    # ====== SECTION D: EXPERT ANALYSIS (Editable) ======
-    doc.add_heading('D. Expert Analysis', level=1)
+    # ====== CONCLUSIVE ANALYSIS - POINTS ======
+    add_section_header("CONCLUSIVE ANALYSIS - POINTS")
     
-    # Final Verdict
-    verdict_heading = doc.add_heading('Final Verdict', level=2)
-    verdict_para = doc.add_paragraph()
-    verdict_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    verdict_run = verdict_para.add_run(verdict_text)
-    verdict_run.font.size = Pt(16)
-    verdict_run.font.bold = True
-    if verdict == "safe":
-        verdict_run.font.color.rgb = RGBColor(16, 185, 129)
-    elif verdict == "suspicious":
-        verdict_run.font.color.rgb = RGBColor(245, 158, 11)
-    elif verdict == "dangerous":
-        verdict_run.font.color.rgb = RGBColor(239, 68, 68)
-    else:
-        verdict_run.font.color.rgb = RGBColor(107, 114, 128)
-    
-    doc.add_paragraph()
-    
-    # Detailed Analysis
-    doc.add_heading('Detailed Analysis', level=2)
-    analysis_text = admin_report.get("detailedAnalysis", "[Enter your detailed analysis here...]")
-    doc.add_paragraph(analysis_text)
-    
-    doc.add_paragraph()
-    
-    # Recommendations
-    doc.add_heading('Recommendations', level=2)
-    recommendations_text = admin_report.get("recommendations", "[Enter your recommendations here...]")
-    doc.add_paragraph(recommendations_text)
-    
-    doc.add_paragraph()
-    
-    # Additional Notes
-    doc.add_heading('Additional Notes', level=2)
-    notes_text = admin_report.get("additionalNotes", "[Enter any additional notes here...]")
-    doc.add_paragraph(notes_text)
-    
-    # Page break
-    doc.add_page_break()
-    
-    # ====== SECTION E: RECOMMENDATIONS ======
-    doc.add_heading('E. Safety Recommendations', level=1)
-    
-    safety_tips = [
-        "Never send money or share financial information with someone you haven't met in person.",
-        "Verify the person's identity through video calls before meeting.",
-        "Meet in public places for initial dates and inform someone about your plans.",
-        "Trust your instincts - if something feels wrong, it probably is.",
-        "Report suspicious profiles to the dating platform."
+    conclusive_points = [
+        ("1. Platform Analysis", "Intense scrutinizing of all platforms used by 'the profile' in the past and present."),
+        ("2. Occupation Verification", "Resourcing and authenticating profile's occupation via one on one discrete and direct communication means. Access to occupation and / or company official website through various complex and often unattainable platforms. Intense cross-checking of the profile's email addresses and user names worldwide."),
+        ("3. Photo Identification", "Photo identification via cross-checking of multiple image databases and reverse image search platforms. Detection and screening for multiple and stolen identities."),
+        ("4. Location Verification", "Verification of locations such as photo venues, background images and sceneries relating to where the profile claims to be or reside."),
+        ("5. Location Cross Referencing", "Cross referencing of all the profile's locations and personal details to detect any mismatched information."),
+        ("6. Photo Authenticity", "Clarity and authenticity of all photos provided by you and of those 2good2breal gains access to via websites, apps, platforms and other means."),
+        ("7. Additional Recommendations", "Based on our analysis, we recommend:")
     ]
     
-    for tip in safety_tips:
-        doc.add_paragraph(tip, style='List Bullet')
+    for title, description in conclusive_points:
+        para = doc.add_paragraph()
+        title_run = para.add_run(title + " ")
+        title_run.bold = True
+        para.add_run(description)
+        doc.add_paragraph()  # Spacer
+    
+    # Additional recommendations bullet points (under point 7)
+    additional_recs = [
+        "Block and report the account on the platform,",
+        "Save evidence such as screenshots and user names in the event you need to report it in future,",
+        "Talk to someone you trust about the situation for support if you feel the need.",
+        "Consider stepping back or ending the conversation and /or contact. As the situation is extremely ambiguous, in our opinion, it is essential to walk away and disconnect.",
+        "If your situation with this profile has escalated to a point that you feel overwhelmed, do not hesitate to seek professional help.",
+        "Keep your offline life grounded and intact. If you wish further analyzing of this profile, please provide us with more personal details such as extended family information, presumed previous occupations and subsequent history on your next request."
+    ]
+    
+    for rec in additional_recs:
+        doc.add_paragraph("• " + rec)
+    
+    # Page break before footer
+    doc.add_page_break()
+    
+    # ====== THANK YOU / FOOTER ======
+    thank_you_para = doc.add_paragraph()
+    thank_you_run = thank_you_para.add_run("Thank you for choosing 2good2breal")
+    thank_you_run.bold = True
+    thank_you_run.font.size = Pt(14)
     
     doc.add_paragraph()
     
-    # ====== FOOTER ======
+    closing_text = """We hope this report assists to clarify, confirm or dismiss any doubts you may have of your Profile's authenticity or intentions. Furthermore, our team aims to provide you with an objective, informative and reliable report to help guide you towards well founded and smart decision making with this person in future. All the best from our team at 2good2breal."""
+    doc.add_paragraph(closing_text)
+    
+    doc.add_paragraph()
+    
+    # Contact
+    contact_para = doc.add_paragraph()
+    contact_para.add_run("Contact: ").bold = True
+    contact_para.add_run("contact@2good2breal.com")
+    
+    # Report Reference
+    ref_para = doc.add_paragraph()
+    ref_para.add_run("Report Reference: ").bold = True
+    ref_para.add_run(analysis.get("id", ""))
+    
+    doc.add_paragraph()
+    
+    # Legal disclaimer
+    disclaimer_para = doc.add_paragraph()
+    disclaimer_run = disclaimer_para.add_run("This analysis should not be considered as legal advice.")
+    disclaimer_run.italic = True
+    
+    doc.add_paragraph()
+    
+    # Final footer line
     footer_para = doc.add_paragraph()
     footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    footer_para.add_run("─" * 50)
+    footer_para.add_run("2good2breal - Profile Verification Service")
+    footer_para.add_run("\ncontact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com")
     
-    contact = doc.add_paragraph()
-    contact.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    contact.add_run("2good2breal - Profile Verification Service\n").bold = True
-    contact.add_run("contact@2good2breal.com | +33 (0) 7 67 92 55 45\n")
-    contact.add_run("www.2good2breal.com")
+    doc.add_paragraph()
     
-    disclaimer = doc.add_paragraph()
-    disclaimer.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    disclaimer_run = disclaimer.add_run("\nThis analysis is based on information provided and should not be considered as legal advice.")
-    disclaimer_run.font.size = Pt(9)
-    disclaimer_run.font.italic = True
+    # Confidential notice
+    conf_para = doc.add_paragraph()
+    conf_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    conf_run = conf_para.add_run("This document is confidential.")
+    conf_run.bold = True
+    conf_run.font.size = Pt(10)
     
     # Save to bytes
     buffer = BytesIO()
@@ -2191,6 +2250,12 @@ async def download_report_docx(analysis_id: str, admin: dict = Depends(get_admin
     analysis = await db.verification_results.find_one({"id": analysis_id}, {"_id": 0})
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
+    
+    # Get user info (name and email) from users collection
+    user = await db.users.find_one({"id": analysis.get("user_id")}, {"_id": 0, "email": 1, "name": 1})
+    if user:
+        analysis["user_email"] = user.get("email", "")
+        analysis["user_name"] = user.get("name", "")
     
     # Get admin report or use defaults
     admin_report = analysis.get("admin_report", {})
