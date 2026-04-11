@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
-import { ArrowLeft, Printer, Send, Save, AlertTriangle, CheckCircle, Clock, AlertCircle, Eye, FileText, Download } from 'lucide-react';
+import { ArrowLeft, Printer, Send, Save, AlertTriangle, CheckCircle, Clock, AlertCircle, Eye, FileText, Download, X } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 
@@ -62,6 +62,7 @@ export function AdminReportPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showDocxPreview, setShowDocxPreview] = useState(false);
   const [adminReport, setAdminReport] = useState({
     verdict: '',
     detailedAnalysis: '',
@@ -154,6 +155,202 @@ export function AdminReportPage() {
     inconclusive: { bg: '#6b7280', text: 'INCONCLUSIVE - More information needed' }
   };
   const vInfo = verdictInfo[adminReport.verdict] || verdictInfo.inconclusive;
+
+  // Helper function for DOCX preview risk level
+  function getRiskLevel(score) {
+    if (score <= 25) return 'EXTREME HIGH RISK';
+    if (score <= 51) return 'HIGH';
+    if (score <= 70) return 'MEDIUM';
+    if (score <= 85) return 'LOW';
+    return 'VERY LOW';
+  }
+
+  // DOCX Preview Component - matches exact template format
+  if (showDocxPreview) {
+    const docxStyles = {
+      page: { fontFamily: 'Calibri, Arial, sans-serif', maxWidth: '800px', margin: '0 auto', padding: '40px', background: 'white', color: '#111', lineHeight: '1.6' },
+      header: { marginBottom: '30px' },
+      logo: { fontSize: '28px', fontWeight: 'bold', color: '#a553be', margin: '0' },
+      subtitle: { fontSize: '16px', fontWeight: 'bold', margin: '5px 0 0 0' },
+      date: { fontSize: '13px', color: '#666', margin: '10px 0' },
+      sectionHeader: { fontSize: '16px', fontWeight: 'bold', margin: '25px 0 15px 0', textTransform: 'uppercase' },
+      fieldLine: { fontSize: '13px', margin: '8px 0' },
+      fieldLabel: { fontWeight: 'bold', marginRight: '8px' },
+      redFlagsHeader: { fontSize: '14px', fontWeight: 'bold', color: '#dc2626', margin: '15px 0' },
+      flagType: { fontWeight: 'bold', margin: '15px 0 5px 0' },
+      flagDetail: { fontSize: '13px', margin: '3px 0 3px 15px' },
+      bulletList: { margin: '10px 0', paddingLeft: '25px' },
+      bulletItem: { margin: '6px 0', fontSize: '13px' },
+      numberedItem: { margin: '12px 0', fontSize: '13px' },
+      footer: { marginTop: '40px', paddingTop: '20px', borderTop: '1px solid #ddd' },
+      confidential: { textAlign: 'center', fontWeight: 'bold', fontSize: '12px', marginTop: '20px' }
+    };
+
+    const aiData = ai || {};
+    const redFlags = aiData.red_flags || [];
+    const aiRecommendations = aiData.recommendations || [];
+    const trustScore = aiData.overall_score || 0;
+    const summary = aiData.analysis_summary || aiData.summary || '';
+    const sharedLanguage = formData.language_of_communication || formData.shared_language || '';
+
+    return (
+      <div className="min-h-screen bg-zinc-900">
+        {/* Toolbar */}
+        <div className="bg-zinc-800 p-4 flex justify-between items-center sticky top-0 z-50 border-b border-zinc-700">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" onClick={function() { setShowDocxPreview(false); }} className="border-zinc-600 text-zinc-300">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Retour
+            </Button>
+            <span className="text-white font-medium">Aperçu DOCX - Format Final</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={handleDownloadDocx} className="bg-blue-600 hover:bg-blue-500">
+              <Download className="w-4 h-4 mr-2" /> Télécharger DOCX
+            </Button>
+          </div>
+        </div>
+
+        {/* Preview Content */}
+        <div className="py-8 px-4">
+          <div style={docxStyles.page} className="shadow-xl rounded-lg border border-zinc-300">
+            
+            {/* HEADER */}
+            <div style={docxStyles.header}>
+              <p style={docxStyles.logo}>2good2breal</p>
+              <p style={docxStyles.subtitle}>Profile Verification Service – Manual Report</p>
+              <p style={docxStyles.date}>Date: {new Date().toISOString().split('T')[0]}</p>
+            </div>
+
+            {/* CLIENT INFORMATION */}
+            <p style={docxStyles.sectionHeader}>CLIENT INFORMATION</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NAME</span> {analysis.user_name || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>EMAIL</span> {analysis.user_email || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>AGE</span> {formData.client_age || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION</span> {formData.client_location || '-'}</p>
+
+            {/* PROFILE INFORMATION */}
+            <p style={docxStyles.sectionHeader}>PROFILE INFORMATION</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PROFILE NAME</span> {formData.profile_name || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>FULL REAL NAME</span> {formData.full_real_name || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>GENDER</span> {formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HEIGHT</span> {formData.height || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>NATIONALITY</span> {formData.nationality || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>SHARED LANGUAGE</span> {sharedLanguage || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>MARITAL STATUS</span> {formData.assumed_marital_status || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>HOBBIES / INTERESTS</span> {formData.hobbies_interests || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>UNIVERSITY / COLLEGE</span> {formData.university_college || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>YEAR/S OF ATTENDANCE / GRADUATION</span> {formData.years_of_attendance || '-'}</p>
+
+            {/* PROFILE DETAILS */}
+            <p style={docxStyles.sectionHeader}>PROFILE DETAILS</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>DATE OF BIRTH</span> {formData.date_of_birth || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>KNOWN AGE</span> {formData.assumed_age || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>LOCATION</span> {formData.profile_location || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>PLATFORM</span> {formData.dating_platform || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>OCCUPATION</span> {formData.occupation || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY NAME</span> {formData.company_name || '-'}</p>
+            <p style={docxStyles.fieldLine}><span style={docxStyles.fieldLabel}>COMPANY WEBSITE</span> {formData.company_website || '-'}</p>
+
+            {/* ANALYSIS RESULTS */}
+            <p style={docxStyles.sectionHeader}>ANALYSIS RESULTS</p>
+            <p style={docxStyles.fieldLine}>
+              <span style={docxStyles.fieldLabel}>Trust Score:</span> {trustScore}/100 - {getRiskLevel(trustScore)}
+            </p>
+            
+            {summary && (
+              <p style={{...docxStyles.fieldLine, marginTop: '15px'}}>
+                <span style={docxStyles.fieldLabel}>SUMMARY:</span> {summary}
+              </p>
+            )}
+
+            <p style={docxStyles.redFlagsHeader}>RED FLAGS DETECTED ({redFlags.length}):</p>
+            {redFlags.map(function(flag, index) {
+              const flagCategory = flag.category || flag.type || 'Unknown';
+              const flagSeverity = (flag.severity || 'MEDIUM').toUpperCase();
+              return (
+                <div key={index} style={{marginBottom: '15px'}}>
+                  <p style={docxStyles.flagType}>{flagCategory}:</p>
+                  {flag.description && <p style={docxStyles.flagDetail}><span style={{fontWeight: 'bold'}}>Description:</span> {flag.description}</p>}
+                  {flag.recommendation && <p style={docxStyles.flagDetail}><span style={{fontWeight: 'bold'}}>Recommendation:</span> {flag.recommendation}</p>}
+                  <p style={docxStyles.flagDetail}><span style={{fontWeight: 'bold'}}>Severity:</span> {flagSeverity}</p>
+                </div>
+              );
+            })}
+
+            {/* RECOMMENDATIONS */}
+            <p style={docxStyles.sectionHeader}>RECOMMENDATIONS:</p>
+            {aiRecommendations.length > 0 ? (
+              <ul style={docxStyles.bulletList}>
+                {aiRecommendations.map(function(rec, index) {
+                  return <li key={index} style={docxStyles.bulletItem}>{rec}</li>;
+                })}
+              </ul>
+            ) : (
+              <ul style={docxStyles.bulletList}>
+                <li style={docxStyles.bulletItem}>Continue communicating through the platform or verified channels.</li>
+                <li style={docxStyles.bulletItem}>Schedule a video call to fully bridge the gap between digital profile and reality.</li>
+                <li style={docxStyles.bulletItem}>Verify any 'travel' claims if financial assistance is requested.</li>
+                <li style={docxStyles.bulletItem}>Save evidence such as screenshots and user names for future reference.</li>
+              </ul>
+            )}
+
+            {/* PAGE BREAK INDICATOR */}
+            <div style={{borderTop: '2px dashed #ccc', margin: '30px 0', textAlign: 'center', color: '#999', fontSize: '11px', padding: '5px 0'}}>
+              — Page 2 —
+            </div>
+
+            {/* CONCLUSIVE ANALYSIS - POINTS */}
+            <p style={docxStyles.sectionHeader}>CONCLUSIVE ANALYSIS - POINTS</p>
+            
+            <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>1. Platform Analysis</span> Intense scrutinizing of all platforms used by 'the profile' in the past and present.</p>
+            <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>2. Occupation Verification</span> Resourcing and authenticating profile's occupation via one on one discrete and direct communication means. Access to occupation and / or company official website through various complex and often unattainable platforms. Intense cross-checking of the profile's email addresses and user names worldwide.</p>
+            <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>3. Photo Identification</span> Photo identification via cross-checking of multiple image databases and reverse image search platforms. Detection and screening for multiple and stolen identities.</p>
+            <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>4. Location Verification</span> Verification of locations such as photo venues, background images and sceneries relating to where the profile claims to be or reside.</p>
+            <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>5. Location Cross Referencing</span> Cross referencing of all the profile's locations and personal details to detect any mismatched information.</p>
+            <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>6. Photo Authenticity</span> Clarity and authenticity of all photos provided by you and of those 2good2breal gains access to via websites, apps, platforms and other means.</p>
+            <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>7. Additional Recommendations</span> Based on our analysis, we recommend:</p>
+            
+            <ul style={{...docxStyles.bulletList, marginLeft: '20px'}}>
+              <li style={docxStyles.bulletItem}>Block and report the account on the platform,</li>
+              <li style={docxStyles.bulletItem}>Save evidence such as screenshots and user names in the event you need to report it in future,</li>
+              <li style={docxStyles.bulletItem}>Talk to someone you trust about the situation for support if you feel the need.</li>
+              <li style={docxStyles.bulletItem}>Consider stepping back or ending the conversation and /or contact. As the situation is extremely ambiguous, in our opinion, it is essential to walk away and disconnect.</li>
+              <li style={docxStyles.bulletItem}>If your situation with this profile has escalated to a point that you feel overwhelmed, do not hesitate to seek professional help.</li>
+              <li style={docxStyles.bulletItem}>Keep your offline life grounded and intact. If you wish further analyzing of this profile, please provide us with more personal details such as extended family information, presumed previous occupations and subsequent history on your next request.</li>
+            </ul>
+
+            {/* PAGE BREAK INDICATOR */}
+            <div style={{borderTop: '2px dashed #ccc', margin: '30px 0', textAlign: 'center', color: '#999', fontSize: '11px', padding: '5px 0'}}>
+              — Page 3 —
+            </div>
+
+            {/* FOOTER */}
+            <div style={docxStyles.footer}>
+              <p style={{fontWeight: 'bold', fontSize: '16px', marginBottom: '15px'}}>Thank you for choosing 2good2breal</p>
+              <p style={{fontSize: '13px', marginBottom: '15px', lineHeight: '1.7'}}>
+                We hope this report assists to clarify, confirm or dismiss any doubts you may have of your Profile's authenticity or intentions. Furthermore, our team aims to provide you with an objective, informative and reliable report to help guide you towards well founded and smart decision making with this person in future. All the best from our team at 2good2breal.
+              </p>
+              
+              <p style={{fontSize: '13px', margin: '10px 0'}}><span style={{fontWeight: 'bold'}}>Contact:</span> contact@2good2breal.com</p>
+              <p style={{fontSize: '13px', margin: '10px 0'}}><span style={{fontWeight: 'bold'}}>Report Reference:</span> {analysis.id}</p>
+              
+              <p style={{fontStyle: 'italic', fontSize: '12px', margin: '20px 0', color: '#666'}}>
+                This analysis should not be considered as legal advice.
+              </p>
+              
+              <p style={{fontSize: '12px', textAlign: 'center', color: '#666', marginTop: '20px'}}>
+                2good2breal - Profile Verification Service<br/>
+                contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com
+              </p>
+              
+              <p style={docxStyles.confidential}>This document is confidential.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (showPreview) {
     return (
