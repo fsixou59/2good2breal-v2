@@ -293,6 +293,56 @@ function AnalysisRow(props) {
     });
   }
   
+  // Download PDF with authentication
+  async function handleDownloadPDF(e) {
+    e.stopPropagation();
+    try {
+      const response = await axios.get(`${API}/admin/analyses/${analysis.id}/submission-pdf`, {
+        headers: { Authorization: 'Bearer ' + token },
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `submission_${analysis.profile_name?.replace(/\s+/g, '_') || 'profile'}_${analysis.id.substring(0, 8)}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success('PDF downloaded successfully');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to download PDF');
+    }
+  }
+  
+  // Download DOCX with authentication
+  async function handleDownloadDOCX(e) {
+    e.stopPropagation();
+    try {
+      const response = await axios.get(`${API}/admin/analyses/${analysis.id}/submission-docx`, {
+        headers: { Authorization: 'Bearer ' + token },
+        responseType: 'blob'
+      });
+      
+      const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `submission_${analysis.profile_name?.replace(/\s+/g, '_') || 'profile'}_${analysis.id.substring(0, 8)}.docx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success('DOCX downloaded successfully');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to download DOCX');
+    }
+  }
+  
   function handlePrint(e) {
     e.stopPropagation();
     const formData = analysis.form_data || {};
@@ -722,14 +772,14 @@ function AnalysisRow(props) {
                 <Printer className="w-4 h-4 mr-2" /> Print
               </Button>
               <Button 
-                onClick={() => window.open(`${API}/admin/analyses/${analysis.id}/submission-pdf`, '_blank')} 
+                onClick={handleDownloadPDF} 
                 variant="outline" 
                 className="border-blue-600 text-blue-400 hover:bg-blue-950/50"
               >
                 <Download className="w-4 h-4 mr-2" /> PDF
               </Button>
               <Button 
-                onClick={() => window.open(`${API}/admin/analyses/${analysis.id}/submission-docx`, '_blank')} 
+                onClick={handleDownloadDOCX} 
                 variant="outline" 
                 className="border-green-600 text-green-400 hover:bg-green-950/50"
               >
