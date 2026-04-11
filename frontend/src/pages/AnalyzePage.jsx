@@ -387,7 +387,7 @@ export const AnalyzePage = () => {
       </head>
       <body>
         <div class="header">
-          <h1>2good2breal</h1>
+          <h1 style="font-family: Arial, sans-serif;"><span style="font-size: 1.3em;">2</span>good<span style="font-size: 1.3em;">2</span>breal</h1>
           <p>Profile Verification Service - Submission Form</p>
         </div>
         
@@ -457,7 +457,7 @@ export const AnalyzePage = () => {
               <div class="field-value">${formData.university_college || '-'}</div>
             </div>
             <div class="field">
-              <div class="field-label">${isFr ? 'Années de fréquentation' : "Year/s of Attendance"}</div>
+              <div class="field-label">${isFr ? 'Années de fréquentation / Diplôme' : "Year/s of Attendance / Graduation"}</div>
               <div class="field-value">${formData.years_attendance || '-'}</div>
             </div>
           </div>
@@ -571,7 +571,7 @@ export const AnalyzePage = () => {
         </div>
         
         <div class="footer">
-          <p><strong>2good2breal</strong> - Profile Verification Service</p>
+          <p><strong style="font-family: Arial, sans-serif;"><span style="font-size: 1.2em;">2</span>good<span style="font-size: 1.2em;">2</span>breal</strong> - Profile Verification Service</p>
           <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com</p>
           <p style="margin-top: 10px; font-style: italic;">This document is confidential and intended for the client only.</p>
         </div>
@@ -657,7 +657,7 @@ export const AnalyzePage = () => {
             <div className="letter-header bg-purple-50 p-8 border-b-2 border-purple-600">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-purple-700">2good2breal</h1>
+                  <h1 className="text-2xl font-bold text-purple-700 font-sans"><span className="text-3xl">2</span>good<span className="text-3xl">2</span>breal</h1>
                   <p className="text-gray-600 text-sm">Profile Verification Service</p>
                 </div>
                 <div className="text-right text-sm text-gray-600">
@@ -1113,7 +1113,7 @@ export const AnalyzePage = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="years_attendance" className="text-zinc-300">
-                        {isFr ? "Années de fréquentation" : "Year/s of Attendance"}
+                        {isFr ? "Années de fréquentation / Diplôme" : "Year/s of Attendance / Graduation"}
                       </Label>
                       <Input
                         id="years_attendance"
@@ -1149,7 +1149,8 @@ export const AnalyzePage = () => {
                       </Label>
                       <Input
                         id="date_of_birth"
-                        type="date"
+                        type="text"
+                        placeholder="DD/MM/YYYY"
                         value={formData.date_of_birth}
                         onChange={(e) => handleChange('date_of_birth', e.target.value)}
                         className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
@@ -1432,7 +1433,8 @@ export const AnalyzePage = () => {
                       </Label>
                       <Input
                         id="profile_creation_date"
-                        type="date"
+                        type="text"
+                        placeholder="DD/MM/YYYY"
                         value={formData.profile_creation_date}
                         onChange={(e) => handleChange('profile_creation_date', e.target.value)}
                         className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
@@ -1445,7 +1447,8 @@ export const AnalyzePage = () => {
                       </Label>
                       <Input
                         id="last_active"
-                        type="date"
+                        type="text"
+                        placeholder="DD/MM/YYYY"
                         value={formData.last_active}
                         onChange={(e) => handleChange('last_active', e.target.value)}
                         className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"

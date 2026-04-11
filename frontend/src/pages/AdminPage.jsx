@@ -402,7 +402,7 @@ function AnalysisRow(props) {
       </head>
       <body>
         <div class="header">
-          <h1>2good2breal</h1>
+          <h1 style="font-family: Arial, sans-serif;"><span style="font-size: 1.3em;">2</span>good<span style="font-size: 1.3em;">2</span>breal</h1>
           <p>Profile Verification Service - Submission Form</p>
         </div>
         
@@ -472,7 +472,7 @@ function AnalysisRow(props) {
               <div class="field-value">${formData.university_college || '-'}</div>
             </div>
             <div class="field">
-              <div class="field-label">Year/s of Attendance</div>
+              <div class="field-label">Year/s of Attendance / Graduation</div>
               <div class="field-value">${formData.years_attendance || '-'}</div>
             </div>
           </div>
@@ -715,7 +715,7 @@ function AnalysisRow(props) {
         
         <!-- THANK YOU MESSAGE -->
         <div style="margin-top: 30px; padding: 25px; background: #fff; border: 2px solid #e5e7eb; border-radius: 8px; text-align: center; page-break-inside: avoid;">
-          <h2 style="color: #7c3aed; font-size: 20px; font-weight: bold; margin-bottom: 15px;">Thank you for choosing 2good2breal</h2>
+          <h2 style="color: #7c3aed; font-size: 20px; font-weight: bold; margin-bottom: 15px; font-family: Arial, sans-serif;">Thank you for choosing <span style="font-size: 1.2em;">2</span>good<span style="font-size: 1.2em;">2</span>breal</h2>
           <p style="font-size: 12px; color: #333; line-height: 1.8; margin-bottom: 15px;">We hope this report assists to clarify, confirm or dismiss any doubts you may have of your Profile's authenticity or intentions.</p>
           <p style="font-size: 12px; color: #333; line-height: 1.8; margin-bottom: 20px;">Furthermore, our team aims to provide you with an objective, informative and reliable report to help guide you towards well founded and smart decision making with this person in future.</p>
           <p style="color: #7c3aed; font-size: 14px; font-weight: bold; margin-bottom: 20px;">All the best from our team at 2good2breal.</p>
@@ -728,7 +728,7 @@ function AnalysisRow(props) {
         </div>
         
         <div class="footer">
-          <p><strong>2good2breal</strong> - Profile Verification Service</p>
+          <p><strong style="font-family: Arial, sans-serif;"><span style="font-size: 1.2em;">2</span>good<span style="font-size: 1.2em;">2</span>breal</strong> - Profile Verification Service</p>
           <p>contact@2good2breal.com | +33 (0) 7 67 92 55 45 | www.2good2breal.com</p>
           <p style="margin-top: 10px; font-style: italic;">This document is confidential.</p>
         </div>

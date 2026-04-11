@@ -1333,7 +1333,7 @@ async def download_submission_pdf(analysis_id: str, admin: dict = Depends(get_ad
         ["Gender:", (form_data.get("gender", "-") or "-").capitalize(), "Height:", form_data.get("height", "-")],
         ["Nationality:", form_data.get("nationality", "-"), "Shared Language:", form_data.get("language_of_communication", "-")],
         ["Marital Status:", form_data.get("assumed_marital_status", "-"), "Hobbies/Interests:", form_data.get("hobbies_interests", "-")],
-        ["University:", form_data.get("university_college", "-"), "Years Attendance:", form_data.get("years_attendance", "-")],
+        ["University:", form_data.get("university_college", "-"), "Years Attendance / Graduation:", form_data.get("years_attendance", "-")],
     ]
     profile_table = Table(profile_data, colWidths=[90, 130, 90, 130])
     profile_table.setStyle(TableStyle([
@@ -1505,7 +1505,7 @@ async def download_submission_docx(analysis_id: str, admin: dict = Depends(get_a
         ("Gender", (form_data.get("gender", "-") or "-").capitalize(), "Height", form_data.get("height", "-")),
         ("Nationality", form_data.get("nationality", "-"), "Shared Language", form_data.get("language_of_communication", "-")),
         ("Marital Status", form_data.get("assumed_marital_status", "-"), "Hobbies/Interests", form_data.get("hobbies_interests", "-")),
-        ("University", form_data.get("university_college", "-"), "Years Attendance", form_data.get("years_attendance", "-")),
+        ("University", form_data.get("university_college", "-"), "Years Attendance / Graduation", form_data.get("years_attendance", "-")),
     ]
     for i, row_data in enumerate(profile_data):
         cells = profile_table.rows[i].cells

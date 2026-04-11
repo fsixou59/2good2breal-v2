@@ -33,8 +33,8 @@ export const Navbar = () => {
               alt="2good2breal Logo" 
               className="h-[103px] w-auto group-hover:scale-105 transition-transform"
             />
-            <span className="text-2xl font-bold text-white tracking-tight" style={{ fontVariantNumeric: 'lining-nums' }}>
-              <span className="text-2xl">2</span>good<span className="text-2xl">2</span>breal
+            <span className="text-2xl font-bold text-white tracking-tight font-sans">
+              <span className="text-3xl">2</span>good<span className="text-3xl">2</span>breal
             </span>
           </Link>
 

@@ -382,7 +382,7 @@ export function AdminReportPage() {
 
           {/* Thank You Footer - Same Page as Recommendations */}
           <div className="pr-footer" style={{marginTop: '20px'}}>
-            <p style={{fontSize: '18px', fontWeight: 'bold', color: '#a553be', margin: '0 0 12px 0'}}>Thank you for choosing 2good2breal</p>
+            <p style={{fontSize: '18px', fontWeight: 'bold', color: '#a553be', margin: '0 0 12px 0', fontFamily: 'Arial, sans-serif'}}>Thank you for choosing <span style={{fontSize: '1.2em'}}>2</span>good<span style={{fontSize: '1.2em'}}>2</span>breal</p>
             <p style={{fontSize: '13px', color: '#555', lineHeight: '1.7', margin: '0 0 12px 0'}}>
               We hope this report assists to clarify, confirm or dismiss any doubts you may have of your Profile's authenticity or intentions.
             </p>
