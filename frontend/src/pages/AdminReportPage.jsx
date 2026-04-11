@@ -303,16 +303,40 @@ export function AdminReportPage() {
               </ul>
             )}
 
-            {/* PAGE BREAK INDICATOR */}
+            {/* PAGE BREAK INDICATOR - Page 2: CONCLUSIVE ANALYSIS - POINTS */}
             <div style={{borderTop: '2px dashed #ccc', margin: '30px 0', textAlign: 'center', color: '#999', fontSize: '11px', padding: '5px 0'}}>
               — Page 2 —
             </div>
 
-            {/* CONCLUSIVE ANALYSIS - POINTS */}
-            <p style={docxStyles.sectionHeader}>CONCLUSIVE ANALYSIS - POINTS</p>
+            {/* CONCLUSIVE ANALYSIS - POINTS - Title Page */}
+            <div style={{textAlign: 'center', padding: '80px 0', minHeight: '200px'}}>
+              <p style={{fontSize: '24px', fontWeight: 'bold'}}>CONCLUSIVE ANALYSIS - POINTS</p>
+            </div>
+
+            {/* PAGE BREAK INDICATOR - Page 3: CONCLUSIVE ANALYSIS OVERALL */}
+            <div style={{borderTop: '2px dashed #ccc', margin: '30px 0', textAlign: 'center', color: '#999', fontSize: '11px', padding: '5px 0'}}>
+              — Page 3 —
+            </div>
             
-            {/* CONCLUSIVE ANALYSIS - OVERALL RECOMMANDATIONS */}
-            <p style={docxStyles.sectionHeader}>CONCLUSIVE ANALYSIS - OVERALL RECOMMANDATIONS</p>
+            {/* CONCLUSIVE ANALYSIS OVERALL - Title Page */}
+            <div style={{textAlign: 'center', padding: '80px 0', minHeight: '200px'}}>
+              <p style={{fontSize: '24px', fontWeight: 'bold'}}>CONCLUSIVE ANALYSIS OVERALL</p>
+            </div>
+
+            {/* PAGE BREAK INDICATOR - Page 4: RECOMMANDATIONS OVERALL */}
+            <div style={{borderTop: '2px dashed #ccc', margin: '30px 0', textAlign: 'center', color: '#999', fontSize: '11px', padding: '5px 0'}}>
+              — Page 4 —
+            </div>
+            
+            {/* RECOMMANDATIONS OVERALL - Title Page */}
+            <div style={{textAlign: 'center', padding: '80px 0', minHeight: '200px'}}>
+              <p style={{fontSize: '24px', fontWeight: 'bold'}}>RECOMMANDATIONS OVERALL</p>
+            </div>
+
+            {/* PAGE BREAK INDICATOR - Page 5: Content */}
+            <div style={{borderTop: '2px dashed #ccc', margin: '30px 0', textAlign: 'center', color: '#999', fontSize: '11px', padding: '5px 0'}}>
+              — Page 5 —
+            </div>
             
             <p style={{fontWeight: 'bold', fontSize: '13px', margin: '15px 0'}}>OVERALL Research and Verifications performed include some of the following:</p>
             
@@ -333,9 +357,9 @@ export function AdminReportPage() {
               <li style={docxStyles.bulletItem}>Keep your offline life grounded and intact. If you wish further analyzing of this profile, please provide us with more personal details such as extended family information, presumed previous occupations and subsequent history on your next request.</li>
             </ul>
 
-            {/* PAGE BREAK INDICATOR */}
+            {/* PAGE BREAK INDICATOR - Footer */}
             <div style={{borderTop: '2px dashed #ccc', margin: '30px 0', textAlign: 'center', color: '#999', fontSize: '11px', padding: '5px 0'}}>
-              — Page 3 —
+              — Page 6 —
             </div>
 
             {/* FOOTER */}

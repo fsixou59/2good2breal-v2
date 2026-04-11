@@ -2163,15 +2163,41 @@ def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
             for rec in default_recs:
                 doc.add_paragraph(rec, style='List Bullet')
     
-    # Page break before Conclusive Analysis
+    # Page break before Conclusive Analysis - POINTS (blank title page)
     doc.add_page_break()
     
-    # ====== CONCLUSIVE ANALYSIS - POINTS ======
-    add_section_header("CONCLUSIVE ANALYSIS - POINTS")
+    # ====== PAGE: CONCLUSIVE ANALYSIS - POINTS ======
+    # Title centered on blank page
+    points_title = doc.add_paragraph()
+    points_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    points_run = points_title.add_run("CONCLUSIVE ANALYSIS - POINTS")
+    points_run.bold = True
+    points_run.font.size = Pt(24)
     
-    # ====== CONCLUSIVE ANALYSIS - OVERALL RECOMMANDATIONS ======
-    add_section_header("CONCLUSIVE ANALYSIS - OVERALL RECOMMANDATIONS")
+    # Page break before Conclusive Analysis Overall (blank title page)
+    doc.add_page_break()
     
+    # ====== PAGE: CONCLUSIVE ANALYSIS OVERALL ======
+    overall_title = doc.add_paragraph()
+    overall_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    overall_run = overall_title.add_run("CONCLUSIVE ANALYSIS OVERALL")
+    overall_run.bold = True
+    overall_run.font.size = Pt(24)
+    
+    # Page break before Recommandations Overall (blank title page)
+    doc.add_page_break()
+    
+    # ====== PAGE: RECOMMANDATIONS OVERALL ======
+    reco_title = doc.add_paragraph()
+    reco_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    reco_run = reco_title.add_run("RECOMMANDATIONS OVERALL")
+    reco_run.bold = True
+    reco_run.font.size = Pt(24)
+    
+    # Page break before content
+    doc.add_page_break()
+    
+    # ====== CONTENT PAGE: Research and Verifications ======
     # Subtitle: OVERALL Research and Verifications...
     overall_para = doc.add_paragraph()
     overall_run = overall_para.add_run("OVERALL Research and Verifications performed include some of the following:")
