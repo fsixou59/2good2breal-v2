@@ -1743,11 +1743,18 @@ export const AnalyzePage = () => {
               </div>
 
               {!acceptedTerms && (
-                <p className="text-center text-amber-400 text-sm">
-                  {isFr 
-                    ? "Veuillez accepter les conditions générales pour continuer."
-                    : "Please accept the terms and conditions to continue."}
-                </p>
+                <div className="text-center text-sm space-y-1">
+                  <p className="text-amber-400">
+                    {isFr 
+                      ? "Veuillez accepter les conditions générales pour continuer."
+                      : "Please accept the terms and conditions to continue."}
+                  </p>
+                  <p className="text-zinc-400">
+                    {isFr
+                      ? 'Si vous souhaitez une impression, veuillez cliquer sur "Print" avant la "Profile Submission".'
+                      : 'If you require a print out, please click on "Print" prior to the "Profile Submission".'}
+                  </p>
+                </div>
               )}
             </>
           )}
