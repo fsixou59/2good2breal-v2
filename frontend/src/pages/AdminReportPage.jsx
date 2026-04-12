@@ -400,7 +400,7 @@ export function AdminReportPage() {
             
             <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>1. Platform Analysis</span> Intense scrutinizing of all platforms used by 'the profile' in the past and present.</p>
             <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>2. Occupation Verification</span> Resourcing and authenticating profile's occupation via one on one discrete and direct communication means. Access to occupation and / or company official website through various complex and often unattainable platforms. Intense cross-checking of the profile's email addresses and user names worldwide.</p>
-            <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>3. Photo Identification</span> Photo identification via cross-checking of multiple image databases and reverse image search platforms. Detection and screening for multiple and stolen identities.</p>
+            <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>3. Photo Identification</span> Photo identification via cross-checking of multiple image databases and reverse image search platforms. Detection and screening for multiple and stolen identities. Research and confirmation of all Profile Platforms, Locations and Residencies previously and in use today.</p>
             <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>4. Location Verification</span> Verification of locations such as photo venues, background images and sceneries relating to where the profile claims to be or reside.</p>
             <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>5. Location Cross Referencing</span> Cross referencing of all the profile's locations and personal details to detect any mismatched information.</p>
             <p style={docxStyles.numberedItem}><span style={{fontWeight: 'bold'}}>6. Photo Authenticity</span> Clarity and authenticity of all photos provided by you and of those 2good2breal gains access to via websites, apps, platforms and other means.</p>
@@ -617,7 +617,7 @@ export function AdminReportPage() {
               
               <div className="pr-list-item">
                 <p style={{margin: 0, fontWeight: 'bold', color: '#a553be'}}>3. Photo Identification</p>
-                <p style={{margin: '8px 0 0 0'}}>Photo identification via cross-checking of multiple image databases and reverse image search platforms. Detection and screening for multiple and stolen identities.</p>
+                <p style={{margin: '8px 0 0 0'}}>Photo identification via cross-checking of multiple image databases and reverse image search platforms. Detection and screening for multiple and stolen identities.<br/>Research and confirmation of all Profile Platforms, Locations and Residencies previously and in use today.</p>
               </div>
               
               <div className="pr-list-item">

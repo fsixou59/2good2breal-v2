@@ -1162,18 +1162,72 @@ export const AnalyzePage = () => {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="date_of_birth" className="text-zinc-300">
+                      <Label className="text-zinc-300">
                         {isFr ? "Date de naissance" : "Date of Birth"}
                       </Label>
-                      <Input
-                        id="date_of_birth"
-                        type="text"
-                        placeholder="DD/MM/YYYY"
-                        value={formData.date_of_birth}
-                        onChange={(e) => handleChange('date_of_birth', e.target.value)}
-                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
-                        data-testid="input-dob"
-                      />
+                      <div className="grid grid-cols-3 gap-2">
+                        <Select
+                          value={formData.date_of_birth ? formData.date_of_birth.split('/')[0] : ''}
+                          onValueChange={(day) => {
+                            const parts = (formData.date_of_birth || '//').split('/');
+                            handleChange('date_of_birth', `${day}/${parts[1] || ''}/${parts[2] || ''}`);
+                          }}
+                        >
+                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="dob-day">
+                            <SelectValue placeholder={isFr ? "Jour" : "Day"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({length: 31}, (_, i) => i + 1).map(d => (
+                              <SelectItem key={d} value={String(d).padStart(2, '0')}>{String(d).padStart(2, '0')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={formData.date_of_birth ? formData.date_of_birth.split('/')[1] : ''}
+                          onValueChange={(month) => {
+                            const parts = (formData.date_of_birth || '//').split('/');
+                            handleChange('date_of_birth', `${parts[0] || ''}/${month}/${parts[2] || ''}`);
+                          }}
+                        >
+                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="dob-month">
+                            <SelectValue placeholder={isFr ? "Mois" : "Month"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[
+                              {v: '01', l: isFr ? 'Janvier' : 'January'},
+                              {v: '02', l: isFr ? 'Février' : 'February'},
+                              {v: '03', l: isFr ? 'Mars' : 'March'},
+                              {v: '04', l: isFr ? 'Avril' : 'April'},
+                              {v: '05', l: isFr ? 'Mai' : 'May'},
+                              {v: '06', l: isFr ? 'Juin' : 'June'},
+                              {v: '07', l: isFr ? 'Juillet' : 'July'},
+                              {v: '08', l: isFr ? 'Août' : 'August'},
+                              {v: '09', l: isFr ? 'Septembre' : 'September'},
+                              {v: '10', l: isFr ? 'Octobre' : 'October'},
+                              {v: '11', l: isFr ? 'Novembre' : 'November'},
+                              {v: '12', l: isFr ? 'Décembre' : 'December'}
+                            ].map(m => (
+                              <SelectItem key={m.v} value={m.v}>{m.l}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={formData.date_of_birth ? formData.date_of_birth.split('/')[2] : ''}
+                          onValueChange={(year) => {
+                            const parts = (formData.date_of_birth || '//').split('/');
+                            handleChange('date_of_birth', `${parts[0] || ''}/${parts[1] || ''}/${year}`);
+                          }}
+                        >
+                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="dob-year">
+                            <SelectValue placeholder={isFr ? "Année" : "Year"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({length: 80}, (_, i) => new Date().getFullYear() - i).map(y => (
+                              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="assumed_age" className="text-zinc-300">
@@ -1446,32 +1500,140 @@ export const AnalyzePage = () => {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="profile_creation_date" className="text-zinc-300">
+                      <Label className="text-zinc-300">
                         {isFr ? "Date de création du profil" : "Profile Creation Date"}
                       </Label>
-                      <Input
-                        id="profile_creation_date"
-                        type="text"
-                        placeholder="DD/MM/YYYY"
-                        value={formData.profile_creation_date}
-                        onChange={(e) => handleChange('profile_creation_date', e.target.value)}
-                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
-                        data-testid="input-creation-date"
-                      />
+                      <div className="grid grid-cols-3 gap-2">
+                        <Select
+                          value={formData.profile_creation_date ? formData.profile_creation_date.split('/')[0] : ''}
+                          onValueChange={(day) => {
+                            const parts = (formData.profile_creation_date || '//').split('/');
+                            handleChange('profile_creation_date', `${day}/${parts[1] || ''}/${parts[2] || ''}`);
+                          }}
+                        >
+                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="creation-date-day">
+                            <SelectValue placeholder={isFr ? "Jour" : "Day"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({length: 31}, (_, i) => i + 1).map(d => (
+                              <SelectItem key={d} value={String(d).padStart(2, '0')}>{String(d).padStart(2, '0')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={formData.profile_creation_date ? formData.profile_creation_date.split('/')[1] : ''}
+                          onValueChange={(month) => {
+                            const parts = (formData.profile_creation_date || '//').split('/');
+                            handleChange('profile_creation_date', `${parts[0] || ''}/${month}/${parts[2] || ''}`);
+                          }}
+                        >
+                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="creation-date-month">
+                            <SelectValue placeholder={isFr ? "Mois" : "Month"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[
+                              {v: '01', l: isFr ? 'Janvier' : 'January'},
+                              {v: '02', l: isFr ? 'Février' : 'February'},
+                              {v: '03', l: isFr ? 'Mars' : 'March'},
+                              {v: '04', l: isFr ? 'Avril' : 'April'},
+                              {v: '05', l: isFr ? 'Mai' : 'May'},
+                              {v: '06', l: isFr ? 'Juin' : 'June'},
+                              {v: '07', l: isFr ? 'Juillet' : 'July'},
+                              {v: '08', l: isFr ? 'Août' : 'August'},
+                              {v: '09', l: isFr ? 'Septembre' : 'September'},
+                              {v: '10', l: isFr ? 'Octobre' : 'October'},
+                              {v: '11', l: isFr ? 'Novembre' : 'November'},
+                              {v: '12', l: isFr ? 'Décembre' : 'December'}
+                            ].map(m => (
+                              <SelectItem key={m.v} value={m.v}>{m.l}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={formData.profile_creation_date ? formData.profile_creation_date.split('/')[2] : ''}
+                          onValueChange={(year) => {
+                            const parts = (formData.profile_creation_date || '//').split('/');
+                            handleChange('profile_creation_date', `${parts[0] || ''}/${parts[1] || ''}/${year}`);
+                          }}
+                        >
+                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="creation-date-year">
+                            <SelectValue placeholder={isFr ? "Année" : "Year"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({length: 30}, (_, i) => new Date().getFullYear() - i).map(y => (
+                              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="last_active" className="text-zinc-300">
+                      <Label className="text-zinc-300">
                         {isFr ? "Dernière communication/rencontre" : "Last communication/meeting"}
                       </Label>
-                      <Input
-                        id="last_active"
-                        type="text"
-                        placeholder="DD/MM/YYYY"
-                        value={formData.last_active}
-                        onChange={(e) => handleChange('last_active', e.target.value)}
-                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
-                        data-testid="input-last-active"
-                      />
+                      <div className="grid grid-cols-3 gap-2">
+                        <Select
+                          value={formData.last_active ? formData.last_active.split('/')[0] : ''}
+                          onValueChange={(day) => {
+                            const parts = (formData.last_active || '//').split('/');
+                            handleChange('last_active', `${day}/${parts[1] || ''}/${parts[2] || ''}`);
+                          }}
+                        >
+                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="last-active-day">
+                            <SelectValue placeholder={isFr ? "Jour" : "Day"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({length: 31}, (_, i) => i + 1).map(d => (
+                              <SelectItem key={d} value={String(d).padStart(2, '0')}>{String(d).padStart(2, '0')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={formData.last_active ? formData.last_active.split('/')[1] : ''}
+                          onValueChange={(month) => {
+                            const parts = (formData.last_active || '//').split('/');
+                            handleChange('last_active', `${parts[0] || ''}/${month}/${parts[2] || ''}`);
+                          }}
+                        >
+                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="last-active-month">
+                            <SelectValue placeholder={isFr ? "Mois" : "Month"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[
+                              {v: '01', l: isFr ? 'Janvier' : 'January'},
+                              {v: '02', l: isFr ? 'Février' : 'February'},
+                              {v: '03', l: isFr ? 'Mars' : 'March'},
+                              {v: '04', l: isFr ? 'Avril' : 'April'},
+                              {v: '05', l: isFr ? 'Mai' : 'May'},
+                              {v: '06', l: isFr ? 'Juin' : 'June'},
+                              {v: '07', l: isFr ? 'Juillet' : 'July'},
+                              {v: '08', l: isFr ? 'Août' : 'August'},
+                              {v: '09', l: isFr ? 'Septembre' : 'September'},
+                              {v: '10', l: isFr ? 'Octobre' : 'October'},
+                              {v: '11', l: isFr ? 'Novembre' : 'November'},
+                              {v: '12', l: isFr ? 'Décembre' : 'December'}
+                            ].map(m => (
+                              <SelectItem key={m.v} value={m.v}>{m.l}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={formData.last_active ? formData.last_active.split('/')[2] : ''}
+                          onValueChange={(year) => {
+                            const parts = (formData.last_active || '//').split('/');
+                            handleChange('last_active', `${parts[0] || ''}/${parts[1] || ''}/${year}`);
+                          }}
+                        >
+                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="last-active-year">
+                            <SelectValue placeholder={isFr ? "Année" : "Year"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({length: 30}, (_, i) => new Date().getFullYear() - i).map(y => (
+                              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

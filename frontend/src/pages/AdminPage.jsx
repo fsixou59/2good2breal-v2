@@ -671,6 +671,7 @@ function AnalysisRow(props) {
             <h3 style="color: #7c3aed; font-size: 14px; margin-bottom: 8px;">3. Photo Identification</h3>
             <p style="font-size: 12px; color: #333; line-height: 1.6;">Photo identification via cross-checking of multiple image databases and reverse image search platforms.</p>
             <p style="font-size: 12px; color: #333; line-height: 1.6;">Detection and screening for multiple and stolen identities.</p>
+            <p style="font-size: 12px; color: #333; line-height: 1.6;">Research and confirmation of all Profile Platforms, Locations and Residencies previously and in use today.</p>
           </div>
           
           <div style="background: #f9fafb; border-left: 4px solid #7c3aed; padding: 15px; margin-bottom: 15px;">

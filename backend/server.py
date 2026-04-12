@@ -1729,7 +1729,7 @@ async def download_submission_docx(analysis_id: str, admin: dict = Depends(get_a
     verifications = [
         ("1. Platform Analysis", "Intense scrutinizing of all platforms used by 'the profile' in the past and present."),
         ("2. Occupation Verification", "Resourcing and authenticating profile's occupation via one on one discrete and direct communication means.\n\nAccess to occupation and / or company official website through various complex and often unattainable platforms.\n\nIntense cross-checking of the profile's email addresses and user names worldwide."),
-        ("3. Photo Identification", "Photo identification via cross-checking of multiple image databases and reverse image search platforms.\n\nDetection and screening for multiple and stolen identities."),
+        ("3. Photo Identification", "Photo identification via cross-checking of multiple image databases and reverse image search platforms.\n\nDetection and screening for multiple and stolen identities.\n\nResearch and confirmation of all Profile Platforms, Locations and Residencies previously and in use today."),
         ("4. Location Verification", "Verification of locations such as photo venues, background images and sceneries relating to where the profile claims to be or reside."),
         ("5. Location Cross Referencing", "Cross referencing of all the profile's locations and personal details to detect any mismatched information."),
         ("6. Photo Authenticity", "Clarity and authenticity of all photos provided by you and of those 2good2breal gains access to via websites, apps, platforms and other means."),
@@ -2198,7 +2198,7 @@ def generate_report_docx(analysis: dict, admin_report: dict) -> bytes:
     verifications = [
         ("1. Platform Analysis", "Intense scrutinizing of all platforms used by 'the profile' in the past and present."),
         ("2. Occupation Verification", "Resourcing and authenticating profile's occupation via direct communication means."),
-        ("3. Photo Identification", "Photo identification via cross-checking of multiple image databases and reverse image search platforms."),
+        ("3. Photo Identification", "Photo identification via cross-checking of multiple image databases and reverse image search platforms.\n\nResearch and confirmation of all Profile Platforms, Locations and Residencies previously and in use today."),
         ("4. Location Verification", "Verification of locations such as photo venues, background images and sceneries."),
         ("5. Location Cross Referencing", "Cross referencing of all the profile's locations and personal details."),
         ("6. Photo Authenticity", "Clarity and authenticity of all photos provided by you and accessed via various means.")
@@ -2906,7 +2906,7 @@ def generate_acceptance_pdf(user_name: str, reference_id: str, package_type: str
     elements.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#e0e0e0'), spaceAfter=15))
     
     # Footer
-    elements.append(Paragraph("WhatsApp: +33 (0) 7 43 66 05 55 | Office: +33 (0) 7 67 92 55 45", footer_style))
+    elements.append(Paragraph("WhatsApp 1 : +33 (0) 7 43 66 05 55 | WhatsApp 2 : +33 (0) 7 67 92 55 45", footer_style))
     
     # Build PDF
     doc.build(elements)
@@ -3066,7 +3066,8 @@ async def send_client_acceptance_confirmation(user_email: str, user_name: str, r
                 </div>
                 
                 <div class="footer">
-                    <p>WhatsApp: +33 (0) 7 43 66 05 55 | Office: +33 (0) 7 67 92 55 45</p>
+                    <p>WhatsApp 1 : +33 (0) 7 43 66 05 55</p>
+                    <p>WhatsApp 2 : +33 (0) 7 67 92 55 45</p>
                 </div>
             </div>
         </body>
