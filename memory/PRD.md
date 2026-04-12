@@ -1,208 +1,46 @@
 # 2good2breal - Product Requirements Document
 
-## Project Overview
-**Name:** 2good2breal  
-**Type:** Dating Profile Verification Service  
-**Stack:** React Frontend + FastAPI Backend + MongoDB  
-**Last Updated:** April 11, 2026
-
-## Completed Work (April 11, 2026)
-
-### Final Report DOCX Template Overhaul ✅
-- **Rebuilt `generate_report_docx`** function in `backend/server.py` to match user's manual template exactly
-- **New format:** No tables, UPPERCASE section headers, "LABEL value" format on each line
-- **Sections implemented:**
-  - **Header**: 2good2breal, Profile Verification Service – Manual Report, Date
-  - **CLIENT INFORMATION**: NAME, EMAIL, AGE, LOCATION
-  - **PROFILE INFORMATION**: PROFILE NAME, FULL REAL NAME, GENDER, HEIGHT, NATIONALITY, SHARED LANGUAGE, MARITAL STATUS, HOBBIES / INTERESTS, UNIVERSITY / COLLEGE, YEAR/S OF ATTENDANCE / GRADUATION
-  - **PROFILE DETAILS**: DATE OF BIRTH, KNOWN AGE, LOCATION, PLATFORM, OCCUPATION, COMPANY NAME, COMPANY WEBSITE
-  - **ANALYSIS RESULTS**: Trust Score with risk level, SUMMARY, RED FLAGS DETECTED with category and severity
-  - **RECOMMENDATIONS**: AI recommendations as bullet list
-  - **CONCLUSIVE ANALYSIS - POINTS**: 7 numbered points describing verification methods
-  - **Footer**: Thank you message, Contact info, Report Reference, Legal disclaimer, Confidential notice
-- **Bug fixes:**
-  - Fixed user_name and user_email retrieval (was missing in download endpoint)
-  - Fixed red flags using `category` field instead of `type`
-  - Fixed `analysis_summary` field for SUMMARY section
-  - Fixed `language_of_communication` field for SHARED LANGUAGE
-
 ## Original Problem Statement
-A verification service website for dating profiles where users submit profiles for manual verification by an admin team. Features AI analysis (for admin eyes only) and comprehensive admin-side reporting tool to generate and send detailed manual analysis reports to clients.
+2good2breal is a dating profile verification service. Full-stack application (React frontend, FastAPI backend, MongoDB) allowing users to submit dating profiles for AI-driven verification (Gemini via Emergent LLM) and manual Admin review. Core features include an automated 4-step submission wizard, Stripe payments, Admin Dashboard, and PDF/DOCX report generation.
 
-## Core Features
+## User Personas
+- **Clients**: Users submitting dating profiles for verification. Need a simple wizard flow to enter profile data and upload photos.
+- **Admins**: Review submissions, generate customized DOCX/PDF verification reports, manage users.
 
-### User Features
-- Email/password authentication
-- Profile submission for verification
-- Credit-based payment system (Stripe)
-- Bilingual support (English/French)
-- Refund request form
+## Core Requirements
+1. 4-step client submission wizard (Information, Photos/Details, Activity, Observations)
+2. AI-powered profile analysis (Gemini)
+3. Admin dashboard with print, PDF, DOCX generation
+4. Stripe payment integration for credit packages
+5. Email notifications (Resend) with acceptance confirmation + PDF attachment
+6. Multi-language support (EN/FR)
 
-### Admin Features
-- Separate admin login (credentials from environment variables)
-- Dashboard to view all submissions with AI scores
-- Multi-page printable manual report creation
-- Email reports to clients
+## Architecture
+- Frontend: React + Tailwind + Shadcn/UI
+- Backend: FastAPI (monolithic server.py ~3700 lines)
+- Database: MongoDB
+- Integrations: Stripe, Resend, Gemini (Emergent LLM Key)
 
-### Integrations
-- **Resend:** Email notifications
-- **Stripe:** Payment processing
-- **Gemini 3 Flash:** AI analysis (Emergent LLM Key)
+## What's Been Implemented
+- Full submission wizard with date dropdowns (Day/Month/Year) for DOB, Profile Creation Date, Last Active
+- Admin dashboard with expandable submissions, print, PDF, DOCX download
+- Customized 7-page DOCX final report with 2-column tables, logos, rating scale images
+- Visual DOCX preview in AdminReportPage.jsx
+- XSS-safe print functionality (iframe srcdoc approach)
+- Acceptance email with WhatsApp 1 & WhatsApp 2 numbers
+- Photo Identification section includes "Research and confirmation of all Profile Platforms, Locations and Residencies" text
+- Cookie consent banner
+- Admin print form includes all fields (marital status, university, hobbies, graduation years)
 
-## Completed Work (April 8, 2026)
-
-### Password Reset Feature ✅
-- **Backend endpoints added:**
-  - `POST /api/auth/forgot-password` - Sends reset email with unique token
-  - `POST /api/auth/reset-password` - Resets password using token
-  - `GET /api/auth/verify-reset-token/{token}` - Validates reset token
-- **Frontend pages added:**
-  - `ForgotPasswordPage` - Form to request password reset
-  - `ResetPasswordPage` - Form to set new password
-- **Features:**
-  - Token expires after 1 hour for security
-  - Email sent via Resend with branded template
-  - Bilingual support (English/French)
-  - "Forgot password?" link on login page
-
-## Completed Work (April 7, 2026)
-
-### Admin Print Layout Alignment ✅
-- **Unified Print Layout** - Admin's "Print Submission" now matches Client's form print layout exactly
-- **Underlined Section Titles** - All section headers use consistent underlined styling (.section-title with text-decoration: underline)
-- **Field Order Corrected** - NAME appears before EMAIL in CLIENT INFORMATION section
-- **New Form Fields Added:**
-  - Assumed Marital Status
-  - Hobbies / Interests
-  - University / College
-  - Year/s of Attendance
-- **Payload Updated** - New fields are now included in the submission payload to backend
-
-### AI Analysis in Print ✅
-- **AI Analysis Section** now included in Admin "Print Submission" output:
-  - Trust Score display (large, color-coded: red < 40, yellow 40-70, green > 70)
-  - Trust Level badge (VERY LOW, LOW, MEDIUM, HIGH)
-  - AI Summary text
-  - Red Flags Detected with count and severity badges (HIGH=red, MEDIUM=orange, LOW=yellow)
-  - Individual recommendations per red flag
-  - AI Recommendations list
-
-### Photos in Print ✅
-- **Uploaded Photos** now included in Admin "Print Submission" output:
-  - Photos displayed in 2-column grid layout
-  - Photo names shown below each image
-  - Max height 250px per photo for proper page fitting
-  - Page break prevention for photos section
-
-### Previous Work (April 6, 2026)
-
-### UI/UX Changes
-- **Renamed "Analyze Profile" to "Profile Submission"** across all pages and translations
-- **Reorganized submission form into 4 pages:**
-  - Page 1: Client Info + Basic Info (ends with Nationality/Language)
-  - Page 2: Profile Details + Photos (photo box reduced 50%)
-  - Page 3: Activity Information (photos info, social media, activity)
-  - Page 4: Communication + Observations + Terms
-- **Updated acceptance letter** to show only client's first name after "Dear"
-- **Added progress indicator** with clickable steps
-
-### Admin Report Enhancements
-- **Added DOCX format download** for admin reports (python-docx integration)
-- Admin can now choose between:
-  - **DOCX** - Editable Word document for manual customization
-  - **PDF** - Preview & Print for archival
-- DOCX includes all sections: Client Info, Profile Verified, Trust Score, Expert Analysis (editable), Recommendations
-
-### Bug Fixes
-- **Fixed AI Image Analysis** - Corrected `ImageContent` and `UserMessage` parameters for emergentintegrations library
-  - Changed `base64_data` to `image_base64` parameter
-  - Changed `content=[]` to `text=..., file_contents=[...]` for proper message format
-- **Fixed Admin Dashboard Photos Display** - Photos now correctly displayed from `form_data.photos`
-  - Backend `/admin/analyses` endpoint now properly retrieves photos from form_data
-
-### Previous Session Work (March-April 2026)
-
-### Deployment Fixes
-- Improved MongoDB connection with Atlas-compatible settings
-- Added retry logic and better timeout configurations
-- Added startup event for database connection verification
-- Multiple health check endpoints (`/`, `/health`, `/api/`, `/api/health`)
-
-### Landing Page Updates
-- Phone numbers now clickable with `tel:` links
-- Added physical address: "2good2breal, 75008 Paris, France"
-- Contact section fully formatted with WhatsApp and Office Line
-
-### Previous Session Work (March 7-11, 2026)
-- Admin Report finalization with extensive text/styling changes
-- Refund system implementation (form, API, email notifications)
-- SEO implementation (meta tags, JSON-LD, sitemap.xml, robots.txt)
-- Purple branding overhaul with new logo
-- FAQ page created
-- Legal pages updated (CGV, Terms, Cookies)
-- Security fix: Admin credentials moved to environment variables
-
-## File Structure
-```
-/app/
-├── backend/
-│   ├── server.py          # Main FastAPI backend (monolithic - needs refactoring)
-│   └── .env               # Environment variables
-└── frontend/
-    ├── public/
-    │   ├── logo.png       # Purple logo
-    │   ├── sitemap.xml    # SEO sitemap
-    │   ├── robots.txt     # SEO robots
-    │   └── manifest.json  # PWA manifest
-    └── src/
-        ├── components/
-        │   ├── Navbar.jsx
-        │   └── CookieConsent.jsx  # (Unstable - needs rebuild)
-        └── pages/
-            ├── AdminPage.jsx
-            ├── AdminReportPage.jsx
-            ├── AnalyzePage.jsx
-            ├── AuthPages.jsx
-            ├── CGVPage.jsx
-            ├── CookiesPage.jsx
-            ├── DashboardPage.jsx
-            ├── FAQPage.jsx
-            ├── LandingPage.jsx
-            ├── PricingPage.jsx
-            ├── RefundRequestPage.jsx
-            ├── ResultsPage.jsx    # (Obsolete - to be deleted)
-            └── TermsPage.jsx
-```
-
-## Database Schema
-- **users:** {email, password, username, created_at, credits}
-- **analyses:** {user_id, status, submission_date, form_data, ai_analysis, admin_report}
-- **refund_requests:** {username, email, order_ref, iban, reason, submission_date}
-
-## Deployment Status
-✅ **DEPLOYMENT READY**
-- MongoDB connection improved with Atlas-compatible settings
-- Multiple health check endpoints for Kubernetes probes
-- Startup event for connection verification
-- All environment variables properly configured
+## Prioritized Backlog
+### P0 (None currently)
+### P1
+- Security: Move auth tokens from localStorage to HttpOnly cookies
+- Resend Domain DNS Verification (waiting for OVH/Resend DNS propagation)
+### P2
+- Refactor server.py (~3700 lines) into modular FastAPI routers
+- Refactor AnalyzePage.jsx (1800+ lines) into sub-components
+- Refactor AdminPage.jsx (1010+ lines) into sub-components
 
 ## Known Issues
-- Cookie consent banner has been unstable (multiple runtime errors) - needs stable rebuild
-- Frontend compilation fragility with babel-metadata-plugin on large JSX files
-- **Resend DNS Verification Pending** - SPF/DKIM records for `send.2good2breal.com` awaiting OVH DNS propagation
-- **XSS Vulnerabilities in Print Functions** - `document.write` usage in AnalyzePage.jsx and AdminPage.jsx needs refactoring
-
-## Backlog / Future Tasks
-- **P1:** Fix XSS vulnerabilities in print functions (document.write usage)
-- **P1:** Verify Resend domain DNS propagation and complete verification (blocked on OVH support)
-- **P1:** Redeploy Vercel frontend to include latest changes
-- **P1:** Rebuild cookie consent banner with stable implementation
-- **P1:** End-to-end test of all major flows on production
-- **P2:** Enhance DashboardPage.jsx with submission history
-- **P2:** Refactor backend/server.py into modular structure (routers for auth, analysis, admin, refund)
-- **P3:** Remove obsolete ResultsPage.jsx
-- **P3:** Implement FiltersPage.jsx functionality
-
-## Credentials
-- **Admin:** Login via "Admin Access" button - credentials in backend/.env
-- **Test User:** Register new user and purchase credits
+- Users testing on Vercel production before pushing to GitHub report false "bugs" (stale cache). Must use preview URL for testing, then Save to GitHub and redeploy Vercel.
