@@ -419,6 +419,23 @@ export const LandingPage = () => {
         </div>
       </section>
 
+      {/* Summer Romance Promotional Banner */}
+      <section className="py-16 bg-zinc-950">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div 
+            className="relative rounded-3xl overflow-hidden cursor-pointer group shadow-2xl shadow-purple-900/20"
+            onClick={handleGetStarted}
+            data-testid="summer-promo-banner"
+          >
+            <img 
+              src="https://customer-assets.emergentagent.com/job_3b0bb19a-dfb7-4f27-b093-a7f016f93d48/artifacts/tlswcuue_pomelli_creative_image_9_16_0413%20%284%29.png"
+              alt="Safeguard Your Summer Romance - Verify Discreetly"
+              className="w-full h-auto transition-transform duration-700 group-hover:scale-[1.02]"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials Section */}
       <section className="py-20 sm:py-24 bg-zinc-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
