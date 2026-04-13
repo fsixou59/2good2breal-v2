@@ -2887,7 +2887,7 @@ def generate_acceptance_pdf(user_name: str, reference_id: str, package_type: str
     ))
     
     elements.append(Paragraph(
-        "For any queries you may have in the meantime, please email or call us directly during business hours.",
+        "For any queries you may have in the meantime, please email or send us a brief message via Whatsapp.",
         normal_style
     ))
     
@@ -3050,7 +3050,7 @@ async def send_client_acceptance_confirmation(user_email: str, user_name: str, r
                     
                     <p>Once your <strong>{package_display}</strong> report has been thoroughly and conclusively completed by us, we will email it to you. Typically, this will be within 48 hours.</p>
                     
-                    <p>For any queries you may have in the meantime, please email or call us directly during business hours.</p>
+                    <p>For any queries you may have in the meantime, please email or send us a brief message via Whatsapp.</p>
                 </div>
                 
                 <div class="signature">
