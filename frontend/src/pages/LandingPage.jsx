@@ -428,7 +428,7 @@ export const LandingPage = () => {
             data-testid="summer-promo-banner"
           >
             <img 
-              src="https://customer-assets.emergentagent.com/job_3b0bb19a-dfb7-4f27-b093-a7f016f93d48/artifacts/tlswcuue_pomelli_creative_image_9_16_0413%20%284%29.png"
+              src="/summer-promo.jpg"
               alt="Safeguard Your Summer Romance - Verify Discreetly"
               className="w-full h-auto transition-transform duration-700 group-hover:scale-[1.02]"
             />
