@@ -123,17 +123,46 @@ api_router = APIRouter(prefix="/api")
 
 @app.on_event("startup")
 async def startup_event():
-    """Startup event to verify database connection."""
+    """Startup event to verify database connection and seed admin."""
     logger.info("Starting 2good2breal API server...")
     if db is not None:
         try:
             # Test database connection
             await db.command('ping')
             logger.info("Database connection verified successfully")
+            
+            # Seed admin user in MongoDB
+            await seed_admin_user()
         except Exception as e:
             logger.warning(f"Database ping failed during startup (non-blocking): {e}")
     else:
         logger.warning("Database not configured - some features may not work")
+
+
+async def seed_admin_user():
+    """Ensure admin user exists in MongoDB. Create or update if env vars changed."""
+    admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
+    admin_password = os.environ.get('ADMIN_PASSWORD', 'admin2026')
+    
+    existing = await db.admin_users.find_one({"username": admin_username})
+    if existing is None:
+        hashed = hash_password(admin_password)
+        await db.admin_users.insert_one({
+            "username": admin_username,
+            "password_hash": hashed,
+            "created_at": datetime.now(timezone.utc)
+        })
+        logger.info(f"Admin user '{admin_username}' seeded in database")
+    else:
+        # Update password hash if env var changed
+        if not verify_password(admin_password, existing["password_hash"]):
+            await db.admin_users.update_one(
+                {"username": admin_username},
+                {"$set": {"password_hash": hash_password(admin_password)}}
+            )
+            logger.info(f"Admin user '{admin_username}' password updated in database")
+        else:
+            logger.info(f"Admin user '{admin_username}' already exists with correct password")
 
 # Security
 security = HTTPBearer()
@@ -1010,8 +1039,9 @@ async def get_admin_user(credentials: HTTPAuthorizationCredentials = Depends(sec
 
 @api_router.post("/admin/login", response_model=AdminTokenResponse)
 async def admin_login(credentials: AdminLogin):
-    """Admin login endpoint."""
-    if credentials.username != ADMIN_USERNAME or credentials.password != ADMIN_PASSWORD:
+    """Admin login endpoint - verifies against MongoDB."""
+    admin = await db.admin_users.find_one({"username": credentials.username})
+    if not admin or not verify_password(credentials.password, admin["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid admin credentials")
     
     token = create_admin_token()
