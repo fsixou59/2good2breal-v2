@@ -223,7 +223,8 @@ export const LoginPage = () => {
 };
 
 export const RegisterPage = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isFr = language === 'fr';
   const { register } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -243,7 +244,12 @@ export const RegisterPage = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error('Register error:', error);
-      toast.error(error.response?.data?.detail || t('common.error'));
+      const detail = error.response?.data?.detail;
+      if (detail === "Email already registered") {
+        toast.error(isFr ? "Cet email est déjà enregistré. Connectez-vous ou utilisez un autre email." : "This email is already registered. Please sign in or use a different email.");
+      } else {
+        toast.error(detail || (isFr ? "Une erreur s'est produite lors de l'inscription. Veuillez réessayer." : "An error occurred during registration. Please try again."));
+      }
     } finally {
       setLoading(false);
     }
