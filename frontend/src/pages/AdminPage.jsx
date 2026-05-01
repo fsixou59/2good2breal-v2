@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Shield, FileText, Clock, CheckCircle, Eye, LogOut, ChevronDown, ChevronUp, AlertTriangle, RefreshCw, User, Send, Printer, Trash2, Download, FileDown } from 'lucide-react';
+import { Shield, FileText, Clock, CheckCircle, Eye, LogOut, ChevronDown, ChevronUp, AlertTriangle, RefreshCw, User, Send, Printer, Trash2, Download, FileDown, Search, ExternalLink } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 
@@ -844,6 +844,7 @@ export function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState('submissions');
 
   useEffect(function() {
     const token = localStorage.getItem('admin_token');
@@ -976,6 +977,25 @@ export function AdminPage() {
           </Card>
         </div>
 
+        {/* Tabs */}
+        <div className="flex gap-1 mb-6 bg-zinc-900/50 border border-zinc-800 rounded-xl p-1">
+          <button
+            onClick={function() { setActiveTab('submissions'); }}
+            className={'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ' + (activeTab === 'submissions' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-white hover:bg-zinc-800')}
+            data-testid="tab-submissions"
+          >
+            <FileText className="w-4 h-4" /> Profile Submissions
+          </button>
+          <button
+            onClick={function() { setActiveTab('seeker'); }}
+            className={'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ' + (activeTab === 'seeker' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-white hover:bg-zinc-800')}
+            data-testid="tab-profile-seeker"
+          >
+            <Search className="w-4 h-4" /> Profile Seeker
+          </button>
+        </div>
+
+        {activeTab === 'submissions' && (
         <Card className="bg-zinc-900/50 border-zinc-800">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
@@ -1002,6 +1022,46 @@ export function AdminPage() {
             )}
           </CardContent>
         </Card>
+        )}
+
+        {activeTab === 'seeker' && (
+        <Card className="bg-zinc-900/50 border-zinc-800">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-white flex items-center gap-2">
+                <Search className="w-5 h-5 text-purple-400" /> Profile Seeker
+              </CardTitle>
+              <Button
+                onClick={function() { window.open('https://profile-finder-64.emergentagent.host', '_blank'); }}
+                className="bg-purple-600 hover:bg-purple-500"
+                data-testid="open-profile-seeker"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" /> Open in New Tab
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-16 space-y-4">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-purple-500/20 flex items-center justify-center">
+                <Search className="w-8 h-8 text-purple-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white">ProfileSeeker Admin Tool</h3>
+              <p className="text-zinc-400 max-w-md mx-auto">
+                Search and investigate dating profiles across platforms. Open the tool in a dedicated tab for the best experience.
+              </p>
+              <Button
+                onClick={function() { window.open('https://profile-finder-64.emergentagent.host', '_blank'); }}
+                size="lg"
+                className="bg-purple-600 hover:bg-purple-500 mt-4"
+                data-testid="launch-profile-seeker"
+              >
+                <Search className="w-5 h-5 mr-2" /> Launch Profile Seeker
+                <ExternalLink className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        )}
       </div>
     </div>
   );
