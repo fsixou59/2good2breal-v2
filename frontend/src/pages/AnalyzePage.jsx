@@ -33,7 +33,8 @@ import {
   Printer,
   ChevronRight,
   ChevronLeft,
-  Check
+  Check,
+  CheckCircle
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -248,7 +249,7 @@ export const AnalyzePage = () => {
         company_website: formData.company_website,
         profile_location: formData.profile_location,
         dating_platform: formData.dating_platform,
-        profile_photos_count: formData.profile_photos_count ? parseInt(formData.profile_photos_count) : photos.length,
+        profile_photos_count: formData.profile_photos_count || String(photos.length),
         has_verified_photos: formData.has_verified_photos,
         social_media_links: formData.social_media_links,
         profile_creation_date: formData.profile_creation_date,
@@ -611,7 +612,21 @@ export const AnalyzePage = () => {
     : ['Information', 'Photos', 'Activity', 'Observations'];
 
   // Submission Confirmation Page (Acceptance Letter)
-  if (submissionComplete && submissionData) {
+  if (submissionComplete) {
+    if (!submissionData) {
+      return (
+        <div className="min-h-screen bg-zinc-950 pt-20 pb-12 flex items-center justify-center">
+          <div className="text-center">
+            <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-2">{isFr ? 'Soumission réussie !' : 'Submission Successful!'}</h2>
+            <p className="text-zinc-400 mb-6">{isFr ? 'Votre profil a été soumis avec succès.' : 'Your profile has been submitted successfully.'}</p>
+            <Button onClick={() => navigate('/dashboard')} className="bg-purple-600 hover:bg-purple-500">
+              {isFr ? 'Retour au tableau de bord' : 'Back to Dashboard'}
+            </Button>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen bg-zinc-950 pt-20 pb-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
