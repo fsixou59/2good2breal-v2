@@ -215,6 +215,10 @@ class ProfileAnalysisRequest(BaseModel):
     height: Optional[str] = ""
     nationality: Optional[str] = ""
     language_of_communication: Optional[str] = ""
+    assumed_marital_status: Optional[str] = ""
+    hobbies_interests: Optional[str] = ""
+    university_college: Optional[str] = ""
+    years_attendance: Optional[str] = ""
     profile_bio: Optional[str] = ""
     date_of_birth: Optional[str] = ""
     assumed_age: Optional[str] = ""
@@ -222,7 +226,7 @@ class ProfileAnalysisRequest(BaseModel):
     occupation: Optional[str] = ""
     company_name: Optional[str] = ""
     company_website: Optional[str] = ""
-    profile_photos_count: Optional[int] = 0
+    profile_photos_count: Optional[str] = ""
     has_verified_photos: Optional[bool] = False
     social_media_links: Optional[str] = ""
     profile_creation_date: Optional[str] = ""
@@ -3158,13 +3162,16 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
     # Count photos
     photos_count = len(profile.photos) if profile.photos else 0
     
-    # Send form data by email to admin
-    await send_analysis_form_notification(
-        current_user["email"], 
-        current_user["name"], 
-        profile,
-        photos_count
-    )
+    # Send form data by email to admin (non-blocking - don't fail submission if email fails)
+    try:
+        await send_analysis_form_notification(
+            current_user["email"], 
+            current_user["name"], 
+            profile,
+            photos_count
+        )
+    except Exception as e:
+        logging.error(f"Non-blocking: Failed to send admin notification: {e}")
     
     result_id = str(uuid.uuid4())
     
@@ -3208,6 +3215,10 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
         "height": profile.height,
         "nationality": profile.nationality,
         "language_of_communication": profile.language_of_communication,
+        "assumed_marital_status": profile.assumed_marital_status,
+        "hobbies_interests": profile.hobbies_interests,
+        "university_college": profile.university_college,
+        "years_attendance": profile.years_attendance,
         "date_of_birth": profile.date_of_birth,
         "assumed_age": profile.assumed_age,
         "profile_location": profile.profile_location,
@@ -3238,18 +3249,21 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
         }
     )
     
-    # Send acceptance confirmation email to client
+    # Send acceptance confirmation email to client (non-blocking)
     # Use client_email if provided, otherwise fallback to user account email
     client_email = profile.client_email.strip() if profile.client_email else current_user["email"]
     if not client_email:
         client_email = current_user["email"]
     
-    await send_client_acceptance_confirmation(
-        client_email,
-        current_user["name"],
-        result_id,
-        credit_type
-    )
+    try:
+        await send_client_acceptance_confirmation(
+            client_email,
+            current_user["name"],
+            result_id,
+            credit_type
+        )
+    except Exception as e:
+        logging.error(f"Non-blocking: Failed to send acceptance email to {client_email}: {e}")
     
     logging.info(f"Analysis request submitted for user {current_user['email']}, acceptance sent to {client_email}, used 1 {credit_type} credit")
     
