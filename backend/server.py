@@ -343,7 +343,7 @@ async def send_registration_notification(user_name: str, user_email: str, user_p
         """
         
         params = {
-            "from": "2good2breal <onboarding@resend.dev>",
+            "from": "2good2breal <contact@2good2breal.com>",
             "to": [ADMIN_EMAIL],
             "subject": f"🆕 New Registration: {user_name}",
             "html": html_content
@@ -424,7 +424,7 @@ async def send_payment_confirmation_to_client(user_email: str, user_name: str, p
         """
         
         params = {
-            "from": "2good2breal <onboarding@resend.dev>",
+            "from": "2good2breal <contact@2good2breal.com>",
             "to": [user_email],
             "subject": f"✅ Payment Confirmed - {package_name} | 2good2breal",
             "html": html_content
@@ -901,7 +901,7 @@ async def forgot_password(request: ForgotPasswordRequest):
         reset_link = f"{frontend_url}/reset-password?token={reset_token}"
         
         params = {
-            "from": "2good2breal <onboarding@resend.dev>",
+            "from": "2good2breal <contact@2good2breal.com>",
             "to": [request.email],
             "subject": "Reset Your Password - 2good2breal",
             "html": f"""
@@ -2797,7 +2797,7 @@ async def send_analysis_form_notification(user_email: str, user_name: str, profi
         pdf_base64 = base64.b64encode(pdf_content).decode('utf-8')
         
         params = {
-            "from": "2good2breal <onboarding@resend.dev>",
+            "from": "2good2breal <contact@2good2breal.com>",
             "to": [ADMIN_EMAIL],
             "subject": f"📋 New Profile Submission: {profile.profile_name} - from {user_name}",
             "html": html_content,
@@ -3112,7 +3112,7 @@ async def send_client_acceptance_confirmation(user_email: str, user_name: str, r
         """
         
         params = {
-            "from": "2good2breal <onboarding@resend.dev>",
+            "from": "2good2breal <contact@2good2breal.com>",
             "to": [user_email],
             "subject": f"Acceptance of Submission - Reference #{reference_id[:8].upper()}",
             "html": html_content,
