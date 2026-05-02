@@ -815,8 +815,11 @@ async def register(user_data: UserRegister):
     await db.users.insert_one(user)
     token = create_token(user_id)
     
-    # Send email notification to admin (includes password for admin reference)
-    await send_registration_notification(user_data.name, user_data.email, user_data.password)
+    # Send email notification to admin (non-blocking - don't fail registration if email fails)
+    try:
+        await send_registration_notification(user_data.name, user_data.email, user_data.password)
+    except Exception as e:
+        logging.error(f"Non-blocking: Registration email failed: {e}")
     
     return TokenResponse(
         access_token=token,
@@ -3720,8 +3723,8 @@ async def app_root():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
