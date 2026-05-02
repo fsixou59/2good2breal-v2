@@ -3165,29 +3165,9 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
     # Count photos
     photos_count = len(profile.photos) if profile.photos else 0
     
-    # Send form data by email to admin (non-blocking - don't fail submission if email fails)
-    try:
-        await send_analysis_form_notification(
-            current_user["email"], 
-            current_user["name"], 
-            profile,
-            photos_count
-        )
-    except Exception as e:
-        logging.error(f"Non-blocking: Failed to send admin notification: {e}")
-    
     result_id = str(uuid.uuid4())
     
-    # Run AI analysis for admin (in background, don't show to user)
-    ai_analysis = None
-    try:
-        ai_analysis = await analyze_profile_with_ai_v2(profile)
-        logging.info(f"AI analysis completed for profile: {profile.profile_name}")
-    except Exception as e:
-        logging.error(f"AI analysis failed: {e}")
-        ai_analysis = {"error": str(e), "status": "failed"}
-    
-    # Create a confirmation result (no AI analysis shown to user)
+    # Create result immediately (no waiting for AI or emails)
     result = VerificationResult(
         id=result_id,
         user_id=current_user["id"],
@@ -3202,12 +3182,12 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
         created_at=datetime.now(timezone.utc).isoformat()
     )
     
-    # Save to database with AI analysis for admin
+    # Save to database immediately
     result_dict = result.model_dump()
     result_dict["red_flags"] = []
     result_dict["credit_type_used"] = credit_type
     result_dict["status"] = "pending"
-    result_dict["ai_analysis"] = ai_analysis  # Store AI analysis for admin
+    result_dict["ai_analysis"] = None
     result_dict["form_data"] = {
         "client_email": profile.client_email,
         "client_age": profile.client_age,
@@ -3243,7 +3223,7 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
     }
     await db.verification_results.insert_one(result_dict)
     
-    # Deduct credit after successful submission
+    # Deduct credit immediately
     await db.users.update_one(
         {"id": current_user["id"]},
         {
@@ -3252,23 +3232,50 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
         }
     )
     
-    # Send acceptance confirmation email to client (non-blocking)
-    # Use client_email if provided, otherwise fallback to user account email
-    client_email = profile.client_email.strip() if profile.client_email else current_user["email"]
-    if not client_email:
-        client_email = current_user["email"]
+    logging.info(f"Analysis request submitted for user {current_user['email']}, used 1 {credit_type} credit")
     
-    try:
-        await send_client_acceptance_confirmation(
-            client_email,
-            current_user["name"],
-            result_id,
-            credit_type
-        )
-    except Exception as e:
-        logging.error(f"Non-blocking: Failed to send acceptance email to {client_email}: {e}")
+    # Launch background tasks (AI analysis + emails) - don't block the response
+    async def run_background_tasks():
+        try:
+            # AI analysis
+            ai_analysis = None
+            try:
+                ai_analysis = await analyze_profile_with_ai_v2(profile)
+                logging.info(f"AI analysis completed for profile: {profile.profile_name}")
+            except Exception as e:
+                logging.error(f"AI analysis failed: {e}")
+                ai_analysis = {"error": str(e), "status": "failed"}
+            
+            # Update DB with AI results
+            await db.verification_results.update_one(
+                {"id": result_id},
+                {"$set": {"ai_analysis": ai_analysis}}
+            )
+            
+            # Send admin notification email
+            try:
+                await send_analysis_form_notification(
+                    current_user["email"], current_user["name"], profile, photos_count
+                )
+            except Exception as e:
+                logging.error(f"Admin notification email failed: {e}")
+            
+            # Send acceptance email to client
+            client_email = profile.client_email.strip() if profile.client_email else current_user["email"]
+            if not client_email:
+                client_email = current_user["email"]
+            try:
+                await send_client_acceptance_confirmation(
+                    client_email, current_user["name"], result_id, credit_type
+                )
+            except Exception as e:
+                logging.error(f"Acceptance email failed: {e}")
+                
+        except Exception as e:
+            logging.error(f"Background task error: {e}")
     
-    logging.info(f"Analysis request submitted for user {current_user['email']}, acceptance sent to {client_email}, used 1 {credit_type} credit")
+    # Fire and forget - don't await
+    asyncio.create_task(run_background_tasks())
     
     return result
 
