@@ -112,7 +112,7 @@ PRICING_PACKAGES = {
 
 # Resend Email Configuration
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
-ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', '2good2breal@gmail.com')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'contact@2good2breal.com')
 resend.api_key = RESEND_API_KEY
 
 # Create the main app
