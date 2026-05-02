@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Request, Response
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, Request, Response, UploadFile, File
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
@@ -3713,6 +3713,113 @@ async def health():
         health_status["database"] = "not_configured"
     
     return health_status
+
+
+# ============== PROFILE SEEKER ROUTES ==============
+
+class ProfileSeekerCreate(BaseModel):
+    first_name: str
+    last_name: Optional[str] = ""
+    pseudonyms: Optional[List[str]] = []
+    address: Optional[str] = ""
+    birth_date: Optional[str] = ""
+    birth_place: Optional[str] = ""
+    notes: Optional[str] = ""
+
+class ProfileSeekerUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    pseudonyms: Optional[List[str]] = None
+    address: Optional[str] = None
+    birth_date: Optional[str] = None
+    birth_place: Optional[str] = None
+    notes: Optional[str] = None
+
+@api_router.get("/seeker/profiles")
+async def seeker_list_profiles(admin: dict = Depends(get_admin_user)):
+    profiles = await db.seeker_profiles.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return profiles
+
+@api_router.post("/seeker/profiles")
+async def seeker_create_profile(data: ProfileSeekerCreate, admin: dict = Depends(get_admin_user)):
+    profile = {
+        "id": str(uuid.uuid4()),
+        "first_name": data.first_name,
+        "last_name": data.last_name or "",
+        "pseudonyms": data.pseudonyms or [],
+        "photos": [],
+        "address": data.address or "",
+        "birth_date": data.birth_date or "",
+        "birth_place": data.birth_place or "",
+        "notes": data.notes or "",
+        "search_results": [],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.seeker_profiles.insert_one(profile)
+    profile.pop("_id", None)
+    return profile
+
+@api_router.get("/seeker/profiles/{profile_id}")
+async def seeker_get_profile(profile_id: str, admin: dict = Depends(get_admin_user)):
+    profile = await db.seeker_profiles.find_one({"id": profile_id}, {"_id": 0})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile
+
+@api_router.put("/seeker/profiles/{profile_id}")
+async def seeker_update_profile(profile_id: str, data: ProfileSeekerUpdate, admin: dict = Depends(get_admin_user)):
+    update_data = {k: v for k, v in data.model_dump().items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    result = await db.seeker_profiles.update_one({"id": profile_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    profile = await db.seeker_profiles.find_one({"id": profile_id}, {"_id": 0})
+    return profile
+
+@api_router.delete("/seeker/profiles/{profile_id}")
+async def seeker_delete_profile(profile_id: str, admin: dict = Depends(get_admin_user)):
+    result = await db.seeker_profiles.delete_one({"id": profile_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return {"message": "Profile deleted successfully"}
+
+@api_router.post("/seeker/profiles/{profile_id}/photos")
+async def seeker_add_photo(profile_id: str, photo: UploadFile = File(...), admin: dict = Depends(get_admin_user)):
+    profile = await db.seeker_profiles.find_one({"id": profile_id}, {"_id": 0})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    contents = await photo.read()
+    base64_photo = f"data:{photo.content_type or 'image/jpeg'};base64,{base64.b64encode(contents).decode('utf-8')}"
+    
+    await db.seeker_profiles.update_one(
+        {"id": profile_id},
+        {
+            "$push": {"photos": base64_photo},
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+        }
+    )
+    photos = (await db.seeker_profiles.find_one({"id": profile_id}, {"_id": 0, "photos": 1})).get("photos", [])
+    return {"message": "Photo added successfully", "photo_count": len(photos)}
+
+@api_router.delete("/seeker/profiles/{profile_id}/photos/{photo_index}")
+async def seeker_delete_photo(profile_id: str, photo_index: int, admin: dict = Depends(get_admin_user)):
+    profile = await db.seeker_profiles.find_one({"id": profile_id}, {"_id": 0})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    photos = profile.get("photos", [])
+    if photo_index < 0 or photo_index >= len(photos):
+        raise HTTPException(status_code=400, detail="Invalid photo index")
+    photos.pop(photo_index)
+    await db.seeker_profiles.update_one({"id": profile_id}, {"$set": {"photos": photos, "updated_at": datetime.now(timezone.utc).isoformat()}})
+    return {"message": "Photo deleted", "photo_count": len(photos)}
+
+@api_router.get("/seeker/comparisons")
+async def seeker_list_comparisons(admin: dict = Depends(get_admin_user)):
+    comparisons = await db.seeker_comparisons.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return comparisons
+
 
 # Include the router in the main app
 app.include_router(api_router)
