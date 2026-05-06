@@ -476,6 +476,10 @@ function AnalysisRow(props) {
               <div class="field-label">Year/s of Attendance / Graduation</div>
               <div class="field-value">${formData.years_attendance || '-'}</div>
             </div>
+            <div class="field">
+              <div class="field-label">Phone Number / WhatsApp</div>
+              <div class="field-value">${formData.phone_whatsapp || '-'}</div>
+            </div>
           </div>
         </div>
         

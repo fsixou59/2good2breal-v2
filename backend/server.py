@@ -219,6 +219,7 @@ class ProfileAnalysisRequest(BaseModel):
     hobbies_interests: Optional[str] = ""
     university_college: Optional[str] = ""
     years_attendance: Optional[str] = ""
+    phone_whatsapp: Optional[str] = ""
     profile_bio: Optional[str] = ""
     date_of_birth: Optional[str] = ""
     assumed_age: Optional[str] = ""
@@ -3202,6 +3203,7 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
         "hobbies_interests": profile.hobbies_interests,
         "university_college": profile.university_college,
         "years_attendance": profile.years_attendance,
+        "phone_whatsapp": profile.phone_whatsapp,
         "date_of_birth": profile.date_of_birth,
         "assumed_age": profile.assumed_age,
         "profile_location": profile.profile_location,

@@ -75,6 +75,7 @@ export const AnalyzePage = () => {
     hobbies_interests: '',
     university_college: '',
     years_attendance: '',
+    phone_whatsapp: '',
     profile_bio: '',
     date_of_birth: '',
     assumed_age: '',
@@ -241,6 +242,7 @@ export const AnalyzePage = () => {
         hobbies_interests: formData.hobbies_interests,
         university_college: formData.university_college,
         years_attendance: formData.years_attendance,
+        phone_whatsapp: formData.phone_whatsapp,
         profile_bio: formData.profile_bio,
         date_of_birth: formData.date_of_birth,
         assumed_age: formData.assumed_age,
@@ -695,6 +697,7 @@ export const AnalyzePage = () => {
                 </div>
                 <div className="text-right text-sm text-gray-600">
                   <p>contact@2good2breal.com</p>
+                  <p>WhatsApp 1 : +33 (0) 7 43 66 05 55</p>
                   <p>+33 (0) 7 67 92 55 45</p>
                 </div>
               </div>
@@ -768,6 +771,7 @@ export const AnalyzePage = () => {
                   <li>{isFr ? 'Analyse des photos par intelligence artificielle' : 'AI-powered photo analysis'}</li>
                   <li>{isFr ? 'Détection des incohérences et signaux d\'alerte' : 'Detection of inconsistencies and red flags'}</li>
                   <li>{isFr ? 'Recherche inverse d\'images' : 'Reverse image search'}</li>
+                  <li>{isFr ? 'Investigation manuelle et recoupement de toutes les données ci-dessus via des plateformes de recherche avancées' : 'Manual investigation and cross checking of all the above using only advanced search platforms'}</li>
                 </ul>
 
                 <p>
@@ -778,8 +782,8 @@ export const AnalyzePage = () => {
 
                 <p>
                   {isFr 
-                    ? 'Pour toute question ou demande urgente, n\'hésitez pas à nous contacter par téléphone ou WhatsApp.'
-                    : 'For any questions or urgent requests, please do not hesitate to contact us by phone or WhatsApp.'}
+                    ? 'Pour toute question ou demande urgente, n\'hésitez pas à nous contacter sur WhatsApp.'
+                    : 'For any questions or urgent requests, please do not hesitate to contact us on Whatsapp.'}
                 </p>
               </div>
 
@@ -793,8 +797,8 @@ export const AnalyzePage = () => {
               <div className="mt-10 pt-6 border-t border-gray-200 text-sm text-gray-600">
                 <div className="flex justify-between">
                   <div>
-                    <p>{isFr ? 'Téléphone' : 'Phone'}: +33 (0) 7 67 92 55 45</p>
-                    <p>WhatsApp: +33 (0) 7 67 92 55 45</p>
+                    <p>WhatsApp 1 : +33 (0) 7 43 66 05 55</p>
+                    <p>WhatsApp 2 : +33 (0) 7 67 92 55 45</p>
                   </div>
                   <div className="text-right">
                     <p>www.2good2breal.com</p>
@@ -1100,6 +1104,20 @@ export const AnalyzePage = () => {
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="phone_whatsapp" className="text-zinc-300">
+                      {isFr ? "Numéro de téléphone / WhatsApp" : "Phone Number / WhatsApp"}
+                    </Label>
+                    <Input
+                      id="phone_whatsapp"
+                      value={formData.phone_whatsapp}
+                      onChange={(e) => handleChange('phone_whatsapp', e.target.value)}
+                      className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                      placeholder={isFr ? "ex: +33 6 12 34 56 78" : "e.g., +33 6 12 34 56 78"}
+                      data-testid="input-phone-whatsapp"
+                    />
+                  </div>
+
                   {/* New fields: Marital Status, Hobbies, University */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -1119,13 +1137,14 @@ export const AnalyzePage = () => {
                       <Label htmlFor="hobbies_interests" className="text-zinc-300">
                         {isFr ? "Hobbies / Intérêts" : "Hobbies / Interests"}
                       </Label>
-                      <Input
+                      <Textarea
                         id="hobbies_interests"
                         value={formData.hobbies_interests}
                         onChange={(e) => handleChange('hobbies_interests', e.target.value)}
                         className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
                         placeholder={isFr ? "ex: Voyages, Sport, Cuisine..." : "e.g., Travel, Sports, Cooking..."}
                         data-testid="input-hobbies"
+                        rows={3}
                       />
                     </div>
                   </div>
