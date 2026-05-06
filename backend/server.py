@@ -3823,6 +3823,91 @@ async def seeker_list_comparisons(admin: dict = Depends(get_admin_user)):
     return comparisons
 
 
+class ComparePhotosRequest(BaseModel):
+    photo1: str  # base64
+    photo2: str  # base64
+    profile1_id: Optional[str] = None
+    profile2_id: Optional[str] = None
+
+class CompareProfilesRequest(BaseModel):
+    profile1_id: str
+    profile2_id: str
+
+@api_router.post("/seeker/compare-photos")
+async def seeker_compare_photos(data: ComparePhotosRequest, admin: dict = Depends(get_admin_user)):
+    """Compare two photos using Gemini AI to detect if they show the same person."""
+    prompt = """You are an expert facial recognition and identity verification analyst. Compare these two photos carefully.
+
+Analyze:
+1. Are these photos of the SAME person? Look at facial features, bone structure, skin tone, hair, etc.
+2. Could one be a stolen/catfish photo? Look for image quality differences, different lighting suggesting different sources.
+3. Any signs of photo manipulation or AI generation?
+
+Respond ONLY with valid JSON:
+{
+    "same_person": true/false,
+    "similarity_score": 0-100,
+    "confidence": "high"/"medium"/"low",
+    "facial_analysis": "detailed comparison of facial features",
+    "inconsistencies": ["list of any inconsistencies found"],
+    "manipulation_signs": ["any signs of photo editing or AI generation"],
+    "verdict": "one sentence summary"
+}"""
+
+    try:
+        from emergentintegrations.llm.chat import ImageContent
+        
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"photo-compare-{uuid.uuid4()}",
+            system_message="You are an expert at facial recognition and photo analysis for identity verification. Always respond with valid JSON only."
+        ).with_model("gemini", "gemini-3-flash-preview")
+        
+        img1 = data.photo1.split(',')[1] if ',' in data.photo1 else data.photo1
+        img2 = data.photo2.split(',')[1] if ',' in data.photo2 else data.photo2
+        
+        image_contents = [ImageContent(image_base64=img1), ImageContent(image_base64=img2)]
+        user_message = UserMessage(text=prompt, file_contents=image_contents)
+        
+        response = await chat.send_message(user_message)
+        
+        import json as json_module
+        text = response.text.strip()
+        if text.startswith('```'):
+            text = text.split('\n', 1)[1].rsplit('```', 1)[0].strip()
+        result = json_module.loads(text)
+        
+        # Save comparison
+        comparison = {
+            "id": str(uuid.uuid4()),
+            "profile1_id": data.profile1_id,
+            "profile2_id": data.profile2_id,
+            "photo1": data.photo1[:200] + "..." if len(data.photo1) > 200 else data.photo1,
+            "photo2": data.photo2[:200] + "..." if len(data.photo2) > 200 else data.photo2,
+            "similarity_score": result.get("similarity_score", 0),
+            "same_person": result.get("same_person", False),
+            "analysis": result,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.seeker_comparisons.insert_one(comparison)
+        comparison.pop("_id", None)
+        
+        return {"comparison": comparison, "analysis": result}
+    except Exception as e:
+        logging.error(f"Photo comparison failed: {e}")
+        raise HTTPException(status_code=500, detail=f"AI comparison failed: {str(e)}")
+
+@api_router.post("/seeker/compare-profiles")
+async def seeker_compare_profiles(data: CompareProfilesRequest, admin: dict = Depends(get_admin_user)):
+    """Get two profiles for side-by-side comparison."""
+    p1 = await db.seeker_profiles.find_one({"id": data.profile1_id}, {"_id": 0})
+    p2 = await db.seeker_profiles.find_one({"id": data.profile2_id}, {"_id": 0})
+    if not p1 or not p2:
+        raise HTTPException(status_code=404, detail="One or both profiles not found")
+    return {"profile1": p1, "profile2": p2}
+
+
+
 # Include the router in the main app
 app.include_router(api_router)
 

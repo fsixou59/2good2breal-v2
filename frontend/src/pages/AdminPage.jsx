@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Shield, FileText, Clock, CheckCircle, Eye, LogOut, ChevronDown, ChevronUp, AlertTriangle, RefreshCw, User, Send, Printer, Trash2, Download, FileDown, Search, ExternalLink } from 'lucide-react';
+import { Shield, FileText, Clock, CheckCircle, Eye, LogOut, ChevronDown, ChevronUp, AlertTriangle, RefreshCw, User, Send, Printer, Trash2, Download, FileDown, Search, ExternalLink, GitCompare } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import ProfileSeekerPage from './ProfileSeekerPage';
+import ComparatorPage from './ComparatorPage';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -998,6 +999,13 @@ export function AdminPage() {
           >
             <Search className="w-4 h-4" /> Profile Seeker
           </button>
+          <button
+            onClick={function() { setActiveTab('comparator'); }}
+            className={'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ' + (activeTab === 'comparator' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-white hover:bg-zinc-800')}
+            data-testid="tab-comparator"
+          >
+            <GitCompare className="w-4 h-4" /> Comparator
+          </button>
         </div>
 
         {activeTab === 'submissions' && (
@@ -1031,6 +1039,10 @@ export function AdminPage() {
 
         {activeTab === 'seeker' && (
           <ProfileSeekerPage />
+        )}
+
+        {activeTab === 'comparator' && (
+          <ComparatorPage />
         )}
       </div>
     </div>
