@@ -448,6 +448,10 @@ export const AnalyzePage = () => {
               <div class="field-value">${formData.language_of_communication || '-'}</div>
             </div>
             <div class="field">
+              <div class="field-label">${isFr ? 'Téléphone / WhatsApp' : 'Phone Number / WhatsApp'}</div>
+              <div class="field-value">${formData.phone_whatsapp || '-'}</div>
+            </div>
+            <div class="field">
               <div class="field-label">${isFr ? 'Statut marital' : 'Marital Status'}</div>
               <div class="field-value">${formData.assumed_marital_status || '-'}</div>
             </div>
@@ -541,10 +545,6 @@ export const AnalyzePage = () => {
         <div class="section">
           <div class="section-title">${isFr ? 'INFORMATIONS D\'ACTIVITÉ' : 'ACTIVITY INFORMATION'}</div>
           <div class="field-grid">
-            <div class="field">
-              <div class="field-label">${isFr ? 'Date création profil' : 'Profile Creation Date'}</div>
-              <div class="field-value">${formData.profile_creation_date || '-'}</div>
-            </div>
             <div class="field">
               <div class="field-label">${isFr ? 'Dernière activité' : 'Last Active'}</div>
               <div class="field-value">${formData.last_active || '-'}</div>
@@ -697,7 +697,7 @@ export const AnalyzePage = () => {
                 </div>
                 <div className="text-right text-sm text-gray-600">
                   <p>contact@2good2breal.com</p>
-                  <p>WhatsApp 1 : +33 (0) 7 43 66 05 55</p>
+                  <p>+33 (0) 7 43 66 05 55</p>
                   <p>+33 (0) 7 67 92 55 45</p>
                 </div>
               </div>
@@ -789,16 +789,16 @@ export const AnalyzePage = () => {
 
               {/* Signature */}
               <div className="signature mt-10">
-                <p>{isFr ? 'Cordialement,' : 'Sincerely,'}</p>
-                <p className="font-semibold mt-2">{isFr ? 'L\'équipe 2good2breal' : 'The 2good2breal Team'}</p>
+                <p>{isFr ? 'Cordialement,' : 'Best Regards,'}</p>
+                <p className="font-semibold mt-2">{isFr ? 'L\'équipe 2good2breal' : '2good2breal team'}</p>
               </div>
 
               {/* Contact Footer */}
-              <div className="mt-10 pt-6 border-t border-gray-200 text-sm text-gray-600">
+              <div className="mt-6 pt-4 border-t border-gray-200 text-sm text-gray-600">
                 <div className="flex justify-between">
                   <div>
-                    <p>WhatsApp 1 : +33 (0) 7 43 66 05 55</p>
-                    <p>WhatsApp 2 : +33 (0) 7 67 92 55 45</p>
+                    <p>+33 (0) 7 43 66 05 55</p>
+                    <p>+33 (0) 7 67 92 55 45</p>
                   </div>
                   <div className="text-right">
                     <p>www.2good2breal.com</p>
@@ -1533,74 +1533,6 @@ export const AnalyzePage = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-zinc-300">
-                        {isFr ? "Date de création du profil" : "Profile Creation Date"}
-                      </Label>
-                      <div className="grid grid-cols-3 gap-2">
-                        <Select
-                          value={formData.profile_creation_date ? formData.profile_creation_date.split('/')[0] : ''}
-                          onValueChange={(day) => {
-                            const parts = (formData.profile_creation_date || '//').split('/');
-                            handleChange('profile_creation_date', `${day}/${parts[1] || ''}/${parts[2] || ''}`);
-                          }}
-                        >
-                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="creation-date-day">
-                            <SelectValue placeholder={isFr ? "Jour" : "Day"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from({length: 31}, (_, i) => i + 1).map(d => (
-                              <SelectItem key={d} value={String(d).padStart(2, '0')}>{String(d).padStart(2, '0')}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={formData.profile_creation_date ? formData.profile_creation_date.split('/')[1] : ''}
-                          onValueChange={(month) => {
-                            const parts = (formData.profile_creation_date || '//').split('/');
-                            handleChange('profile_creation_date', `${parts[0] || ''}/${month}/${parts[2] || ''}`);
-                          }}
-                        >
-                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="creation-date-month">
-                            <SelectValue placeholder={isFr ? "Mois" : "Month"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[
-                              {v: '01', l: isFr ? 'Janvier' : 'January'},
-                              {v: '02', l: isFr ? 'Février' : 'February'},
-                              {v: '03', l: isFr ? 'Mars' : 'March'},
-                              {v: '04', l: isFr ? 'Avril' : 'April'},
-                              {v: '05', l: isFr ? 'Mai' : 'May'},
-                              {v: '06', l: isFr ? 'Juin' : 'June'},
-                              {v: '07', l: isFr ? 'Juillet' : 'July'},
-                              {v: '08', l: isFr ? 'Août' : 'August'},
-                              {v: '09', l: isFr ? 'Septembre' : 'September'},
-                              {v: '10', l: isFr ? 'Octobre' : 'October'},
-                              {v: '11', l: isFr ? 'Novembre' : 'November'},
-                              {v: '12', l: isFr ? 'Décembre' : 'December'}
-                            ].map(m => (
-                              <SelectItem key={m.v} value={m.v}>{m.l}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={formData.profile_creation_date ? formData.profile_creation_date.split('/')[2] : ''}
-                          onValueChange={(year) => {
-                            const parts = (formData.profile_creation_date || '//').split('/');
-                            handleChange('profile_creation_date', `${parts[0] || ''}/${parts[1] || ''}/${year}`);
-                          }}
-                        >
-                          <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="creation-date-year">
-                            <SelectValue placeholder={isFr ? "Année" : "Year"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from({length: 30}, (_, i) => new Date().getFullYear() - i).map(y => (
-                              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
                     <div className="space-y-2">
                       <Label className="text-zinc-300">
                         {isFr ? "Dernière communication/rencontre" : "Last communication/meeting"}
