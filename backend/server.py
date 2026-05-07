@@ -81,6 +81,7 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin2026')
 
 # Emergent LLM Key
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+SERPAPI_KEY = os.environ.get('SERPAPI_KEY')
 
 # Stripe Configuration
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
@@ -3895,7 +3896,7 @@ Respond ONLY with valid JSON:
         response = await chat.send_message(user_message)
         
         import json as json_module
-        text = response.text.strip()
+        text = response.text.strip() if hasattr(response, 'text') else str(response).strip()
         if text.startswith('```'):
             text = text.split('\n', 1)[1].rsplit('```', 1)[0].strip()
         result = json_module.loads(text)
@@ -3928,6 +3929,164 @@ async def seeker_compare_profiles(data: CompareProfilesRequest, admin: dict = De
     if not p1 or not p2:
         raise HTTPException(status_code=404, detail="One or both profiles not found")
     return {"profile1": p1, "profile2": p2}
+
+
+
+# ============== SEEKER SEARCH ROUTES (SerpAPI) ==============
+
+class SeekerSearchRequest(BaseModel):
+    profile_id: str
+    search_types: List[str] = ["web", "image"]  # "web", "image", or both
+
+@api_router.post("/seeker/profiles/{profile_id}/search")
+async def seeker_search_profile(profile_id: str, data: SeekerSearchRequest, admin: dict = Depends(get_admin_user)):
+    """Launch automated web + reverse image search in background. Returns immediately."""
+    profile = await db.seeker_profiles.find_one({"id": profile_id}, {"_id": 0})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    if not SERPAPI_KEY:
+        raise HTTPException(status_code=500, detail="SerpAPI key not configured")
+    
+    search_id = str(uuid.uuid4())
+    
+    # Create initial search record
+    search_record = {
+        "id": search_id,
+        "search_types": data.search_types,
+        "status": "running",
+        "queries": [],
+        "results": {"web_results": [], "image_results": [], "ai_analysis": None},
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.seeker_profiles.update_one(
+        {"id": profile_id},
+        {
+            "$push": {"search_results": search_record},
+            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+        }
+    )
+    
+    # Run search in background
+    async def run_search():
+        results = {"web_results": [], "image_results": [], "ai_analysis": None}
+        search_queries_used = []
+        
+        # 1. Web search
+        if "web" in data.search_types:
+            try:
+                from serpapi import GoogleSearch
+                name = f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip()
+                address = profile.get('address', '')
+                query = name + (f" {address}" if address else "")
+                search_queries_used.append(query)
+                
+                serp = await asyncio.to_thread(lambda: GoogleSearch({"engine": "google", "q": query, "api_key": SERPAPI_KEY, "num": 10}).get_dict())
+                for r in serp.get("organic_results", []):
+                    results["web_results"].append({"title": r.get("title",""), "link": r.get("link",""), "snippet": r.get("snippet",""), "source": r.get("displayed_link","")})
+                
+                social_q = f"{name} site:linkedin.com OR site:facebook.com OR site:instagram.com OR site:twitter.com"
+                search_queries_used.append(social_q)
+                social = await asyncio.to_thread(lambda: GoogleSearch({"engine": "google", "q": social_q, "api_key": SERPAPI_KEY, "num": 10}).get_dict())
+                for r in social.get("organic_results", []):
+                    results["web_results"].append({"title": r.get("title",""), "link": r.get("link",""), "snippet": r.get("snippet",""), "source": r.get("displayed_link",""), "is_social": True})
+                
+                logging.info(f"Web search done: {len(results['web_results'])} results")
+            except Exception as e:
+                logging.error(f"Web search failed: {e}")
+                results["web_search_error"] = str(e)
+        
+        # 2. Reverse image search
+        if "image" in data.search_types and profile.get("photos"):
+            try:
+                from serpapi import GoogleSearch
+                for idx, photo in enumerate(profile["photos"][:3]):
+                    try:
+                        b64_data = photo.split("base64,")[1] if "base64," in photo else photo
+                        img_bytes = base64.b64decode(b64_data)
+                        photo_filename = f"seeker_temp_{profile_id}_{idx}.jpg"
+                        with open(f"/tmp/{photo_filename}", "wb") as f:
+                            f.write(img_bytes)
+                        
+                        backend_url = os.environ.get('REACT_APP_BACKEND_URL', 'https://profile-check-9.preview.emergentagent.com')
+                        image_url = f"{backend_url}/api/seeker/temp-photo/{photo_filename}"
+                        
+                        lens = await asyncio.to_thread(lambda url=image_url: GoogleSearch({"engine": "google_lens", "url": url, "api_key": SERPAPI_KEY}).get_dict())
+                        matches = [{"title": m.get("title",""), "link": m.get("link",""), "source": m.get("source",""), "thumbnail": m.get("thumbnail","")} for m in lens.get("visual_matches", [])]
+                        results["image_results"].append({"photo_index": idx, "matches_count": len(matches), "matches": matches[:10]})
+                        logging.info(f"Image search photo {idx}: {len(matches)} matches")
+                    except Exception as e:
+                        logging.error(f"Image search photo {idx} failed: {e}")
+                        results["image_results"].append({"photo_index": idx, "error": str(e), "matches": []})
+            except Exception as e:
+                results["image_search_error"] = str(e)
+        
+        # 3. AI Analysis
+        try:
+            name = f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip()
+            web_summary = "\n".join([f"- {r['title']}: {r['link']}" for r in results["web_results"][:15]])
+            img_summary = "\n".join([f"- Photo {ir['photo_index']}: {ir.get('matches_count',0)} matches" + ("".join([f"\n  Found on: {m['link']}" for m in ir.get('matches',[])[:3]])) for ir in results.get("image_results", [])])
+            
+            ai_prompt = f"""You are an expert OSINT investigator for dating profile verification. Analyze these search results for: {name}
+
+Profile: Address={profile.get('address','N/A')}, Birth={profile.get('birth_date','N/A')}, Notes={profile.get('notes','N/A')}
+
+Web results:
+{web_summary or 'No results'}
+
+Image results:
+{img_summary or 'No image matches'}
+
+Respond ONLY with valid JSON:
+{{"identity_verified": true/false, "risk_level": "low"/"medium"/"high"/"critical", "online_presence_score": 0-100, "social_media_found": [], "suspicious_findings": [], "positive_findings": [], "image_reuse_detected": true/false, "image_reuse_details": "", "recommendation": "", "summary": ""}}"""
+
+            chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"seeker-{uuid.uuid4()}", system_message="Expert OSINT investigator. JSON only.").with_model("gemini", "gemini-3-flash-preview")
+            resp = await chat.send_message(UserMessage(text=ai_prompt))
+            text = resp.text.strip() if hasattr(resp, 'text') else str(resp).strip()
+            if text.startswith('```'): text = text.split('\n', 1)[1].rsplit('```', 1)[0].strip()
+            import json as jm
+            results["ai_analysis"] = jm.loads(text)
+        except Exception as e:
+            logging.error(f"AI analysis failed: {e}")
+            results["ai_analysis"] = {"error": str(e)}
+        
+        # Update search record in DB
+        await db.seeker_profiles.update_one(
+            {"id": profile_id, "search_results.id": search_id},
+            {"$set": {
+                "search_results.$.status": "completed",
+                "search_results.$.queries": search_queries_used,
+                "search_results.$.results": results,
+                "search_results.$.completed_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        logging.info(f"Search {search_id} completed for profile {profile_id}")
+    
+    asyncio.create_task(run_search())
+    return {"search_id": search_id, "status": "running", "message": "Search started in background"}
+
+@api_router.get("/seeker/profiles/{profile_id}/search/{search_id}")
+async def seeker_get_search_status(profile_id: str, search_id: str, admin: dict = Depends(get_admin_user)):
+    """Get search results/status."""
+    profile = await db.seeker_profiles.find_one({"id": profile_id}, {"_id": 0})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    for sr in profile.get("search_results", []):
+        if sr["id"] == search_id:
+            return sr
+    raise HTTPException(status_code=404, detail="Search not found")
+
+@api_router.get("/seeker/temp-photo/{filename}")
+async def seeker_serve_temp_photo(filename: str):
+    """Serve temporary photo for reverse image search."""
+    import os as os_mod
+    path = f"/tmp/{filename}"
+    if not os_mod.path.exists(path) or not filename.startswith("seeker_temp_"):
+        raise HTTPException(status_code=404, detail="Photo not found")
+    with open(path, "rb") as f:
+        content = f.read()
+    return Response(content=content, media_type="image/jpeg")
 
 
 
