@@ -210,6 +210,7 @@ class ProfileAnalysisRequest(BaseModel):
     client_email: Optional[str] = ""  # Email to send acceptance confirmation
     client_age: Optional[str] = ""
     client_location: Optional[str] = ""
+    client_phone: Optional[str] = ""
     profile_name: str
     full_real_name: Optional[str] = ""
     gender: Optional[str] = ""  # Male or Female
@@ -3217,6 +3218,7 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
         "client_email": profile.client_email,
         "client_age": profile.client_age,
         "client_location": profile.client_location,
+        "client_phone": profile.client_phone,
         "profile_name": profile.profile_name,
         "full_real_name": profile.full_real_name,
         "gender": profile.gender,

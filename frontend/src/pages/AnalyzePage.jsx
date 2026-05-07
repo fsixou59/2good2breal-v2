@@ -65,6 +65,7 @@ export const AnalyzePage = () => {
     client_email: '',
     client_age: '',
     client_location: '',
+    client_phone: '',
     profile_name: '',
     full_real_name: '',
     gender: '',
@@ -232,6 +233,7 @@ export const AnalyzePage = () => {
         client_email: formData.client_email,
         client_age: formData.client_age,
         client_location: formData.client_location,
+        client_phone: formData.client_phone,
         profile_name: formData.profile_name,
         full_real_name: formData.full_real_name,
         gender: formData.gender,
@@ -407,6 +409,10 @@ export const AnalyzePage = () => {
             <div class="field">
               <div class="field-label">Email</div>
               <div class="field-value">${formData.client_email || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Téléphone' : 'Phone Number'}</div>
+              <div class="field-value">${formData.client_phone || '-'}</div>
             </div>
             <div class="field">
               <div class="field-label">${isFr ? 'Âge' : 'Age'}</div>
@@ -974,6 +980,19 @@ export const AnalyzePage = () => {
                         ? "L'accusé de réception et le rapport final seront envoyés à cette adresse" 
                         : "The acceptance confirmation and final report will be sent to this address"}
                     </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="client_phone" className="text-zinc-300">
+                      {isFr ? "Votre numéro de téléphone" : "Your Phone Number"}
+                    </Label>
+                    <Input
+                      id="client_phone"
+                      value={formData.client_phone || ''}
+                      onChange={(e) => handleChange('client_phone', e.target.value)}
+                      className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                      placeholder={isFr ? "ex: +33 6 12 34 56 78" : "e.g., +33 6 12 34 56 78"}
+                      data-testid="input-client-phone"
+                    />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">

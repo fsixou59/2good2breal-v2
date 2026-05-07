@@ -423,6 +423,10 @@ function AnalysisRow(props) {
               <div class="field-value">${formData.client_email || analysis.user_email || '-'}</div>
             </div>
             <div class="field">
+              <div class="field-label">Phone Number</div>
+              <div class="field-value">${formData.client_phone || '-'}</div>
+            </div>
+            <div class="field">
               <div class="field-label">Age</div>
               <div class="field-value">${formData.client_age || '-'}</div>
             </div>
