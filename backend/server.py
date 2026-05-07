@@ -222,6 +222,7 @@ class ProfileAnalysisRequest(BaseModel):
     university_college: Optional[str] = ""
     years_attendance: Optional[str] = ""
     phone_whatsapp: Optional[str] = ""
+    profile_email: Optional[str] = ""
     profile_bio: Optional[str] = ""
     date_of_birth: Optional[str] = ""
     assumed_age: Optional[str] = ""
@@ -3230,6 +3231,7 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
         "university_college": profile.university_college,
         "years_attendance": profile.years_attendance,
         "phone_whatsapp": profile.phone_whatsapp,
+        "profile_email": profile.profile_email,
         "date_of_birth": profile.date_of_birth,
         "assumed_age": profile.assumed_age,
         "profile_location": profile.profile_location,

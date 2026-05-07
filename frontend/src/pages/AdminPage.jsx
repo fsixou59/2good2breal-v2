@@ -485,6 +485,10 @@ function AnalysisRow(props) {
               <div class="field-label">Phone Number / WhatsApp</div>
               <div class="field-value">${formData.phone_whatsapp || '-'}</div>
             </div>
+            <div class="field">
+              <div class="field-label">Email</div>
+              <div class="field-value">${formData.profile_email || '-'}</div>
+            </div>
           </div>
         </div>
         

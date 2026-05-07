@@ -77,6 +77,7 @@ export const AnalyzePage = () => {
     university_college: '',
     years_attendance: '',
     phone_whatsapp: '',
+    profile_email: '',
     profile_bio: '',
     date_of_birth: '',
     assumed_age: '',
@@ -245,6 +246,7 @@ export const AnalyzePage = () => {
         university_college: formData.university_college,
         years_attendance: formData.years_attendance,
         phone_whatsapp: formData.phone_whatsapp,
+        profile_email: formData.profile_email,
         profile_bio: formData.profile_bio,
         date_of_birth: formData.date_of_birth,
         assumed_age: formData.assumed_age,
@@ -456,6 +458,10 @@ export const AnalyzePage = () => {
             <div class="field">
               <div class="field-label">${isFr ? 'Téléphone / WhatsApp' : 'Phone Number / WhatsApp'}</div>
               <div class="field-value">${formData.phone_whatsapp || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Email</div>
+              <div class="field-value">${formData.profile_email || '-'}</div>
             </div>
             <div class="field">
               <div class="field-label">${isFr ? 'Statut marital' : 'Marital Status'}</div>
@@ -1123,18 +1129,34 @@ export const AnalyzePage = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone_whatsapp" className="text-zinc-300">
-                      {isFr ? "Numéro de téléphone / WhatsApp" : "Phone Number / WhatsApp"}
-                    </Label>
-                    <Input
-                      id="phone_whatsapp"
-                      value={formData.phone_whatsapp}
-                      onChange={(e) => handleChange('phone_whatsapp', e.target.value)}
-                      className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
-                      placeholder={isFr ? "ex: +33 6 12 34 56 78" : "e.g., +33 6 12 34 56 78"}
-                      data-testid="input-phone-whatsapp"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone_whatsapp" className="text-zinc-300">
+                        {isFr ? "Numéro de téléphone / WhatsApp" : "Phone Number / WhatsApp"}
+                      </Label>
+                      <Input
+                        id="phone_whatsapp"
+                        value={formData.phone_whatsapp}
+                        onChange={(e) => handleChange('phone_whatsapp', e.target.value)}
+                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                        placeholder={isFr ? "ex: +33 6 12 34 56 78" : "e.g., +33 6 12 34 56 78"}
+                        data-testid="input-phone-whatsapp"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="profile_email" className="text-zinc-300">
+                        {isFr ? "Adresse Email" : "Email Address"}
+                      </Label>
+                      <Input
+                        id="profile_email"
+                        type="email"
+                        value={formData.profile_email}
+                        onChange={(e) => handleChange('profile_email', e.target.value)}
+                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                        placeholder={isFr ? "ex: profil@email.com" : "e.g., profile@email.com"}
+                        data-testid="input-profile-email"
+                      />
+                    </div>
                   </div>
 
                   {/* New fields: Marital Status, Hobbies, University */}
