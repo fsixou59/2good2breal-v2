@@ -13,7 +13,8 @@ import axios from 'axios';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export const LoginPage = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isFr = language === 'fr';
   const { login } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -37,7 +38,12 @@ export const LoginPage = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      toast.error(error.response?.data?.detail || t('common.error'));
+      const detail = error.response?.data?.detail;
+      if (detail) {
+        toast.error(detail);
+      } else {
+        toast.error(isFr ? "Impossible de contacter le serveur. Vérifiez votre connexion." : "Unable to reach the server. Please check your connection.");
+      }
     } finally {
       setLoading(false);
     }

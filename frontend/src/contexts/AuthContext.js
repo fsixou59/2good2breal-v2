@@ -5,6 +5,11 @@ const AuthContext = createContext();
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+// Log API URL in dev for debugging
+if (process.env.NODE_ENV === 'development' || !process.env.REACT_APP_BACKEND_URL) {
+  console.log('[Auth] API URL:', API);
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem('token'));
@@ -48,21 +53,36 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
-    const response = await axios.post(`${API}/auth/login`, { email, password });
-    const { access_token, user: userData } = response.data;
-    localStorage.setItem('token', access_token);
-    setToken(access_token);
-    setUser(userData);
-    return userData;
+    try {
+      const response = await axios.post(`${API}/auth/login`, { email, password }, { timeout: 15000 });
+      const { access_token, user: userData } = response.data;
+      localStorage.setItem('token', access_token);
+      setToken(access_token);
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      if (!error.response) {
+        // Network error - no response from server
+        throw { response: { data: { detail: 'Unable to reach the server. Please check your connection and try again.' } } };
+      }
+      throw error;
+    }
   };
 
   const register = async (name, email, password) => {
-    const response = await axios.post(`${API}/auth/register`, { name, email, password });
-    const { access_token, user: userData } = response.data;
-    localStorage.setItem('token', access_token);
-    setToken(access_token);
-    setUser(userData);
-    return userData;
+    try {
+      const response = await axios.post(`${API}/auth/register`, { name, email, password }, { timeout: 15000 });
+      const { access_token, user: userData } = response.data;
+      localStorage.setItem('token', access_token);
+      setToken(access_token);
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      if (!error.response) {
+        throw { response: { data: { detail: 'Unable to reach the server. Please check your connection and try again.' } } };
+      }
+      throw error;
+    }
   };
 
   const logout = () => {
