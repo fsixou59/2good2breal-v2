@@ -269,9 +269,10 @@ export const AnalyzePage = () => {
         }))
       };
 
-      const response = await axios.post(`${API}/analyze`, payload, getAuthHeaders());
+      const response = await axios.post(`${API}/analyze`, payload, { ...getAuthHeaders(), timeout: 30000 });
       
-      await refreshUser();
+      // Refresh user credits (non-blocking)
+      try { await refreshUser(); } catch(e) { console.warn('Refresh user failed:', e); }
       
       // Store submission data for confirmation page
       const referenceId = response.data?.id || response.data?.result_id || Date.now().toString();
