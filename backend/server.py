@@ -238,6 +238,11 @@ class ProfileAnalysisRequest(BaseModel):
     dating_platform: Optional[str] = ""
     communication_frequency: Optional[str] = ""
     message_substance: Optional[str] = ""
+    has_met_profile: Optional[str] = ""
+    communication_method: Optional[str] = ""
+    last_communication_timeframe: Optional[str] = ""
+    first_meet_date: Optional[str] = ""
+    first_engagement_timeframe: Optional[str] = ""
     observations_concerns: Optional[str] = ""
     photos: Optional[List[UploadedPhoto]] = []
 
@@ -3247,6 +3252,11 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
         "last_active": profile.last_active,
         "communication_frequency": profile.communication_frequency,
         "message_substance": profile.message_substance,
+        "has_met_profile": profile.has_met_profile,
+        "communication_method": profile.communication_method,
+        "last_communication_timeframe": profile.last_communication_timeframe,
+        "first_meet_date": profile.first_meet_date,
+        "first_engagement_timeframe": profile.first_engagement_timeframe,
         "observations_concerns": profile.observations_concerns,
         "photos_uploaded": photos_count,
         "photos": [{"name": p.name, "base64": p.base64} for p in profile.photos] if profile.photos else []
@@ -3595,24 +3605,33 @@ async def get_checkout_status(
         
         # If payment is successful and not already credited
         if checkout_status.payment_status == "paid" and transaction["payment_status"] != "paid":
-            # Add credits to user
-            profiles_to_add = transaction["profiles_included"]
-            credit_field = f"{transaction['package_id']}_credits"
-            
-            await db.users.update_one(
-                {"id": current_user["id"]},
-                {
-                    "$inc": {credit_field: profiles_to_add},
-                    "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
-                }
+            # Use atomic update to prevent double credit (webhook may also process this)
+            update_result = await db.payment_transactions.update_one(
+                {"session_id": session_id, "payment_status": {"$ne": "paid"}},
+                {"$set": {"payment_status": "paid", "credits_added_by": "polling", "updated_at": datetime.now(timezone.utc).isoformat()}}
             )
             
-            update_data["credits_added"] = profiles_to_add
-            logging.info(f"Added {profiles_to_add} {transaction['package_id']} credits to user {current_user['email']}")
+            # Only add credits if we were the first to mark it as paid
+            if update_result.modified_count > 0:
+                profiles_to_add = transaction["profiles_included"]
+                credit_field = f"{transaction['package_id']}_credits"
+                
+                await db.users.update_one(
+                    {"id": current_user["id"]},
+                    {
+                        "$inc": {credit_field: profiles_to_add},
+                        "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+                    }
+                )
+                
+                update_data["credits_added"] = profiles_to_add
+                logging.info(f"Added {profiles_to_add} {transaction['package_id']} credits to user {current_user['email']} (via polling)")
+            else:
+                logging.info(f"Credits already added for session {session_id} (likely via webhook)")
         
         await db.payment_transactions.update_one(
             {"session_id": session_id},
-            {"$set": update_data}
+            {"$set": {k: v for k, v in update_data.items() if k != "payment_status"}}
         )
     
     return PaymentStatusResponse(
@@ -3672,30 +3691,28 @@ async def stripe_webhook(request: Request):
             )
             
             if transaction and transaction["payment_status"] != "paid":
-                # Add credits to user
-                user_id = transaction["user_id"]
-                profiles_to_add = transaction["profiles_included"]
-                credit_field = f"{transaction['package_id']}_credits"
-                
-                await db.users.update_one(
-                    {"id": user_id},
-                    {
-                        "$inc": {credit_field: profiles_to_add},
-                        "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
-                    }
+                # Atomic update to prevent double credit
+                update_result = await db.payment_transactions.update_one(
+                    {"session_id": session_id, "payment_status": {"$ne": "paid"}},
+                    {"$set": {"payment_status": "paid", "credits_added_by": "webhook", "updated_at": datetime.now(timezone.utc).isoformat()}}
                 )
                 
-                await db.payment_transactions.update_one(
-                    {"session_id": session_id},
-                    {"$set": {
-                        "payment_status": "paid",
-                        "status": "complete",
-                        "credits_added": profiles_to_add,
-                        "updated_at": datetime.now(timezone.utc).isoformat()
-                    }}
-                )
-                
-                logging.info(f"Webhook: Added {profiles_to_add} credits to user {user_id}")
+                if update_result.modified_count > 0:
+                    user_id = transaction["user_id"]
+                    profiles_to_add = transaction["profiles_included"]
+                    credit_field = f"{transaction['package_id']}_credits"
+                    
+                    await db.users.update_one(
+                        {"id": user_id},
+                        {
+                            "$inc": {credit_field: profiles_to_add},
+                            "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+                        }
+                    )
+                    
+                    logging.info(f"Webhook: Added {profiles_to_add} credits to user {user_id}")
+                else:
+                    logging.info(f"Webhook: Credits already added for session {session_id}")
                 
                 # Send payment confirmation email to the CLIENT
                 user = await db.users.find_one({"id": user_id}, {"_id": 0})

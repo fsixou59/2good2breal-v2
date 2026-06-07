@@ -93,6 +93,11 @@ export const AnalyzePage = () => {
     last_active: '',
     communication_frequency: '',
     message_substance: '',
+    has_met_profile: '',
+    communication_method: '',
+    last_communication_timeframe: '',
+    first_meet_date: '',
+    first_engagement_timeframe: '',
     observations_concerns: ''
   });
 
@@ -262,6 +267,11 @@ export const AnalyzePage = () => {
         last_active: formData.last_active,
         communication_frequency: formData.communication_frequency,
         message_substance: formData.message_substance,
+        has_met_profile: formData.has_met_profile,
+        communication_method: formData.communication_method,
+        last_communication_timeframe: formData.last_communication_timeframe,
+        first_meet_date: formData.first_meet_date,
+        first_engagement_timeframe: formData.first_engagement_timeframe,
         observations_concerns: formData.observations_concerns,
         photos: photos.map(p => ({
           name: p.name,
@@ -562,6 +572,26 @@ export const AnalyzePage = () => {
               <div class="field-label">${isFr ? 'Dernière activité' : 'Last Active'}</div>
               <div class="field-value">${formData.last_active || '-'}</div>
             </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Avez-vous rencontré le profil ?' : 'Have you met the profile?'}</div>
+              <div class="field-value">${formData.has_met_profile || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Mode de communication' : 'Communication method'}</div>
+              <div class="field-value">${formData.communication_method || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Dernière communication' : 'Last communication'}</div>
+              <div class="field-value">${formData.last_communication_timeframe || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Première rencontre' : 'First meeting'}</div>
+              <div class="field-value">${formData.first_meet_date || '-'}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">${isFr ? 'Premier contact' : 'First engagement'}</div>
+              <div class="field-value">${formData.first_engagement_timeframe || '-'}</div>
+            </div>
           </div>
         </div>
         
@@ -835,7 +865,7 @@ export const AnalyzePage = () => {
             {isFr ? 'Soumission de Profil' : 'Profile Submission'}
           </h1>
           <p className="text-zinc-400">
-            {isFr ? 'Entrez les détails du profil à vérifier' : 'Enter the profile details to verify'}
+            {isFr ? 'Commencez l\'analyse de votre profil' : 'Start analysing your profile.'}
           </p>
         </div>
 
@@ -1322,7 +1352,7 @@ export const AnalyzePage = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="profile_location" className="text-zinc-300">
-                      {isFr ? "Localisation du Profil" : "Profile Location"}
+                      {isFr ? "Localisation du Profil (Ville, Pays)" : "Profile Location (City/Town, Country)"}
                     </Label>
                     <Input
                       id="profile_location"
@@ -1644,6 +1674,84 @@ export const AnalyzePage = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* New activity questions */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-zinc-300">
+                        {isFr ? "Avez-vous rencontré le profil ?" : "Have you met the profile?"}
+                      </Label>
+                      <Select value={formData.has_met_profile} onValueChange={(v) => handleChange('has_met_profile', v)}>
+                        <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="has-met-profile">
+                          <SelectValue placeholder={isFr ? "Sélectionner" : "Select"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="in_person">{isFr ? "En personne" : "In person"}</SelectItem>
+                          <SelectItem value="online_video">{isFr ? "Appel vidéo en ligne" : "Online video call"}</SelectItem>
+                          <SelectItem value="email_sms">{isFr ? "Email / SMS" : "Email / SMS"}</SelectItem>
+                          <SelectItem value="other">{isFr ? "Autre" : "Other"}</SelectItem>
+                          <SelectItem value="never">{isFr ? "Jamais" : "Never"}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-zinc-300">
+                        {isFr ? "Comment communiquez-vous avec le profil ?" : "How do you communicate with the profile?"}
+                      </Label>
+                      <Select value={formData.communication_method} onValueChange={(v) => handleChange('communication_method', v)}>
+                        <SelectTrigger className="bg-zinc-800/50 border-zinc-700 text-white" data-testid="communication-method">
+                          <SelectValue placeholder={isFr ? "Sélectionner" : "Select"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="video_call">{isFr ? "Appel vidéo" : "Video call"}</SelectItem>
+                          <SelectItem value="in_person">{isFr ? "En personne" : "In person"}</SelectItem>
+                          <SelectItem value="email_text">{isFr ? "Email / SMS" : "Email / Text"}</SelectItem>
+                          <SelectItem value="other">{isFr ? "Autre" : "Other"}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-zinc-300">
+                        {isFr ? "Quand était votre dernière communication ?" : "When was your last communication?"}
+                      </Label>
+                      <Input
+                        value={formData.last_communication_timeframe}
+                        onChange={(e) => handleChange('last_communication_timeframe', e.target.value)}
+                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                        placeholder={isFr ? "ex: 1 jour, 1 semaine..." : "e.g., 1 day, 1 week..."}
+                        data-testid="last-comm-timeframe"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-zinc-300">
+                        {isFr ? "Quand avez-vous rencontré ce profil pour la première fois ?" : "When did you first meet this profile?"}
+                      </Label>
+                      <Input
+                        value={formData.first_meet_date}
+                        onChange={(e) => handleChange('first_meet_date', e.target.value)}
+                        className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                        placeholder={isFr ? "ex: Janvier 2026" : "e.g., January 2026"}
+                        data-testid="first-meet-date"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-zinc-300">
+                      {isFr ? "Depuis combien de temps êtes-vous en contact avec ce profil ?" : "When did you first engage with this profile?"}
+                    </Label>
+                    <Input
+                      value={formData.first_engagement_timeframe}
+                      onChange={(e) => handleChange('first_engagement_timeframe', e.target.value)}
+                      className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-purple-600"
+                      placeholder={isFr ? "ex: jours, semaines, mois" : "e.g., days, weeks, months"}
+                      data-testid="first-engagement"
+                    />
+                  </div>
+
                 </CardContent>
               </Card>
             </>
