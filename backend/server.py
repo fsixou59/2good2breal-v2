@@ -113,7 +113,7 @@ PRICING_PACKAGES = {
 
 # Resend Email Configuration
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
-ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'contact@2good2breal.com')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'fsixou@yahoo.fr')
 resend.api_key = RESEND_API_KEY
 
 # Create the main app
@@ -3290,10 +3290,8 @@ async def analyze_profile(profile: ProfileAnalysisRequest, current_user: dict = 
             except Exception as e:
                 logging.error(f"Admin notification email failed: {e}")
             
-            # Send acceptance email to client
-            client_email = profile.client_email.strip() if profile.client_email else current_user["email"]
-            if not client_email:
-                client_email = current_user["email"]
+            # Send acceptance email to client (temporarily to admin email until domain is verified)
+            client_email = ADMIN_EMAIL  # TODO: Change back to profile.client_email once domain is verified on Resend
             try:
                 await send_client_acceptance_confirmation(
                     client_email, current_user["name"], result_id, credit_type
